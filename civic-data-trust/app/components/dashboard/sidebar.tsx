@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -9,14 +9,13 @@ import {
   Database,
   FileCheck,
   LayoutGrid,
-  Settings2,
   SlidersHorizontal,
   FileText,
   User,
 } from 'lucide-react';
-import * as Popover from '@radix-ui/react-popover';
 
 const menuItems = [
+  // ... (menuItems array remains the same)
   {
     title: 'Data Center',
     href: '/data-center',
@@ -52,6 +51,8 @@ const menuItems = [
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   const toggleMenu = (title: string) => {
@@ -64,6 +65,22 @@ export function Sidebar() {
     email: 'a.ryder@datatrust.org',
     role: 'Project Admin',
   };
+
+  // Effect to handle clicks outside of the popover to close it
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        setIsPopoverOpen(false);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    // Unbind the event listener on clean up
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [popoverRef]);
+
 
   return (
     <aside
@@ -88,6 +105,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+        {/* Menu items rendering remains the same */}
         {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           const isMenuOpen = openMenu === item.title;
@@ -129,36 +147,35 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-border mt-auto">
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <button className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted text-left">
-              <div className="p-2 bg-muted rounded-full">
-                <User className="h-5 w-5" />
-              </div>
-              {!isCollapsed && (
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-mono-caps">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.id}</p>
-                </div>
-              )}
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              side="top"
-              align={isCollapsed ? 'start' : 'center'}
-              className="w-64 bg-card border border-border rounded-lg shadow-lg p-4 z-50 text-mono-caps"
-            >
-              <div className="space-y-2">
-                <h4 className="font-semibold text-foreground">{user.name}</h4>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                <p className="text-sm text-muted-foreground">{user.role}</p>
-              </div>
-              <Popover.Arrow className="fill-border" />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+      {/* --- Custom Popover Implementation --- */}
+      <div className="p-4 border-t border-border mt-auto relative" ref={popoverRef}>
+        {isPopoverOpen && (
+          <div className="absolute bottom-full mb-2 w-64 bg-card border border-border rounded-lg shadow-lg p-4 z-50 text-mono-caps left-1/2 -translate-x-1/2">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-foreground">{user.name}</h4>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground">{user.role}</p>
+            </div>
+            {/* CSS-based arrow */}
+            <div className="absolute bottom-[-9px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-border"></div>
+             <div className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-card"></div>
+          </div>
+        )}
+
+        <button
+          onClick={() => setIsPopoverOpen((prev) => !prev)}
+          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted text-left"
+        >
+          <div className="p-2 bg-muted rounded-full">
+            <User className="h-5 w-5" />
+          </div>
+          {!isCollapsed && (
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-mono-caps">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.id}</p>
+            </div>
+          )}
+        </button>
       </div>
     </aside>
   );
