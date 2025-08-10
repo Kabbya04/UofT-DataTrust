@@ -6,56 +6,138 @@
   The .auth-theme class will activate this theme.
 */
 .auth-theme {
-  /* Light Theme Colors */
+  /* Light Theme Colors - Keep your existing light theme */
   --background: oklch(1 0 0); /* White */
   --foreground: oklch(0.18 0.01 248); /* Near Black */
   --card: oklch(0.98 0 0 0); /* Off-white */
   --card-foreground: oklch(0.18 0.01 248);
   --primary: oklch(0.65 0.22 265); /* Vibrant Violet */
   --primary-foreground: oklch(1 0 0); /* White */
+  --secondary: oklch(0.94 0.005 240); /* Light grey */
+  --secondary-foreground: oklch(0.18 0.01 248);
   --muted: oklch(0.94 0.005 240); /* A visible light grey */
   --muted-foreground: oklch(0.45 0.01 248);
+  --accent: oklch(0.94 0.005 240);
+  --accent-foreground: oklch(0.18 0.01 248);
+  --destructive: oklch(0.65 0.3 29); /* Red-orange */
+  --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.93 0.01 231);
+  --input: oklch(0.93 0.01 231);
+  --ring: oklch(0.65 0.22 265);
   --violet-400: oklch(0.72 0.15 285);
   --violet-500: oklch(0.67 0.16 245);
+  --radius: 0.5rem;
 }
 
 .dark.auth-theme {
-  /* Dark Theme Colors */
-  --background: oklch(0.14 0 0); /* Near Black */
-  --foreground: oklch(0.93 0 0 0); /* Off-white */
-  --card: oklch(0.20 0.008 274);
-  --card-foreground: oklch(0.88 0 0);
-  --primary: oklch(0.65 0.22 265); /* Vibrant Violet */
-  --primary-foreground: oklch(1 0 0); /* White */
-  --muted: oklch(0.25 0.005 250); /* A visible lighter grey */
-  --muted-foreground: oklch(0.56 0.007 248);
-  --border: oklch(0.26 0.004 248);
+  /* New Dark Theme Colors - Updated to match your desired theme */
+  --background: oklch(0.16 0.01 240); /* Dark blue-gray: hsl(240 5.9% 10%) converted */
+  --foreground: oklch(0.98 0 0); /* Off-white */
+  --card: oklch(0.19 0.008 240); /* Slightly lighter card: hsl(240 4% 12%) converted */
+  --card-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.69 0.19 45); /* Bright Orange: hsl(26 83% 58%) converted */
+  --primary-foreground: oklch(0.15 0 0); /* Dark text on orange */
+  --secondary: oklch(0.23 0 0); /* hsl(0 0% 14.9%) converted */
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.23 0 0); /* hsl(0 0% 14.9%) converted */
+  --muted-foreground: oklch(0.67 0 0); /* hsl(0 0% 63.9%) converted */
+  --accent: oklch(0.23 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.44 0.13 27); /* hsl(0 62.8% 30.6%) converted */
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.24 0.006 240); /* Border: hsl(240 3.7% 15.9%) converted */
+  --input: oklch(0.23 0 0);
+  --ring: oklch(0.69 0.19 45); /* Ring color to match primary orange */
   --violet-400: oklch(0.72 0.15 285);
   --violet-500: oklch(0.67 0.16 245);
+  --radius: 0.5rem;
+}
+
+/* Alternative: Dashboard theme class for specific dashboard styling */
+.dashboard-theme {
+  /* Dashboard Light Theme - if you need a specific dashboard light mode */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 0 0% 3.9%;
+  --radius: 0.5rem;
+}
+
+.dark.dashboard-theme {
+  /* Dashboard Dark Theme - Your new theme */
+  --background: 240 5.9% 10%; /* Dark blue-gray from sidebar */
+  --foreground: 0 0% 98%;
+  --card: 240 4% 12%; /* Slightly lighter card color */
+  --card-foreground: 0 0% 98%;
+  --popover: 240 5.9% 10%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 26 83% 58%; /* Bright Orange for accents */
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 14.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 14.9%;
+  --muted-foreground: 0 0% 63.9%;
+  --accent: 0 0% 14.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%; /* Border from sidebar */
+  --input: 0 0% 14.9%;
+  --ring: 26 83% 58%; /* Ring color to match primary orange */
+  --radius: 0.5rem;
 }
 
 /* 
   Map your CSS variables to Tailwind's theme.
+  Added new mappings for additional properties
 */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-violet-400: var(--violet-400);
   --color-violet-500: var(--violet-500);
 
+  --radius: var(--radius);
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
     @apply bg-background text-foreground antialiased;
   }
@@ -73,9 +155,14 @@
   .custom-checkbox:checked {
     background-size: 100% 100%;
   }
+  
+  /* New typography utility from your desired theme */
+  .text-mono-caps {
+    @apply font-mono uppercase tracking-wider;
+  }
 }
 
-/* Custom Animations */
+/* Custom Animations - Keep your existing animations */
 @layer utilities {
   .animate-element { animation: fade-in 0.8s both; }
   .animate-slide-right { animation: slide-in-right 0.8s cubic-bezier(0.25, 1, 0.5, 1) both; }
