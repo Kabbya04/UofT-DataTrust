@@ -321,13 +321,13 @@ export function Sidebar() {
               <button
                 className={`w-full flex justify-between items-center gap-3 p-3 rounded transition-colors ${activeSection === item.id
                     ? "bg-orange-500 text-white"
-                    : "text-neutral-800 hover:text-white hover:bg-neutral-800"
+                    : " dark:hover:text-white hover:bg-neutral-800"
                   }`}
                 onClick={() => toggleMenu(item.title)}
               >
                 <Link href={item.href} className="flex items-center justify-start gap-3">
                   <item.icon className="h-5 w-5" />
-                  {!isCollapsed && <span className="font-medium text-mono-caps text-sm">{item.title}</span>}
+                  {!isCollapsed && <span className="font-medium text-mono-caps text-start text-sm">{item.title}</span>}
                 </Link>
                 {!isCollapsed && item.subItems.length > 0 && (
                   <ChevronDown
@@ -343,7 +343,7 @@ export function Sidebar() {
                       key={sub.id}
                       className={`block text-sm text-muted-foreground hover:text-foreground gap-3 p-3 rounded transition-colors ${activeSection === sub.id
                     ? "bg-orange-500 text-white"
-                    : "text-neutral-800 hover:text-white hover:bg-neutral-800"
+                    : " dark:hover:text-white hover:bg-neutral-800"
                   }`}
                     >
                       {sub.title}
