@@ -42,7 +42,7 @@ export default function TopNav() {
           type="button"
           className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-full transition-colors"
         >
-          <Bell className="h-4 w-4 sm:h-8 sm:w-8 " />
+          <Bell className="h-2 w-2 sm:h-5 sm:w-5 " />
         </button>
 
         <ThemeToggle />
