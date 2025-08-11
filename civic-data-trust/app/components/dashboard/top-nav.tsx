@@ -66,7 +66,7 @@ export default function TopNav() {
           <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="w-[280px] sm:w-80 bg-background border-border rounded-lg shadow-lg"
+            className="w-[280px] sm:w-80 text-gray-700 bg-gray-300 border-border rounded-lg shadow-lg"
           >
             <Profile avatar="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png" />
           </DropdownMenuContent>
