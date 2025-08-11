@@ -106,11 +106,11 @@ const menuItems = [
     href: "/authentication-profile",
     icon: ShieldUserIcon,
     subItems: [
-      { id: "login-screen", 
-        title: "Login Screen", 
-        href: "/authentication-profile/login-screen", 
-        icon: FileIcon 
-      },
+      // { id: "login-screen", 
+      //   title: "Login Screen", 
+      //   href: "/authentication-profile/login-screen", 
+      //   icon: FileIcon 
+      // },
       { id: "profile-management", 
         title: "Profile Management", 
         href: "/authentication-profile/profile-management", 
@@ -325,10 +325,12 @@ export function Sidebar() {
                   }`}
                 onClick={() => toggleMenu(item.title)}
               >
-                <Link href={item.href} className="flex items-center justify-start gap-3">
+                <button 
+                // href={item.href} 
+                className="flex items-center justify-start gap-3">
                   <item.icon className="h-5 w-5" />
                   {!isCollapsed && <span className="font-medium text-mono-caps text-start text-sm">{item.title}</span>}
-                </Link>
+                </button>
                 {!isCollapsed && item.subItems.length > 0 && (
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''
