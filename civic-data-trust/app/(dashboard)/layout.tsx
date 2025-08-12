@@ -46,11 +46,8 @@ export default function Layout({ children }: LayoutProps) {
     <div className={`flex h-screen ${theme === "dark" ? "dark" : ""}`}>
       <Sidebar />
       <div className="w-full flex flex-1 flex-col">
-        
-        <header className="h-16 border-b ">
-          <TopNav />
-        </header>
-        <main className="flex-1 overflow-auto p-6 ">{children}</main>
+        <TopNav />
+        <main className="flex-1 overflow-auto p-6 pt-24">{children}</main>
       </div>
     </div>
   )
