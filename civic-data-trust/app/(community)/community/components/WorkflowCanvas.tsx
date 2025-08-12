@@ -1,53 +1,43 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import { Stage, Layer, Rect, Text, Circle, Line, Group } from 'react-konva';
-
-interface Plugin {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-interface CanvasNode {
-  id: string;
-  type: 'plugin' | 'image';
-  name: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color?: string;
-}
-
-interface Connection {
-  id: string;
-  from: string;
-  to: string;
-  fromPoint: 'top' | 'right' | 'bottom' | 'left';
-  toPoint: 'top' | 'right' | 'bottom' | 'left';
-}
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { Stage, Layer, Line } from 'react-konva';
+import { useDispatch, useSelector } from 'react-redux';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { RootState } from '@/app/store';
+import { 
+  addConnection, 
+  updateNode, 
+  setZoom, 
+  setViewport,
+  startConnecting,
+  endConnecting,
+  setSelectedNodes,
+  deleteNode
+} from '@/app/store/workflowSlice';
+import CanvasNode from './CanvasNode';
+import CanvasConnection from './CanvasConnection';
+import CanvasControls from './CanvasControls';
+import Minimap from './Minimap';
+import NodeConfigPanel from './NodeConfigPanel';
 
 interface WorkflowCanvasProps {
-  canvasNodes: CanvasNode[];
-  onDrop: (plugin: Plugin, x: number, y: number) => void;
-  draggedPlugin: Plugin | null;
+  canvasNodes: any[];
+  onDrop: (e: React.DragEvent) => void;
+  draggedPlugin: any;
 }
 
 export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: WorkflowCanvasProps) {
+  const dispatch = useDispatch();
+  const { nodes, connections, zoom, viewport, isConnecting, connectingFrom, selectedNodeIds } = 
+    useSelector((state: RootState) => state.workflow);
+  
   const stageRef = useRef<any>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
-  const [nodes, setNodes] = useState<CanvasNode[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
-  const [connectingFrom, setConnectingFrom] = useState<{nodeId: string, point: string} | null>(null);
-  const [hoveredConnectionPoint, setHoveredConnectionPoint] = useState<string | null>(null);
-  const [tempLine, setTempLine] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
+  const [tempConnection, setTempConnection] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const [configPanelNode, setConfigPanelNode] = useState<string | null>(null);
 
-  useEffect(() => {
-    setNodes(canvasNodes);
-  }, [canvasNodes]);
-
+  // Handle canvas resize
   useEffect(() => {
     const updateCanvasSize = () => {
       const container = document.getElementById('canvas-container');
@@ -64,239 +54,258 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     return () => window.removeEventListener('resize', updateCanvasSize);
   }, []);
 
-  const handleCanvasDrop = (e: React.DragEvent) => {
-    if (!draggedPlugin || !stageRef.current) return;
-    
-    e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - 60;
-    const y = e.clientY - rect.top - 30;
-    
-    onDrop(draggedPlugin, x, y);
-  };
-
-  const handleCanvasDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleNodeDrag = (nodeId: string, newX: number, newY: number) => {
-    setNodes(prevNodes => 
-      prevNodes.map(node => 
-        node.id === nodeId ? { ...node, x: newX, y: newY } : node
-      )
-    );
-  };
-
-  const getConnectionPointPosition = (node: CanvasNode, point: string) => {
-    switch (point) {
-      case 'top':
-        return { x: node.x + node.width / 2, y: node.y };
-      case 'right':
-        return { x: node.x + node.width, y: node.y + node.height / 2 };
-      case 'bottom':
-        return { x: node.x + node.width / 2, y: node.y + node.height };
-      case 'left':
-        return { x: node.x, y: node.y + node.height / 2 };
-      default:
-        return { x: node.x, y: node.y };
-    }
-  };
-
-  const handleConnectionPointClick = (nodeId: string, point: string) => {
-    if (!connectingFrom) {
-      // Start connection
-      const node = nodes.find(n => n.id === nodeId);
-      if (node) {
-        const pos = getConnectionPointPosition(node, point);
-        setConnectingFrom({ nodeId, point });
-        setTempLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
+  // Handle node dragging
+  const handleNodeDrag = useCallback((nodeId: string, e: KonvaEventObject<DragEvent>) => {
+    const node = e.target;
+    dispatch(updateNode({
+      id: nodeId,
+      updates: {
+        x: node.x(),
+        y: node.y()
       }
-    } else if (connectingFrom.nodeId !== nodeId) {
-      // Complete connection
-      const newConnection: Connection = {
-        id: `conn-${Date.now()}`,
-        from: connectingFrom.nodeId,
-        to: nodeId,
-        fromPoint: connectingFrom.point as any,
-        toPoint: point as any,
-      };
-      setConnections([...connections, newConnection]);
-      setConnectingFrom(null);
-      setTempLine(null);
-    }
-  };
+    }));
+  }, [dispatch]);
 
-  const handleStageMouseMove = (e: any) => {
-    if (connectingFrom && tempLine) {
-      const stage = e.target.getStage();
+  // Handle port click for connections
+  const handlePortClick = useCallback((nodeId: string, portId: string, portType: 'input' | 'output') => {
+    if (!isConnecting) {
+      // Start connection from output port
+      if (portType === 'output') {
+        dispatch(startConnecting({ nodeId, portId }));
+        const node = nodes.find(n => n.id === nodeId);
+        if (node) {
+          const portIndex = node.outputs?.findIndex(p => p.id === portId) || 0;
+          const portY = node.height / 2 + (portIndex * 25) - ((node.outputs?.length || 1) - 1) * 12.5;
+          setTempConnection({
+            x1: node.x + node.width,
+            y1: node.y + portY,
+            x2: node.x + node.width,
+            y2: node.y + portY
+          });
+        }
+      }
+    } else if (connectingFrom && portType === 'input' && connectingFrom.nodeId !== nodeId) {
+      // Complete connection to input port
+      const connectionId = `conn-${Date.now()}`;
+      dispatch(addConnection({
+        id: connectionId,
+        sourceNodeId: connectingFrom.nodeId,
+        sourcePortId: connectingFrom.portId,
+        targetNodeId: nodeId,
+        targetPortId: portId,
+        type: 'main'
+      }));
+      dispatch(endConnecting());
+      setTempConnection(null);
+    }
+  }, [isConnecting, connectingFrom, nodes, dispatch]);
+
+  // Handle mouse move for temp connection
+  const handleMouseMove = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    if (isConnecting && tempConnection && stageRef.current) {
+      const stage = stageRef.current;
       const point = stage.getPointerPosition();
-      setTempLine({
-        ...tempLine,
-        x2: point.x,
-        y2: point.y
-      });
+      if (point) {
+        setTempConnection({
+          ...tempConnection,
+          x2: (point.x - viewport.x) / zoom,
+          y2: (point.y - viewport.y) / zoom
+        });
+      }
     }
-  };
+  }, [isConnecting, tempConnection, viewport, zoom]);
 
-  const handleStageClick = (e: any) => {
-    // If clicking on stage (not on a connection point), cancel connection
-    if (e.target === e.target.getStage() || e.target.className === 'Rect') {
-      setConnectingFrom(null);
-      setTempLine(null);
+  // Handle click on empty canvas
+  const handleStageClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    // Check if clicking on empty space
+    if (e.target === e.target.getStage()) {
+      dispatch(setSelectedNodes([]));
+      setConfigPanelNode(null);
+      if (isConnecting) {
+        dispatch(endConnecting());
+        setTempConnection(null);
+      }
     }
-  };
+  }, [isConnecting, dispatch]);
 
-  const renderConnectionLine = (connection: Connection) => {
-    const fromNode = nodes.find(n => n.id === connection.from);
-    const toNode = nodes.find(n => n.id === connection.to);
+  // Handle zoom with mouse wheel
+  const handleWheel = useCallback((e: KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const oldScale = stage.scaleX();
+    const pointer = stage.getPointerPosition();
     
-    if (!fromNode || !toNode) return null;
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    const direction = e.evt.deltaY > 0 ? -1 : 1;
+    const newScale = direction > 0 ? oldScale * 1.1 : oldScale / 1.1;
     
-    const fromPos = getConnectionPointPosition(fromNode, connection.fromPoint);
-    const toPos = getConnectionPointPosition(toNode, connection.toPoint);
+    dispatch(setZoom(newScale));
+    stage.scale({ x: newScale, y: newScale });
+
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
     
-    return (
-      <Line
-        key={connection.id}
-        points={[fromPos.x, fromPos.y, toPos.x, toPos.y]}
-        stroke="#6B7280"
-        strokeWidth={2}
-        lineCap="round"
-        lineJoin="round"
-      />
-    );
-  };
+    stage.position(newPos);
+    dispatch(setViewport(newPos));
+  }, [dispatch]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete selected nodes
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeIds.length > 0) {
+        selectedNodeIds.forEach(id => {
+          dispatch(deleteNode(id));
+        });
+      }
+      
+      // Select all
+      if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        dispatch(setSelectedNodes(nodes.map(n => n.id)));
+      }
+      
+      // Zoom controls
+      if (e.ctrlKey && e.key === '=') {
+        e.preventDefault();
+        dispatch(setZoom(Math.min(2, zoom * 1.1)));
+      }
+      if (e.ctrlKey && e.key === '-') {
+        e.preventDefault();
+        dispatch(setZoom(Math.max(0.1, zoom / 1.1)));
+      }
+      if (e.ctrlKey && e.key === '0') {
+        e.preventDefault();
+        dispatch(setZoom(1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNodeIds, nodes, zoom, dispatch]);
+
+  // Fit view function
+  const handleFitView = useCallback(() => {
+    if (nodes.length === 0) return;
+    
+    const bounds = nodes.reduce((acc, node) => ({
+      minX: Math.min(acc.minX, node.x),
+      minY: Math.min(acc.minY, node.y),
+      maxX: Math.max(acc.maxX, node.x + node.width),
+      maxY: Math.max(acc.maxY, node.y + node.height)
+    }), {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity
+    });
+    
+    const padding = 50;
+    const scaleX = (canvasSize.width - padding * 2) / (bounds.maxX - bounds.minX);
+    const scaleY = (canvasSize.height - padding * 2) / (bounds.maxY - bounds.minY);
+    const newZoom = Math.min(1, Math.min(scaleX, scaleY));
+    
+    dispatch(setZoom(newZoom));
+    dispatch(setViewport({
+      x: -bounds.minX * newZoom + padding,
+      y: -bounds.minY * newZoom + padding
+    }));
+  }, [nodes, canvasSize, dispatch]);
 
   return (
     <div
       id="canvas-container"
-      className="w-full h-full"
-      onDrop={handleCanvasDrop}
-      onDragOver={handleCanvasDragOver}
+      className="relative w-full h-full overflow-hidden bg-gray-50"
+      onDrop={onDrop}
+      onDragOver={(e) => e.preventDefault()}
     >
       <Stage
         ref={stageRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        onMouseMove={handleStageMouseMove}
+        scaleX={zoom}
+        scaleY={zoom}
+        x={viewport.x}
+        y={viewport.y}
+        onWheel={handleWheel}
+        onMouseMove={handleMouseMove}
         onClick={handleStageClick}
+        draggable
+        onDragEnd={(e) => {
+          dispatch(setViewport({
+            x: e.target.x(),
+            y: e.target.y()
+          }));
+        }}
       >
         <Layer>
           {/* Render connections */}
-          {connections.map(renderConnectionLine)}
+          {connections.map(conn => (
+            <CanvasConnection
+              key={conn.id}
+              connection={conn}
+              sourceNode={nodes.find(n => n.id === conn.sourceNodeId)}
+              targetNode={nodes.find(n => n.id === conn.targetNodeId)}
+            />
+          ))}
           
-          {/* Render temp line while connecting */}
-          {tempLine && (
+          {/* Render temp connection while connecting */}
+          {tempConnection && (
             <Line
-              points={[tempLine.x1, tempLine.y1, tempLine.x2, tempLine.y2]}
+              points={[tempConnection.x1, tempConnection.y1, tempConnection.x2, tempConnection.y2]}
               stroke="#9CA3AF"
               strokeWidth={2}
               dash={[5, 5]}
-              lineCap="round"
-              lineJoin="round"
             />
           )}
           
           {/* Render nodes */}
-          {nodes.map((node) => (
-            <Group
+          {nodes.map(node => (
+            <CanvasNode
               key={node.id}
-              x={node.x}
-              y={node.y}
-              draggable
-              onDragEnd={(e) => {
-                handleNodeDrag(node.id, e.target.x(), e.target.y());
-              }}
-            >
-              {/* Main rectangle */}
-              <Rect
-                width={node.width}
-                height={node.height}
-                fill={node.type === 'image' ? '#EBF8FF' : node.color}
-                stroke={node.type === 'image' ? '#3B82F6' : '#374151'}
-                strokeWidth={2}
-                cornerRadius={8}
-              />
-              
-              {/* Text - now part of the Group so it moves with the rectangle */}
-              <Text
-                x={10}
-                y={node.height / 2 - 8}
-                text={node.name}
-                fontSize={14}
-                fontFamily="Arial"
-                fill={node.type === 'image' ? '#1E40AF' : '#FFFFFF'}
-                fontStyle="bold"
-              />
-              
-              {/* Connection points */}
-              {/* Top */}
-              <Circle
-                x={node.width / 2}
-                y={0}
-                radius={6}
-                fill={hoveredConnectionPoint === `${node.id}-top` ? '#3B82F6' : '#6B7280'}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                onMouseEnter={() => setHoveredConnectionPoint(`${node.id}-top`)}
-                onMouseLeave={() => setHoveredConnectionPoint(null)}
-                onClick={(e) => {
-                  e.cancelBubble = true;
-                  handleConnectionPointClick(node.id, 'top');
-                }}
-              />
-              
-              {/* Right */}
-              <Circle
-                x={node.width}
-                y={node.height / 2}
-                radius={6}
-                fill={hoveredConnectionPoint === `${node.id}-right` ? '#3B82F6' : '#6B7280'}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                onMouseEnter={() => setHoveredConnectionPoint(`${node.id}-right`)}
-                onMouseLeave={() => setHoveredConnectionPoint(null)}
-                onClick={(e) => {
-                  e.cancelBubble = true;
-                  handleConnectionPointClick(node.id, 'right');
-                }}
-              />
-              
-              {/* Bottom */}
-              <Circle
-                x={node.width / 2}
-                y={node.height}
-                radius={6}
-                fill={hoveredConnectionPoint === `${node.id}-bottom` ? '#3B82F6' : '#6B7280'}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                onMouseEnter={() => setHoveredConnectionPoint(`${node.id}-bottom`)}
-                onMouseLeave={() => setHoveredConnectionPoint(null)}
-                onClick={(e) => {
-                  e.cancelBubble = true;
-                  handleConnectionPointClick(node.id, 'bottom');
-                }}
-              />
-              
-              {/* Left */}
-              <Circle
-                x={0}
-                y={node.height / 2}
-                radius={6}
-                fill={hoveredConnectionPoint === `${node.id}-left` ? '#3B82F6' : '#6B7280'}
-                stroke="#FFFFFF"
-                strokeWidth={2}
-                onMouseEnter={() => setHoveredConnectionPoint(`${node.id}-left`)}
-                onMouseLeave={() => setHoveredConnectionPoint(null)}
-                onClick={(e) => {
-                  e.cancelBubble = true;
-                  handleConnectionPointClick(node.id, 'left');
-                }}
-              />
-            </Group>
+              node={node}
+              isSelected={selectedNodeIds.includes(node.id)}
+              onDrag={handleNodeDrag}
+              onPortClick={handlePortClick}
+              onSelect={() => dispatch(setSelectedNodes([node.id]))}
+              onConfig={() => setConfigPanelNode(node.id)}
+            />
           ))}
         </Layer>
       </Stage>
+      
+      {/* Canvas Controls */}
+      <CanvasControls
+        zoom={zoom}
+        onZoomIn={() => dispatch(setZoom(Math.min(2, zoom * 1.2)))}
+        onZoomOut={() => dispatch(setZoom(Math.max(0.1, zoom / 1.2)))}
+        onZoomReset={() => dispatch(setZoom(1))}
+        onFitView={handleFitView}
+      />
+      
+      {/* Minimap */}
+      <Minimap
+        nodes={nodes}
+        viewport={viewport}
+        zoom={zoom}
+        canvasSize={canvasSize}
+      />
+      
+      {/* Node Configuration Panel */}
+      {configPanelNode && (
+        <NodeConfigPanel
+          nodeId={configPanelNode}
+          onClose={() => setConfigPanelNode(null)}
+        />
+      )}
     </div>
   );
 }
