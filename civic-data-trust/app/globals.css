@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 /* 
-  Define your theme variables here.
-  The .auth-theme class will activate this theme.
+  Auth Theme - These styles apply ONLY to the sign-in/sign-up pages.
+  They are activated by the .auth-theme class in (auth)/layout.tsx.
 */
 .auth-theme {
   /* Light Theme Colors - Keep your existing light theme */
@@ -30,81 +30,31 @@
 }
 
 .dark.auth-theme {
-  /* New Dark Theme Colors - Updated to match your desired theme */
-  --background: oklch(0.16 0.01 240); /* Dark blue-gray: hsl(240 5.9% 10%) converted */
-  --foreground: oklch(0.98 0 0); /* Off-white */
-  --card: oklch(0.19 0.008 240); /* Slightly lighter card: hsl(240 4% 12%) converted */
+  /* Dark Theme Colors for Auth pages */
+  --background: oklch(0.16 0.01 240);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.19 0.008 240);
   --card-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.69 0.19 45); /* Bright Orange: hsl(26 83% 58%) converted */
-  --primary-foreground: oklch(0.15 0 0); /* Dark text on orange */
-  --secondary: oklch(0.23 0 0); /* hsl(0 0% 14.9%) converted */
+  --primary: oklch(0.69 0.19 45);
+  --primary-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.23 0 0);
   --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.23 0 0); /* hsl(0 0% 14.9%) converted */
-  --muted-foreground: oklch(0.67 0 0); /* hsl(0 0% 63.9%) converted */
+  --muted: oklch(0.23 0 0);
+  --muted-foreground: oklch(0.67 0 0);
   --accent: oklch(0.23 0 0);
   --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.44 0.13 27); /* hsl(0 62.8% 30.6%) converted */
+  --destructive: oklch(0.44 0.13 27);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.24 0.006 240); /* Border: hsl(240 3.7% 15.9%) converted */
+  --border: oklch(0.24 0.006 240);
   --input: oklch(0.23 0 0);
-  --ring: oklch(0.69 0.19 45); /* Ring color to match primary orange */
+  --ring: oklch(0.69 0.19 45);
   --violet-400: oklch(0.72 0.15 285);
   --violet-500: oklch(0.67 0.16 245);
   --radius: 0.5rem;
 }
 
-/* Alternative: Dashboard theme class for specific dashboard styling */
-.dashboard-theme {
-  /* Dashboard Light Theme - if you need a specific dashboard light mode */
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
-  --radius: 0.5rem;
-}
-
-.dark.dashboard-theme {
-  /* Dashboard Dark Theme - Your new theme */
-  --background: 240 5.9% 10%; /* Dark blue-gray from sidebar */
-  --foreground: 0 0% 98%;
-  --card: 240 4% 12%; /* Slightly lighter card color */
-  --card-foreground: 0 0% 98%;
-  --popover: 240 5.9% 10%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 26 83% 58%; /* Bright Orange for accents */
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 63.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%; /* Border from sidebar */
-  --input: 0 0% 14.9%;
-  --ring: 26 83% 58%; /* Ring color to match primary orange */
-  --radius: 0.5rem;
-}
-
 /* 
   Map your CSS variables to Tailwind's theme.
-  Added new mappings for additional properties
 */
 @theme {
   --color-background: var(--background);
@@ -135,6 +85,33 @@
 }
 
 @layer base {
+  /* 
+    This is the NEW, CORRECT dark theme for the entire application,
+    including the dashboard. It is applied when the <html> tag has the .dark class.
+  */
+  .dark {
+    --background: 0 0% 16%; /* Neutral dark gray #282828 */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 20%; /* Slightly lighter gray for cards */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 26 83% 58%; /* Bright Orange for accents */
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 22%; /* A slightly lighter border for better contrast */
+    --input: 0 0% 14.9%;
+    --ring: 26 83% 58%; /* Ring color to match primary orange */
+    --radius: 0.5rem;
+  }
+
   * {
     @apply border-border;
   }
@@ -156,13 +133,12 @@
     background-size: 100% 100%;
   }
   
-  /* New typography utility from your desired theme */
   .text-mono-caps {
     @apply font-mono uppercase tracking-wider;
   }
 }
 
-/* Custom Animations - Keep your existing animations */
+/* Custom Animations */
 @layer utilities {
   .animate-element { animation: fade-in 0.8s both; }
   .animate-slide-right { animation: slide-in-right 0.8s cubic-bezier(0.25, 1, 0.5, 1) both; }
