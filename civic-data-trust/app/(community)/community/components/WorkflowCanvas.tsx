@@ -36,6 +36,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [tempConnection, setTempConnection] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const [configPanelNode, setConfigPanelNode] = useState<string | null>(null);
+  const [isDraggable, setIsDraggable] = useState(false);
 
   // Handle canvas resize
   useEffect(() => {
@@ -52,6 +53,29 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
     return () => window.removeEventListener('resize', updateCanvasSize);
+  }, []);
+
+  // Handle Ctrl key for canvas dragging
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        setIsDraggable(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) {
+        setIsDraggable(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
 
   // Handle node dragging
@@ -157,9 +181,31 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     dispatch(setViewport(newPos));
   }, [dispatch]);
 
+  // Handle stage drag end
+  const handleStageDragEnd = useCallback((e: KonvaEventObject<DragEvent>) => {
+    dispatch(setViewport({
+      x: e.target.x(),
+      y: e.target.y()
+    }));
+  }, [dispatch]);
+
+  // Handle mouse down on stage
+  const handleStageMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    // Only allow stage dragging if Ctrl is pressed
+    const stage = stageRef.current;
+    if (stage) {
+      stage.draggable(isDraggable);
+    }
+  }, [isDraggable]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if user is typing in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
       // Delete selected nodes
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeIds.length > 0) {
         selectedNodeIds.forEach(id => {
@@ -218,7 +264,24 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       x: -bounds.minX * newZoom + padding,
       y: -bounds.minY * newZoom + padding
     }));
+
+    // Update stage scale and position
+    if (stageRef.current) {
+      stageRef.current.scale({ x: newZoom, y: newZoom });
+      stageRef.current.position({
+        x: -bounds.minX * newZoom + padding,
+        y: -bounds.minY * newZoom + padding
+      });
+    }
   }, [nodes, canvasSize, dispatch]);
+
+  // Update cursor style based on drag mode
+  useEffect(() => {
+    const container = document.getElementById('canvas-container');
+    if (container) {
+      container.style.cursor = isDraggable ? 'grab' : 'default';
+    }
+  }, [isDraggable]);
 
   return (
     <div
@@ -227,6 +290,13 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       onDrop={onDrop}
       onDragOver={(e) => e.preventDefault()}
     >
+      {/* Instruction overlay */}
+      {isDraggable && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-10 pointer-events-none">
+          <span className="text-sm font-medium">Canvas Pan Mode (Ctrl held)</span>
+        </div>
+      )}
+
       <Stage
         ref={stageRef}
         width={canvasSize.width}
@@ -238,13 +308,9 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
         onWheel={handleWheel}
         onMouseMove={handleMouseMove}
         onClick={handleStageClick}
-        draggable
-        onDragEnd={(e) => {
-          dispatch(setViewport({
-            x: e.target.x(),
-            y: e.target.y()
-          }));
-        }}
+        onMouseDown={handleStageMouseDown}
+        draggable={isDraggable}
+        onDragEnd={handleStageDragEnd}
       >
         <Layer>
           {/* Render connections */}
@@ -285,9 +351,26 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       {/* Canvas Controls */}
       <CanvasControls
         zoom={zoom}
-        onZoomIn={() => dispatch(setZoom(Math.min(2, zoom * 1.2)))}
-        onZoomOut={() => dispatch(setZoom(Math.max(0.1, zoom / 1.2)))}
-        onZoomReset={() => dispatch(setZoom(1))}
+        onZoomIn={() => {
+          const newZoom = Math.min(2, zoom * 1.2);
+          dispatch(setZoom(newZoom));
+          if (stageRef.current) {
+            stageRef.current.scale({ x: newZoom, y: newZoom });
+          }
+        }}
+        onZoomOut={() => {
+          const newZoom = Math.max(0.1, zoom / 1.2);
+          dispatch(setZoom(newZoom));
+          if (stageRef.current) {
+            stageRef.current.scale({ x: newZoom, y: newZoom });
+          }
+        }}
+        onZoomReset={() => {
+          dispatch(setZoom(1));
+          if (stageRef.current) {
+            stageRef.current.scale({ x: 1, y: 1 });
+          }
+        }}
         onFitView={handleFitView}
       />
       
