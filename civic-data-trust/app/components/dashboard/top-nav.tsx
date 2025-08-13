@@ -4,10 +4,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import ThemeToggle from "../theme-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import Profile from "./profile";
+import { NotificationButton } from './notification-button'; // <-- IMPORT the new component
 
 // This is the four-dot logo from your reference image
 const LogoElement = () => (
@@ -50,12 +50,8 @@ export default function TopNav() {
   // We group your action items to reuse them on desktop and mobile
   const ActionItems = () => (
     <>
-      <button
-        type="button"
-        className="p-1.5 sm:p-2 hover:bg-gray-100/10 dark:hover:bg-white/10 rounded-full transition-colors"
-      >
-        <Bell className="h-5 w-5" />
-      </button>
+      {/* --- The old button is replaced with the new component --- */}
+      <NotificationButton />
 
       <ThemeToggle />
 
@@ -94,7 +90,6 @@ export default function TopNav() {
           <LogoElement />
         </Link>
         
-        {/* We replace the text links with a simple title for the dashboard context */}
         <nav className="hidden sm:flex">
           <span className="text-sm text-foreground/80 text-mono-caps">WELCOME TO THE DASHBOARD</span>
         </nav>

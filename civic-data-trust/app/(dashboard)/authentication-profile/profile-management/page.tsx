@@ -124,9 +124,9 @@ const ProfileManagement = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm  dark:text-gray-400">
-          <span>AUthentication & Profile</span>
+          <span>Authentication & Profile</span>
           <span>/</span>
-          <span className="font-medium  dark:text-white">Patient Management</span>
+          <span className="font-medium  dark:text-white">Profile Management</span>
         </div>
         <button
           onClick={() => setIsEditing(!isEditing)}
@@ -288,7 +288,7 @@ const ProfileManagement = () => {
           {/* Physical Exam */}
           <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold  dark:text-white">Physical Exam</h2>
+              <h2 className="text-lg font-semibold  ">Physical Exam</h2>
               <MoreHorizontal className="h-5 w-5 " />
             </div>
 
@@ -299,11 +299,11 @@ const ProfileManagement = () => {
                   className="flex items-center justify-between py-3 border-b  dark:border-gray-700 last:border-b-0"
                 >
                   <div className="flex-1">
-                    <p className="text-sm font-medium  dark:text-white">{exam.category}</p>
+                    <p className="text-sm font-medium  ">{exam.category}</p>
                     <p className="text-xs  dark:text-gray-400">{exam.finding}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium  dark:text-white">{exam.value}</p>
+                    <p className="text-sm font-medium  ">{exam.value}</p>
                   </div>
                 </div>
               ))}
@@ -313,10 +313,10 @@ const ProfileManagement = () => {
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {vitalSigns.map((vital, index) => (
-                  <div key={index} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div key={index} className="p-4  dark:bg-gray-800/50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs  dark:text-gray-400">{vital.label}</span>
-                      <span className="text-sm font-medium  dark:text-white">
+                      <span className="text-sm font-medium  ">
                         {vital.value} {vital.unit}
                       </span>
                     </div>
@@ -367,34 +367,34 @@ const ProfileManagement = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold  dark:text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <Calendar className="h-5 w-5 text-blue-600" />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">Schedule Follow-up</span>
+                <span className="text-sm font-medium  dark:text-white">Schedule Follow-up</span>
               </button>
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <User className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">Add Family Member</span>
+                <span className="text-sm font-medium  dark:text-white">Add Family Member</span>
               </button>
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <Plus className="h-5 w-5 text-purple-600" />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">Add Prescription</span>
+                <span className="text-sm font-medium  dark:text-white">Add Prescription</span>
               </button>
             </div>
           </div>
 
           {/* Recent Updates */}
-          <div className="bg-white dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Updates</h3>
+          <div className=" dark:bg-neutral-400 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold  mb-4">Recent Updates</h3>
             <div className="space-y-3">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Last updated on 26 Jul 2020, 11:30 AM</div>
+              <div className="text-xs text-gray-500 dark:text-gray-800">Last updated on 26 Jul 2020, 11:30 AM</div>
               <div className="space-y-2">
-                <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded text-xs">
+                <div className="p-2 bg-gray-50 text-gray-900 dark:bg-gray-800/50  rounded text-xs">
                   <span className="font-medium">Blood pressure</span> updated by Dr. Smith
                 </div>
-                <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded text-xs">
+                <div className="p-2 bg-gray-50 text-gray-900 dark:bg-gray-800/50 rounded text-xs">
                   <span className="font-medium">Medication</span> prescribed by Dr. Graham
                 </div>
               </div>

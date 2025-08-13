@@ -21,6 +21,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { CommunityProvider } from "../components/contexts/community-context";
 import { Sidebar } from '../components/dashboard/sidebar';
 import TopNav from "../components/dashboard/top-nav"
 import { useTheme } from "next-themes"
@@ -47,7 +48,7 @@ export default function Layout({ children }: LayoutProps) {
       <Sidebar />
       <div className="w-full flex flex-1 flex-col">
         <TopNav />
-        <main className="flex-1 overflow-auto p-6 pt-24">{children}</main>
+        <main className="flex-1 overflow-auto p-6 pt-24"><CommunityProvider>{children}</CommunityProvider></main>
       </div>
     </div>
   )

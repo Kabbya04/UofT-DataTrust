@@ -10,7 +10,8 @@ interface ActionCardProps {
 
 export const ActionCard = ({ href, icon: Icon, title, description }: ActionCardProps) => (
   <Link href={href} className="group">
-    <Card className="relative h-full bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl 
+    {/* --- CORRECTED: No more hard-coded dark classes. Uses theme variables only. --- */}
+    <Card className="relative h-full bg-card border border-border rounded-xl 
                    overflow-hidden
                    transition-all duration-300 ease-in-out 
                    transform hover:-translate-y-1 hover:border-primary/70 hover:shadow-lg hover:shadow-primary/10">
@@ -21,10 +22,11 @@ export const ActionCard = ({ href, icon: Icon, title, description }: ActionCardP
       />
       <div className="pl-4">
         <CardHeader>
-          <div className="mb-4 w-12 h-12 rounded-lg bg-primary/10 dark:bg-neutral-800 text-primary 
+          {/* This part was already correct */}
+          <div className="mb-4 w-12 h-12 rounded-lg bg-primary/10 
                          flex items-center justify-center 
-                         transition-colors duration-300 group-hover:bg-primary/20 dark:group-hover:bg-primary/10">
-            <Icon className="w-6 h-6" />
+                         transition-colors duration-300 group-hover:bg-primary/20">
+            <Icon className="w-6 h-6 text-primary" />
           </div>
           <CardTitle className="text-lg font-semibold text-mono-caps group-hover:text-primary transition-colors">
             {title}

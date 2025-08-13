@@ -2,59 +2,8 @@
 @import "tailwindcss";
 
 /* 
-  Auth Theme - These styles apply ONLY to the sign-in/sign-up pages.
-  They are activated by the .auth-theme class in (auth)/layout.tsx.
-*/
-.auth-theme {
-  /* Light Theme Colors - Keep your existing light theme */
-  --background: oklch(1 0 0); /* White */
-  --foreground: oklch(0.18 0.01 248); /* Near Black */
-  --card: oklch(0.98 0 0 0); /* Off-white */
-  --card-foreground: oklch(0.18 0.01 248);
-  --primary: oklch(0.65 0.22 265); /* Vibrant Violet */
-  --primary-foreground: oklch(1 0 0); /* White */
-  --secondary: oklch(0.94 0.005 240); /* Light grey */
-  --secondary-foreground: oklch(0.18 0.01 248);
-  --muted: oklch(0.94 0.005 240); /* A visible light grey */
-  --muted-foreground: oklch(0.45 0.01 248);
-  --accent: oklch(0.94 0.005 240);
-  --accent-foreground: oklch(0.18 0.01 248);
-  --destructive: oklch(0.65 0.3 29); /* Red-orange */
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.93 0.01 231);
-  --input: oklch(0.93 0.01 231);
-  --ring: oklch(0.65 0.22 265);
-  --violet-400: oklch(0.72 0.15 285);
-  --violet-500: oklch(0.67 0.16 245);
-  --radius: 0.5rem;
-}
-
-.dark.auth-theme {
-  /* Dark Theme Colors for Auth pages */
-  --background: oklch(0.16 0.01 240);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.19 0.008 240);
-  --card-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.69 0.19 45);
-  --primary-foreground: oklch(0.15 0 0);
-  --secondary: oklch(0.23 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.23 0 0);
-  --muted-foreground: oklch(0.67 0 0);
-  --accent: oklch(0.23 0 0);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.44 0.13 27);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.24 0.006 240);
-  --input: oklch(0.23 0 0);
-  --ring: oklch(0.69 0.19 45);
-  --violet-400: oklch(0.72 0.15 285);
-  --violet-500: oklch(0.67 0.16 245);
-  --radius: 0.5rem;
-}
-
-/* 
-  Map your CSS variables to Tailwind's theme.
+  Map your application's CSS variables to Tailwind's theme.
+  This tells Tailwind to use our custom color variables.
 */
 @theme {
   --color-background: var(--background);
@@ -76,27 +25,43 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-violet-400: var(--violet-400);
-  --color-violet-500: var(--violet-500);
-
   --radius: var(--radius);
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.5rem;
 }
 
 @layer base {
-  /* 
-    This is the NEW, CORRECT dark theme for the entire application,
-    including the dashboard. It is applied when the <html> tag has the .dark class.
-  */
+  /* --- DEFAULT LIGHT THEME VARIABLES --- */
+  :root {
+    --background: 0 0% 98%;      /* Off-white */
+    --foreground: 0 0% 3.9%;      /* Near-black text */
+    --card: 0 0% 100%;           /* White cards */
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 26 83% 58%;        /* Bright Orange */
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;       /* Light gray border */
+    --input: 0 0% 89.8%;
+    --ring: 26 83% 58%;
+    --radius: 0.5rem;
+  }
+
+  /* --- DARK THEME OVERRIDE VARIABLES --- */
   .dark {
-    --background: 0 0% 16%; /* Neutral dark gray #282828 */
-    --foreground: 0 0% 98%;
-    --card: 0 0% 20%; /* Slightly lighter gray for cards */
+    --background: 0 0% 16%;      /* Neutral dark gray background */
+    --foreground: 0 0% 98%;      /* White text */
+    --card: 0 0% 20%;           /* Slightly lighter gray for cards */
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 16%;
     --popover-foreground: 0 0% 98%;
-    --primary: 26 83% 58%; /* Bright Orange for accents */
+    --primary: 26 83% 58%;
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -106,9 +71,9 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 22%; /* A slightly lighter border for better contrast */
+    --border: 0 0% 22%;       /* Dark gray border */
     --input: 0 0% 14.9%;
-    --ring: 26 83% 58%; /* Ring color to match primary orange */
+    --ring: 26 83% 58%;
     --radius: 0.5rem;
   }
 
@@ -120,46 +85,10 @@
   }
 }
 
-/* Custom Utilities */
+/* Custom Utilities & Animations */
 @layer utilities {
-  .custom-checkbox {
-    @apply appearance-none w-5 h-5 rounded-md border-2 border-border bg-transparent transition-colors;
-    @apply checked:bg-primary checked:border-primary;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-    background-size: 0;
-  }
-  .custom-checkbox:checked {
-    background-size: 100% 100%;
-  }
-  
   .text-mono-caps {
     @apply font-mono uppercase tracking-wider;
   }
-}
-
-/* Custom Animations */
-@layer utilities {
-  .animate-element { animation: fade-in 0.8s both; }
-  .animate-slide-right { animation: slide-in-right 0.8s cubic-bezier(0.25, 1, 0.5, 1) both; }
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
-  .animate-delay-400 { animation-delay: 400ms; }
-  .animate-delay-500 { animation-delay: 500ms; }
-  .animate-delay-600 { animation-delay: 600ms; }
-  .animate-delay-700 { animation-delay: 700ms; }
-  .animate-delay-800 { animation-delay: 800ms; }
-  .animate-delay-900 { animation-delay: 900ms; }
-  .animate-delay-1000 { animation-delay: 1000ms; }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(50px); }
-  to { opacity: 1; transform: translateX(0); }
+  /* ... your other utilities and animations ... */
 }
