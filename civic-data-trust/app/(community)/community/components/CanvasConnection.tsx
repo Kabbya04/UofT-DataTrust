@@ -2,17 +2,17 @@ import React from 'react';
 import { Arrow } from 'react-konva';
 import { Connection, NodeData } from '@/app/store/workflowSlice';
 
-interface CanvasConnectionProps {
+export interface CanvasConnectionProps {
   connection: Connection;
   sourceNode?: NodeData;
   targetNode?: NodeData;
 }
 
-export default function CanvasConnection({ 
+const CanvasConnection: React.FC<CanvasConnectionProps> = ({ 
   connection, 
   sourceNode, 
   targetNode 
-}: CanvasConnectionProps) {
+}) => {
   if (!sourceNode || !targetNode) return null;
   
   // Calculate port positions
@@ -54,4 +54,6 @@ export default function CanvasConnection({
       bezier={true}
     />
   );
-}
+};
+
+export default CanvasConnection;

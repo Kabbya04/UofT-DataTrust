@@ -37,6 +37,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
   const [tempConnection, setTempConnection] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const [configPanelNode, setConfigPanelNode] = useState<string | null>(null);
   const [isDraggable, setIsDraggable] = useState(false);
+  const [isNodeDragging, setIsNodeDragging] = useState(false);
 
   // Handle canvas resize
   useEffect(() => {
@@ -58,14 +59,20 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
   // Handle Ctrl key for canvas dragging
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
+      if ((e.ctrlKey || e.metaKey) && !isNodeDragging) {
         setIsDraggable(true);
+        if (stageRef.current) {
+          stageRef.current.draggable(true);
+        }
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (!e.ctrlKey && !e.metaKey) {
         setIsDraggable(false);
+        if (stageRef.current) {
+          stageRef.current.draggable(false);
+        }
       }
     };
 
@@ -76,10 +83,20 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
+  }, [isNodeDragging]);
+
+  // Handle node drag start
+  const handleNodeDragStart = useCallback(() => {
+    setIsNodeDragging(true);
+    // Ensure stage is not draggable when dragging a node
+    if (stageRef.current) {
+      stageRef.current.draggable(false);
+    }
   }, []);
 
-  // Handle node dragging
-  const handleNodeDrag = useCallback((nodeId: string, e: KonvaEventObject<DragEvent>) => {
+  // Handle node drag end
+  const handleNodeDragEnd = useCallback((nodeId: string, e: KonvaEventObject<DragEvent>) => {
+    setIsNodeDragging(false);
     const node = e.target;
     dispatch(updateNode({
       id: nodeId,
@@ -88,7 +105,12 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
         y: node.y()
       }
     }));
-  }, [dispatch]);
+    
+    // Re-enable stage dragging if Ctrl is still held
+    if (isDraggable && stageRef.current) {
+      stageRef.current.draggable(true);
+    }
+  }, [dispatch, isDraggable]);
 
   // Handle port click for connections
   const handlePortClick = useCallback((nodeId: string, portId: string, portType: 'input' | 'output') => {
@@ -189,15 +211,6 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     }));
   }, [dispatch]);
 
-  // Handle mouse down on stage
-  const handleStageMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
-    // Only allow stage dragging if Ctrl is pressed
-    const stage = stageRef.current;
-    if (stage) {
-      stage.draggable(isDraggable);
-    }
-  }, [isDraggable]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -279,9 +292,16 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
   useEffect(() => {
     const container = document.getElementById('canvas-container');
     if (container) {
-      container.style.cursor = isDraggable ? 'grab' : 'default';
+      container.style.cursor = isDraggable && !isNodeDragging ? 'grab' : 'default';
     }
-  }, [isDraggable]);
+  }, [isDraggable, isNodeDragging]);
+
+  // Ensure stage draggable state is properly set
+  useEffect(() => {
+    if (stageRef.current) {
+      stageRef.current.draggable(isDraggable && !isNodeDragging);
+    }
+  }, [isDraggable, isNodeDragging]);
 
   return (
     <div
@@ -291,7 +311,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       onDragOver={(e) => e.preventDefault()}
     >
       {/* Instruction overlay */}
-      {isDraggable && (
+      {isDraggable && !isNodeDragging && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-10 pointer-events-none">
           <span className="text-sm font-medium">Canvas Pan Mode (Ctrl held)</span>
         </div>
@@ -308,20 +328,24 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
         onWheel={handleWheel}
         onMouseMove={handleMouseMove}
         onClick={handleStageClick}
-        onMouseDown={handleStageMouseDown}
-        draggable={isDraggable}
+        draggable={false} // Initially set to false, controlled programmatically
         onDragEnd={handleStageDragEnd}
       >
         <Layer>
           {/* Render connections */}
-          {connections.map(conn => (
-            <CanvasConnection
-              key={conn.id}
-              connection={conn}
-              sourceNode={nodes.find(n => n.id === conn.sourceNodeId)}
-              targetNode={nodes.find(n => n.id === conn.targetNodeId)}
-            />
-          ))}
+          {connections.map(conn => {
+            const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
+            const targetNode = nodes.find(n => n.id === conn.targetNodeId);
+            
+            return (
+              <CanvasConnection
+                key={conn.id}
+                connection={conn}
+                sourceNode={sourceNode}
+                targetNode={targetNode}
+              />
+            );
+          })}
           
           {/* Render temp connection while connecting */}
           {tempConnection && (
@@ -333,13 +357,14 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
             />
           )}
           
-          {/* Render nodes */}
+          {/* Render nodes with drag callbacks */}
           {nodes.map(node => (
             <CanvasNode
               key={node.id}
               node={node}
               isSelected={selectedNodeIds.includes(node.id)}
-              onDrag={handleNodeDrag}
+              onDragStart={handleNodeDragStart}
+              onDrag={(nodeId, e) => handleNodeDragEnd(nodeId, e)}
               onPortClick={handlePortClick}
               onSelect={() => dispatch(setSelectedNodes([node.id]))}
               onConfig={() => setConfigPanelNode(node.id)}

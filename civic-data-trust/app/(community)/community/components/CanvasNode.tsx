@@ -6,6 +6,7 @@ import { KonvaEventObject } from 'konva/lib/Node';
 interface CanvasNodeProps {
   node: NodeData;
   isSelected: boolean;
+  onDragStart?: () => void;  // Added onDragStart
   onDrag: (nodeId: string, e: KonvaEventObject<DragEvent>) => void;
   onPortClick: (nodeId: string, portId: string, portType: 'input' | 'output') => void;
   onSelect: () => void;
@@ -15,6 +16,7 @@ interface CanvasNodeProps {
 export default function CanvasNode({ 
   node, 
   isSelected, 
+  onDragStart,  // Added to props
   onDrag, 
   onPortClick, 
   onSelect,
@@ -41,9 +43,22 @@ export default function CanvasNode({
       x={node.x}
       y={node.y}
       draggable
-      onDragEnd={(e) => onDrag(node.id, e)}
-      onClick={onSelect}
-      onDblClick={onConfig}
+      onDragStart={(e) => {
+        e.cancelBubble = true;  // Prevent event from bubbling to stage
+        if (onDragStart) onDragStart();
+      }}
+      onDragEnd={(e) => {
+        e.cancelBubble = true;  // Prevent event from bubbling to stage
+        onDrag(node.id, e);
+      }}
+      onClick={(e) => {
+        e.cancelBubble = true;  // Prevent event from bubbling to stage
+        onSelect();
+      }}
+      onDblClick={(e) => {
+        e.cancelBubble = true;  // Prevent event from bubbling to stage
+        onConfig();
+      }}
     >
       {/* Main node rectangle */}
       <Rect
