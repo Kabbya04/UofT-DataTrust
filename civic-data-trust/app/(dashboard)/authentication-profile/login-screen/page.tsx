@@ -6,11 +6,23 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Search, Filter, MoreHorizontal, MapPin, Clock, Shield } from "lucide-react"
 
+// Define a type for the agent object
+interface Agent {
+  id: string;
+  name: string;
+  status: string;
+  location: string;
+  lastSeen: string;
+  missions: number;
+  risk: string;
+}
+
 export default function LoginScreen() {
     const [searchTerm, setSearchTerm] = useState("")
-  const [selectedAgent, setSelectedAgent] = useState(null)
+  // Explicitly type the state to be Agent or null
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
 
-  const agents = [
+  const agents: Agent[] = [ // Use the Agent type for the array
     {
       id: "G-078W",
       name: "VENGEFUL SPIRIT",
