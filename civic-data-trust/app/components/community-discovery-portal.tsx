@@ -158,11 +158,13 @@ export function CommunityDiscoveryPortal() {
                 </div>
 
                 {/* Member Count and Action */}
-                <div className="flex items-center justify-between gap-2 pt-2 mt-auto">
-                  <div className="flex items-center text-sm text-muted-foreground cursor-default">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span className="font-medium">{community.memberCount.toLocaleString()}</span>
-                    <span className="hidden sm:inline ml-1">members</span>
+                <div className="flex  items-center justify-between gap-1 pt-1 mt-auto">
+                  <div className="flex flex-col items-center text-sm wrap-anywhere text-muted-foreground cursor-default">
+                    <div className="flex">
+                      <Users className="h-4 w-4 mr-1" />
+                      <p className="font-medium">{community.memberCount.toLocaleString()}</p>
+                    </div>
+                    <p className="hidden sm:inline ml-1">members</p>
                   </div>
 
                   <Button

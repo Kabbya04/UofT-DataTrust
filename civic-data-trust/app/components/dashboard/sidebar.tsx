@@ -113,7 +113,7 @@ const menuItems = [
     icon: Users2,
     subItems: [
       { id: "community-discovery-portal", title: "Community Discovery Portal", href: "/community-discovery-and-membership/community-discovery-portal", icon: Search },
-      { id: "community-details-viewer", title: "Community Details Viewer", href: "/community-discovery-and-membership/community-details-viewer", icon: Library },
+      // { id: "community-details-viewer", title: "Community Details Viewer", href: "/community-discovery-and-membership/community-details-viewer", icon: Library },
       { id: "membership-request-interface", title: "Membership Request Interface", href: "/community-discovery-and-membership/membership-request-interface", icon: UserPlus },
       { id: "membership-status-tracking", title: "Membership Status Tracking", href: "/community-discovery-and-membership/membership-status-tracking", icon: Users },
     ],

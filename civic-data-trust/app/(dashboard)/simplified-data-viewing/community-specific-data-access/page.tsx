@@ -47,7 +47,7 @@ const mockDatasets = [
 
 const CommunitySpecificDataAccess = () => {
   return (
-    <div className="min-h-screen bg-neutral-900">
+    <div className="min-h-screen dark:bg-neutral-900">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -61,11 +61,11 @@ const CommunitySpecificDataAccess = () => {
         {mockDatasets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockDatasets.map((dataset) => (
-              <Card key={dataset.id} className="hover:shadow-md hover:shadow-gray-500 bg-neutral-950 border-0 transition-shadow duration-200 cursor-pointer">
+              <Card key={dataset.id} className="hover:shadow-lg hover:shadow-gray-600 dark:bg-neutral-950 border border-gray-600 transition-shadow duration-200 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <Database className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
-                    <Badge variant={dataset.hasPermission ? "default" : "secondary"} className={` ${dataset.hasPermission ? "bg-neutral-100 text-neutral-950" : "bg-neutral-600"} `}>{dataset.accessLevel}</Badge>
+                    <Badge variant={dataset.hasPermission ? "default" : "secondary"} className={` ${dataset.hasPermission ? "bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-950" : "bg-neutral-500 text-neutral-100"} `}>{dataset.accessLevel}</Badge>
                   </div>
                   <CardTitle className="text-lg font-semibold ">{dataset.title}</CardTitle>
                   <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
@@ -91,7 +91,7 @@ const CommunitySpecificDataAccess = () => {
                                 variant={dataset.hasPermission ? "default" : "secondary"}
                                 size="sm"
                                 disabled={!dataset.hasPermission}
-                                className={`w-full ${dataset.hasPermission ? "bg-neutral-100 text-neutral-950" : "bg-neutral-600"} `}
+                                className={`w-full hover:bg-neutral-600 hover:text-neutral-50 hover:border-2 border-neutral-900 ${dataset.hasPermission ? " bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-950 " : "bg-neutral-600"} `}
                               >
                                 {dataset.hasPermission ? (
                                   <>

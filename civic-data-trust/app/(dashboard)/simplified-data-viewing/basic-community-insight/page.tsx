@@ -29,7 +29,7 @@ const chartConfig = {
 }
 const BasicCommunityInsight = () => {
   return (
-        <div className="min-h-screen bg-neutral-900">
+        <div className="min-h-screen dark:bg-neutral-900">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -41,18 +41,18 @@ const BasicCommunityInsight = () => {
 
         {/* Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:shadow-lg shadow-gray-700 bg-neutral-950 transition-shadow duration-200">
+          <Card className="hover:shadow-lg shadow-gray-800  dark:shadow-gray-700 dark:bg-neutral-950 transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm text-gray-400 font-medium ">Total Members</CardTitle>
+              <CardTitle className="text-sm text-gray-500 dark:text-gray-400 font-medium ">Total Members</CardTitle>
               <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold ">245</div>
-              <p className="text-xs text-gray-400 mt-1">Active community members</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Active community members</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg  shadow-gray-700 bg-neutral-950 transition-shadow duration-200">
+          <Card className="hover:shadow-lg shadow-gray-800 dark:shadow-gray-700 dark:bg-neutral-950 transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-400">Number of Datasets</CardTitle>
               <Database className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -63,7 +63,7 @@ const BasicCommunityInsight = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg  shadow-gray-700 bg-neutral-950 transition-shadow duration-200">
+          <Card className="hover:shadow-lg shadow-gray-800 dark:shadow-gray-700 dark:bg-neutral-950 transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-400">Top Contributor</CardTitle>
               <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
@@ -78,7 +78,7 @@ const BasicCommunityInsight = () => {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Bar Chart */}
-          <Card className="hover:shadow-lg transition-shadow bg-neutral-950 duration-200">
+          <Card className="hover:shadow-lg transition-shadow dark:bg-neutral-950 duration-200">
             <CardHeader>
               <CardTitle className="text-xl font-semibold ">
                 Datasets Added Per Month
@@ -93,7 +93,7 @@ const BasicCommunityInsight = () => {
                   <BarChart data={monthlyData} >
                     <XAxis  dataKey="month" tick={{ fill: "currentColor" }} axisLine={{ stroke: "currentColor" }} />
                     <YAxis tick={{ fill: "currentColor" }} axisLine={{ stroke: "currentColor" }} />
-                    <ChartTooltip content={<ChartTooltipContent className="bg-neutral-950"  />}  />
+                    <ChartTooltip content={<ChartTooltipContent className="dark:bg-neutral-950"  />}  />
                     <Bar dataKey="datasets" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -102,7 +102,7 @@ const BasicCommunityInsight = () => {
           </Card>
 
           {/* Pie Chart */}
-          <Card className="hover:shadow-lg transition-shadow bg-neutral-950 duration-200">
+          <Card className="hover:shadow-lg transition-shadow dark:bg-neutral-950 duration-200">
             <CardHeader>
               <CardTitle className="text-xl font-semibold ">Dataset Categories</CardTitle>
               <CardDescription className="text-gray-500">
@@ -131,9 +131,9 @@ const BasicCommunityInsight = () => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload
                           return (
-                            <div className="bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                            <div className="dark:bg-gray-800 p-3 border border-gray-900 dark:border-gray-700 rounded-lg shadow-lg">
                               <p className="font-medium ">{data.name}</p>
-                              <p className="text-sm text-gray-400">{data.value}% of datasets</p>
+                              <p className="text-sm text-gray-800">{data.value}% of datasets</p>
                             </div>
                           )
                         }

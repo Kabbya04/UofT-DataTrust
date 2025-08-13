@@ -96,12 +96,12 @@ const AuditLogViewer = () => {
     }
   }
   return (
-    <div className="container mx-auto p-6 space-y-6">
+     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold ">Audit Log Viewer</h1>
-          <p className=" mt-2">Monitor all system activities and user actions</p>
+          <h1 className="text-3xl font-bold  dark:text-white">Audit Log Viewer</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Monitor all system activities and user actions</p>
         </div>
         <div className="flex items-center gap-2">
           <FileText className="h-8 w-8 text-orange-600" />
@@ -170,19 +170,19 @@ const AuditLogViewer = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {auditLogs.map((log) => (
+            {auditLogs.map((log) => ( 
               <div
                 key={log.id}
-                className="flex items-center justify-between p-4  border rounded-lg transition-colors"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-800 dark:hover:bg-gray-400 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-800">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full  dark:bg-gray-800">
                     {getActionIcon(log.type)}
                   </div>
                   <div>
-                    <p className="font-medium ">{log.action}</p>
+                    <p className="font-medium  dark:text-white">{log.action}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {log.date} at {log.time}
                       </p>
                       <Badge variant="outline" className="text-xs">
@@ -191,9 +191,9 @@ const AuditLogViewer = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center cursor-pointer  gap-2">
-                  <Badge variant={getSeverityColor(log.severity)} className="border rounded-lg">{log.severity}</Badge>
-                  <Badge variant="secondary" className="border rounded-lg">{log.type} </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={getSeverityColor(log.severity)}>{log.severity}</Badge>
+                  <Badge variant="secondary">{log.type}</Badge>
                 </div>
               </div>
             ))}
@@ -206,8 +206,8 @@ const AuditLogViewer = () => {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold">6</p>
-              <p className="text-sm text-gray-400 dark:text-gray-400">Total Events</p>
+              <p className="text-2xl font-bold  dark:text-white">6</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Events</p>
             </div>
           </CardContent>
         </Card>
@@ -215,7 +215,7 @@ const AuditLogViewer = () => {
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">4</p>
-              <p className="text-sm text-gray-400 dark:text-gray-400">Info/Success</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Info/Success</p>
             </div>
           </CardContent>
         </Card>
@@ -223,7 +223,7 @@ const AuditLogViewer = () => {
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-yellow-600">1</p>
-              <p className="text-sm text-gray-400 dark:text-gray-400">Warnings</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Warnings</p>
             </div>
           </CardContent>
         </Card>
@@ -231,7 +231,7 @@ const AuditLogViewer = () => {
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold text-red-600">1</p>
-              <p className="text-sm text-gray-400 dark:text-gray-400">Errors</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Errors</p>
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,8 @@
 import { Bell, Settings, Truck } from "lucide-react"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import Link from "next/link"
+import { useState } from "react"
 
 const notifications = [
   {
@@ -94,7 +96,7 @@ export function NotificationButton() {
             </div>
           )}
 
-          {earlierNotifications.length > 0 && (
+          {earlierNotifications.length > 0 ? (
             <div className="p-4 border-t border-border/30">
               <h4 className="text-sm font-medium text-muted-foreground font-mono mb-3">Earlier</h4>
               <div className="space-y-3">
@@ -116,15 +118,18 @@ export function NotificationButton() {
                 ))}
               </div>
             </div>
-          )}
+          ) : "No notification"}
         </div>
 
-        <div className="p-2 border-t border-border/30 text-center">
-          <button className="text-sm text-primary hover:underline font-medium font-mono">
+        <div className="p-2 flex flex-row items-center justify-between border-t border-border/30 text-center">
+          <Link href={'/authentication-profile/notification-center'} className="text-sm text-primary hover:underline font-medium ">
             View all notifications
-          </button>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </Link>
+          <button onClick={() => {}} className=" text-sm hover:underline cursor-pointer">
+          Clear
+        </button>
+      </div>
+    </DropdownMenuContent>
+    </DropdownMenu >
   )
 }

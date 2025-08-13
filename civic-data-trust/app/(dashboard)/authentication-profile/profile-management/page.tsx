@@ -13,8 +13,8 @@ interface PatientData {
   phone: string
   email: string
   address: string
-  scheduledAppt: string
-  specialNotes: string
+  joiningDate: string
+  followers: number
   referringDoctor: string
   assignedDoctor: string
   familyDoctor: string
@@ -39,8 +39,8 @@ const mockPatient: PatientData = {
   phone: "STES 3453 6605",
   email: "j.alexander@email.com",
   address: "795 Ave Rockland,Outremont, Montreal, Canada",
-  scheduledAppt: "14 Mar 2021",
-  specialNotes: "Patient is Deaf. Talk to his wife.",
+  joiningDate: "14 Mar 2021",
+  followers: 50,
   referringDoctor: "Dre Chantal Godin",
   assignedDoctor: "Audrey Smith",
   familyDoctor: "Dre Chantal Godin",
@@ -120,7 +120,7 @@ const ProfileManagement = () => {
   }
 
   return (
-<div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm  dark:text-gray-400">
@@ -140,8 +140,8 @@ const ProfileManagement = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Patient Info */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Patient Basic Info */}
-          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          {/* Basic Info */}
+          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-600 dark:border-gray-700">
             <div className="flex items-start gap-4">
               <div className="relative">
                 <Image
@@ -176,12 +176,12 @@ const ProfileManagement = () => {
                     <p className="font-medium  dark:text-white">{patient.occupation}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Scheduled Appt</span>
-                    <p className="font-medium  dark:text-white">{patient.scheduledAppt}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Joining Date</span>
+                    <p className="font-medium  dark:text-white">{patient.joiningDate}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Special Notes</span>
-                    <p className="font-medium text-red-600 dark:text-red-400">{patient.specialNotes}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Follower</span>
+                    <p className="font-medium text-green-600 dark:text-red-400">{patient.followers}</p>
                   </div>
                 </div>
               </div>
@@ -215,7 +215,7 @@ const ProfileManagement = () => {
             </div>
 
             {/* Medical Team */}
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            {/* <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400 block">Referring Doctor</span>
@@ -237,20 +237,20 @@ const ProfileManagement = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
-          {/* Risk Factors */}
-          <div className="dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          {/* Create chanel */}
+          <div className="dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-600 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold  dark:text-white">Risk Factor</h2>
-              <MoreHorizontal className="h-5 w-5 " />
+              {/* <h2 className="text-lg font-semibold  dark:text-white">Create Channel</h2> */}
+              {/* <MoreHorizontal className="h-5 w-5 " /> */}
             </div>
 
-            <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <div className="w-32 h-32 mx-auto mb-4 opacity-50">
-                  <svg viewBox="0 0 200 200" className="w-full h-full dark:text-gray-400">
+            <div className="flex  items-center justify-center ">
+              <div className=" text-center">
+                <div className="w-20 h-20 mx-auto mb-4 opacity-50">
+                  <svg viewBox="0 0 200 200" className="w-full h-full dark:text-gray-500">
                     <path
                       d="M50 150 Q100 50 150 150"
                       stroke="currentColor"
@@ -276,62 +276,21 @@ const ProfileManagement = () => {
                     />
                   </svg>
                 </div>
-                <p className=" dark:text-gray-400 mb-4">No risk factor added.</p>
+                <p className=" dark:text-gray-400 mb-4">Create your channel.</p>
                 <button className="flex items-center gap-2 px-4 py-2 bg-blue-600  rounded-lg hover:bg-blue-700 transition-colors mx-auto">
                   <Plus className="h-4 w-4" />
-                  Add risk factor
+                  Create
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Physical Exam */}
-          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold  ">Physical Exam</h2>
-              <MoreHorizontal className="h-5 w-5 " />
-            </div>
-
-            <div className="space-y-4">
-              {physicalExamData.map((exam, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between py-3 border-b  dark:border-gray-700 last:border-b-0"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm font-medium  ">{exam.category}</p>
-                    <p className="text-xs  dark:text-gray-400">{exam.finding}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium  ">{exam.value}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Vital Signs Chart */}
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {vitalSigns.map((vital, index) => (
-                  <div key={index} className="p-4  dark:bg-gray-800/50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs  dark:text-gray-400">{vital.label}</span>
-                      <span className="text-sm font-medium  ">
-                        {vital.value} {vital.unit}
-                      </span>
-                    </div>
-                    <MiniChart data={vital.trend} color={vital.color} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right Column - Weather & Notes */}
         <div className="space-y-6">
           {/* Weather Widget */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+          {/* <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Sun className="h-5 w-5" />
@@ -364,46 +323,46 @@ const ProfileManagement = () => {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
 
-          {/* Quick Actions */}
-          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold  dark:text-white mb-4">Quick Actions</h3>
+          {/* Available Channel */}
+          <div className=" dark:bg-[#1F1F23] rounded-xl p-6 border border-gray-500 ">
+            <h3 className="text-lg font-semibold  dark:text-white mb-4">Your Available Channel</h3>
             <div className="space-y-3">
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <Calendar className="h-5 w-5 text-blue-600" />
-                <span className="text-sm font-medium  dark:text-white">Schedule Follow-up</span>
+                <span className="text-sm font-medium  dark:text-white">Channel 1</span>
               </button>
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <User className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium  dark:text-white">Add Family Member</span>
+                <span className="text-sm font-medium  dark:text-white">Channel 2</span>
               </button>
               <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <Plus className="h-5 w-5 text-purple-600" />
-                <span className="text-sm font-medium  dark:text-white">Add Prescription</span>
+                <span className="text-sm font-medium  dark:text-white">Channel 3</span>
               </button>
             </div>
           </div>
 
           {/* Recent Updates */}
-          <div className=" dark:bg-neutral-400 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold  mb-4">Recent Updates</h3>
+          <div className=" dark:bg-neutral-400 rounded-xl p-6 border border-gray-500 ">
+            <h3 className="text-lg font-semibold  mb-4">Recent Uploaded Data</h3>
             <div className="space-y-3">
               <div className="text-xs text-gray-500 dark:text-gray-800">Last updated on 26 Jul 2020, 11:30 AM</div>
               <div className="space-y-2">
-                <div className="p-2 bg-gray-50 text-gray-900 dark:bg-gray-800/50  rounded text-xs">
-                  <span className="font-medium">Blood pressure</span> updated by Dr. Smith
+                <div className="p-2  dark:text-gray-100 dark:bg-gray-800/50  rounded text-xs">
+                  <span className="font-medium">In channel 1 </span>a jpg file uploaded by you
                 </div>
-                <div className="p-2 bg-gray-50 text-gray-900 dark:bg-gray-800/50 rounded text-xs">
-                  <span className="font-medium">Medication</span> prescribed by Dr. Graham
+                <div className="p-2  dark:text-gray-100 dark:bg-gray-800/50 rounded text-xs">
+                  <span className="font-medium">In Channel 2</span> a mp3 file uploaded
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+
+     </div> )
 }
 
-export default ProfileManagement
+      export default ProfileManagement
