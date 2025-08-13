@@ -33,7 +33,7 @@ export default function AuditLogPage() {
         <p className="text-muted-foreground mt-2 font-mono">Immutable, timestamped record of all system-level events.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardContent className="p-4">
           <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono px-4 pb-2 border-b border-border/50 dark:border-neutral-800">
              <p className="w-24">TIMESTAMP</p>

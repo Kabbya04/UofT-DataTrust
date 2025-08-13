@@ -14,7 +14,7 @@ export default function TCPage() {
           <Edit className="w-4 h-4 mr-2"/> Edit Document
         </Button>
       </div>
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardContent className="prose prose-sm dark:prose-invert font-mono p-6 max-w-none">
           <h2>1. Acceptance of Terms</h2>
           <p>By accessing or using the Civic Data Trust platform, you agree to be bound by these Terms & Conditions...</p>

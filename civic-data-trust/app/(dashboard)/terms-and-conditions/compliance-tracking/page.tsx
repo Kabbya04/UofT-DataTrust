@@ -11,7 +11,7 @@ export default function ComplianceTrackingPage() {
         <p className="text-muted-foreground mt-2 font-mono">Monitor user agreement with the latest Terms & Conditions.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardHeader className="flex flex-row items-center gap-4">
           <UserCheck className="w-8 h-8 text-primary"/>
           <div>

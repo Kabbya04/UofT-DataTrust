@@ -23,7 +23,7 @@ export default function RequestHistoryPage() {
         <p className="text-muted-foreground mt-2 font-mono">An audit log of all past data access decisions.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="text-mono-caps">Past 30 Days</CardTitle>
         </CardHeader>

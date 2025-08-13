@@ -29,7 +29,7 @@ export default function RequestReviewPage() {
         <p className="text-muted-foreground mt-2 font-mono">Review and respond to new data requests from community members.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardContent className="p-0">
           <RequestItem user="Dr. Evelyn Reed" dataset="Economic Mobility Study" date="2024-05-21" reason="Academic research on post-pandemic economic recovery." />
           <RequestItem user="City Planning Dept." dataset="Public Transportation Usage" date="2024-05-19" reason="To inform the new downtown transit corridor project." />

@@ -28,7 +28,7 @@ export default function DataHistoryPage() {
         <p className="text-muted-foreground mt-2 font-mono">Track changes and revisions for the 'Public Housing Survey 2023' dataset.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="text-mono-caps">Version History</CardTitle>
         </CardHeader>

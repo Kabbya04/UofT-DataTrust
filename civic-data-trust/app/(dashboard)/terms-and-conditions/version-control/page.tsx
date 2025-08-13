@@ -21,7 +21,7 @@ export default function VersionControlPage() {
         <h1 className="text-3xl font-bold text-mono-caps">T&C Version Control</h1>
         <p className="text-muted-foreground mt-2 font-mono">Review the history and changelog of the platform's legal documents.</p>
       </div>
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardContent className="p-4">
           <VersionItem version="2.1" date="2024-04-30" status="Active" />
           <VersionItem version="2.0" date="2023-11-15" status="Archived" />

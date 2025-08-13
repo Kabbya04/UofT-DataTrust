@@ -30,7 +30,7 @@ export default function PluginRequestReviewPage() {
         <p className="text-muted-foreground mt-2 font-mono">Review and approve new third-party plugins for the platform.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="text-mono-caps">Pending Requests</CardTitle>
         </CardHeader>

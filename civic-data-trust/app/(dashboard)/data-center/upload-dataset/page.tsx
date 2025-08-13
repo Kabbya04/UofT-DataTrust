@@ -11,7 +11,7 @@ export default function UploadDataSetPage() {
         <p className="text-muted-foreground mt-2 font-mono">Contribute data to the trust. All uploads are versioned.</p>
       </div>
 
-      <Card className="bg-card dark:bg-neutral-900 border-2 border-dashed border-border dark:border-neutral-800 rounded-xl text-center">
+      <Card className="rounded-xl">
         <CardContent className="p-12 flex flex-col items-center">
           <UploadCloud className="w-16 h-16 text-primary mb-4" />
           <h2 className="text-xl font-semibold text-mono-caps">Drag & Drop Files Here</h2>
@@ -26,7 +26,7 @@ export default function UploadDataSetPage() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+        <Card className="rounded-xl">
           <CardHeader className="flex flex-row items-start gap-4">
             <FileText className="w-6 h-6 text-primary mt-1 shrink-0" />
             <div>
@@ -35,7 +35,7 @@ export default function UploadDataSetPage() {
             </div>
           </CardHeader>
         </Card>
-        <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+        <Card className="rounded-xl">
           <CardHeader className="flex flex-row items-start gap-4">
             <Info className="w-6 h-6 text-primary mt-1 shrink-0" />
             <div>
