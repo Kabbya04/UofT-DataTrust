@@ -24,6 +24,12 @@ export default function HomePage() {
           >
             Go to Sign Up <span aria-hidden="true">→</span>
           </Link>
+          <Link
+            href="/community"
+            className="text-sm font-semibold leading-6"
+          >
+            community <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
     </main>
