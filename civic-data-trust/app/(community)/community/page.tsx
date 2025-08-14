@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { store, RootState } from '../../store';
 import { addNode, setViewport, setZoom } from '../../store/workflowSlice';
 import PluginLibrary from './components/PluginLibrary';
-import { Upload, Save, Download, Play, FileJson, RefreshCw, Trash2 } from 'lucide-react';
+import { Upload, Save, Download, Play, FileJson, RefreshCw, Trash2, Image, FileText, Database } from 'lucide-react';
 
 // Dynamic import with SSR disabled for Konva components
 const WorkflowCanvas = dynamic(
@@ -48,6 +48,7 @@ function CommunityPageContent() {
   const [draggedNode, setDraggedNode] = useState<any>(null);
   const [workflowName, setWorkflowName] = useState('Untitled Workflow');
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);
   
   // Get workflow state for export
   const workflowState = useSelector((state: RootState) => state.workflow);
@@ -59,6 +60,7 @@ function CommunityPageContent() {
 
   const handleImageSelect = () => {
     setSelectedImage('/images/download.jpg');
+    setSelectedDataSources([...selectedDataSources, 'image']);
     
     // Add image input node to canvas
     const imageNode = {
@@ -202,6 +204,7 @@ function CommunityPageContent() {
       store.dispatch(setZoom(1));
       
       setSelectedImage(null);
+      setSelectedDataSources([]);
       setWorkflowName('Untitled Workflow');
     }
   };
@@ -218,6 +221,7 @@ function CommunityPageContent() {
   };
 
   const handleAddJsonData = () => {
+    setSelectedDataSources([...selectedDataSources, 'json']);
     const jsonNode = {
       id: `json-${Date.now()}`,
       type: 'text_input',
@@ -238,6 +242,11 @@ function CommunityPageContent() {
     store.dispatch(addNode(jsonNode));
   };
 
+  const handleAddCsvData = () => {
+    alert('CSV upload functionality would be implemented here');
+    // In a real implementation, this would open a file picker for CSV files
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Panel - Data Selection and Workflow Info */}
@@ -256,49 +265,107 @@ function CommunityPageContent() {
         
         {/* Content */}
         <div className="flex-1 p-6 space-y-4 overflow-y-auto">
-          {/* Data Sources */}
+          {/* Data Sources - Card Grid */}
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-medium text-gray-900">Data Sources</h3>
               <Upload className="w-5 h-5 text-gray-400" />
             </div>
             
-            <div 
-              className={`border-2 border-dashed rounded-lg p-4 cursor-pointer transition-all ${
-                selectedImage 
-                  ? 'border-blue-500 bg-blue-50 hover:bg-blue-100' 
-                  : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-              }`}
-              onClick={handleImageSelect}
-            >
-              {selectedImage ? (
-                <div className="text-center">
-                  <img 
-                    src={selectedImage} 
-                    alt="Selected" 
-                    className="mx-auto mb-2 max-w-full h-20 object-cover rounded"
-                  />
-                  <p className="text-sm font-medium text-blue-700">download.jpg</p>
-                  <p className="text-xs text-gray-500">Click to add another node</p>
-                </div>
-              ) : (
-                <div className="text-center text-gray-500">
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm font-medium">Click to add image</p>
-                  <p className="text-xs">download.jpg available</p>
-                </div>
-              )}
-            </div>
-            
-            {/* Additional data source options */}
-            <div className="mt-3 space-y-2">
-              <button 
-                onClick={handleAddJsonData}
-                className="w-full px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
+            {/* Grid layout for data source cards */}
+            <div className="grid grid-cols-1 gap-3">
+              {/* Image Data Card */}
+              <div 
+                className={`relative bg-white border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                  selectedDataSources.includes('image')
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={handleImageSelect}
               >
-                <FileJson className="w-4 h-4" />
-                Add JSON Data
-              </button>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 rounded">
+                    <Image className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm text-gray-900">Image Data</div>
+                    <div className="text-xs text-gray-500 mt-1">download.jpg</div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">JPG</span>
+                      <span className="text-xs text-gray-400">1.2 MB</span>
+                    </div>
+                  </div>
+                </div>
+                {selectedDataSources.includes('image') && (
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"></div>
+                )}
+              </div>
+              
+              {/* JSON Data Card */}
+              <div 
+                className={`relative bg-white border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                  selectedDataSources.includes('json')
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={handleAddJsonData}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-green-100 rounded">
+                    <FileJson className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm text-gray-900">JSON Data</div>
+                    <div className="text-xs text-gray-500 mt-1">Custom JSON input</div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">JSON</span>
+                      <span className="text-xs text-gray-400">Variable</span>
+                    </div>
+                  </div>
+                </div>
+                {selectedDataSources.includes('json') && (
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"></div>
+                )}
+              </div>
+              
+              {/* CSV Data Card */}
+              <div 
+                className="relative bg-white border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md border-gray-200 hover:border-gray-300"
+                onClick={handleAddCsvData}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-purple-100 rounded">
+                    <FileText className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm text-gray-900">CSV Data</div>
+                    <div className="text-xs text-gray-500 mt-1">Upload CSV file</div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">CSV</span>
+                      <span className="text-xs text-gray-400">Click to upload</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Database Card */}
+              <div 
+                className="relative bg-white border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md border-gray-200 hover:border-gray-300 opacity-60"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-orange-100 rounded">
+                    <Database className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm text-gray-900">Database</div>
+                    <div className="text-xs text-gray-500 mt-1">Coming soon</div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">SQL</span>
+                      <span className="text-xs text-gray-400">Not available</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           

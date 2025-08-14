@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer, Line, Circle, Group } from 'react-konva';
 import { useDispatch, useSelector } from 'react-redux';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { RootState } from '@/app/store';
@@ -26,6 +26,42 @@ interface WorkflowCanvasProps {
   onDrop: (e: React.DragEvent) => void;
   draggedPlugin: any;
 }
+
+// Dotted background component
+const DottedBackground = ({ width, height, viewport, zoom }: { 
+  width: number; 
+  height: number; 
+  viewport: { x: number; y: number };
+  zoom: number;
+}) => {
+  const dotSize = 1.5;
+  const dotSpacing = 20;
+  const dots = [];
+  
+  // Calculate the visible area in canvas coordinates
+  const startX = Math.floor((-viewport.x / zoom) / dotSpacing) * dotSpacing - dotSpacing;
+  const startY = Math.floor((-viewport.y / zoom) / dotSpacing) * dotSpacing - dotSpacing;
+  const endX = startX + (width / zoom) + dotSpacing * 2;
+  const endY = startY + (height / zoom) + dotSpacing * 2;
+  
+  // Generate dots only for the visible area plus a buffer
+  for (let x = startX; x < endX; x += dotSpacing) {
+    for (let y = startY; y < endY; y += dotSpacing) {
+      dots.push(
+        <Circle
+          key={`dot-${x}-${y}`}
+          x={x}
+          y={y}
+          radius={dotSize}
+          fill="#D1D5DB"
+          opacity={0.4}
+        />
+      );
+    }
+  }
+  
+  return <Group>{dots}</Group>;
+};
 
 export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: WorkflowCanvasProps) {
   const dispatch = useDispatch();
@@ -332,6 +368,14 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
         onDragEnd={handleStageDragEnd}
       >
         <Layer>
+          {/* Dotted background */}
+          <DottedBackground 
+            width={canvasSize.width} 
+            height={canvasSize.height} 
+            viewport={viewport}
+            zoom={zoom}
+          />
+          
           {/* Render connections */}
           {connections.map(conn => {
             const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);

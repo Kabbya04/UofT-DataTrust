@@ -2,7 +2,8 @@ import React from 'react';
 import { 
   Bot, Brain, Zap, Cpu, Settings, 
   Database, GitBranch, Globe, Webhook,
-  Filter, GitMerge, Split, Code, FileText, Image
+  Filter, GitMerge, Split, Code, FileText, Image,
+  Calculator, Table, LineChart
 } from 'lucide-react';
 
 const nodeLibrary = [
@@ -109,6 +110,38 @@ const nodeLibrary = [
     ]
   },
   
+  // Data Science
+  { 
+    id: 'numpy', 
+    name: 'NumPy', 
+    icon: <Calculator className="w-5 h-5" />, 
+    color: '#013243',
+    category: 'Data Science',
+    description: 'Array operations & math',
+    inputs: [{ id: 'main', type: 'main', label: 'Input' }],
+    outputs: [{ id: 'main', type: 'main', label: 'Array' }]
+  },
+  { 
+    id: 'pandas', 
+    name: 'Pandas', 
+    icon: <Table className="w-5 h-5" />, 
+    color: '#150458',
+    category: 'Data Science',
+    description: 'DataFrame operations',
+    inputs: [{ id: 'main', type: 'main', label: 'Input' }],
+    outputs: [{ id: 'main', type: 'main', label: 'DataFrame' }]
+  },
+  { 
+    id: 'matplotlib', 
+    name: 'Matplotlib', 
+    icon: <LineChart className="w-5 h-5" />, 
+    color: '#11557C',
+    category: 'Data Science',
+    description: 'Data visualization',
+    inputs: [{ id: 'main', type: 'main', label: 'Data' }],
+    outputs: [{ id: 'main', type: 'main', label: 'Chart' }]
+  },
+  
   // API
   { 
     id: 'http_request', 
@@ -175,7 +208,7 @@ interface PluginLibraryProps {
 }
 
 export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryProps) {
-  const categories = ['AI', 'Data', 'API', 'Logic', 'Utility'];
+  const categories = ['AI', 'Data', 'Data Science', 'API', 'Logic', 'Utility'];
   
   return (
     <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
