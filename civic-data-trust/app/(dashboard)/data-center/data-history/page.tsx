@@ -25,7 +25,7 @@ export default function DataHistoryPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-mono-caps">Data History & Versioning</h1>
-        <p className="text-muted-foreground mt-2 font-mono">Track changes and revisions for the 'Public Housing Survey 2023' dataset.</p>
+        <p className="text-muted-foreground mt-2 font-mono">Track changes and revisions for the &apos;Public Housing Survey 2023&apos; dataset.</p>
       </div>
 
       <Card className="rounded-xl">

@@ -19,7 +19,7 @@ export default function VersionControlPage() {
     <div className="space-y-8">
        <div>
         <h1 className="text-3xl font-bold text-mono-caps">T&C Version Control</h1>
-        <p className="text-muted-foreground mt-2 font-mono">Review the history and changelog of the platform's legal documents.</p>
+        <p className="text-muted-foreground mt-2 font-mono">Review the history and changelog of the platform&apos;s legal documents.</p>
       </div>
       <Card className="rounded-xl">
         <CardContent className="p-4">

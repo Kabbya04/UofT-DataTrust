@@ -6,7 +6,8 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Search, Filter, MoreHorizontal, MapPin, Clock, Shield } from "lucide-react"
 
-type Agent = {
+// Define a type for the agent object
+interface Agent {
   id: string
   name: string
   status: string
@@ -18,9 +19,10 @@ type Agent = {
 
 export default function MembershipStatusTracking () {
     const [searchTerm, setSearchTerm] = useState("")
+  // Explicitly type the state to be Agent or null
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
 
-  const agents = [
+  const agents: Agent[] = [ // Use the Agent type for the array
     {
       id: "G-078W",
       name: "VENGEFUL SPIRIT",

@@ -62,7 +62,7 @@ export default function DashboardWelcomePage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-mono-caps">Welcome Back, {userName}!</h1>
-        <p className="text-muted-foreground mt-2 font-mono">Here's a quick overview of your Civic Data Trust dashboard.</p>
+        <p className="text-muted-foreground mt-2 font-mono">Here&apos;s a quick overview of your Civic Data Trust dashboard.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
