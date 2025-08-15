@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Phone, Mail, MapPin, Calendar, User, Plus, MoreHorizontal, Sun, Edit, Save } from "lucide-react"
+import { Phone, Mail, MapPin, Calendar, User, Plus, Edit, Save } from "lucide-react"
 
 interface PatientData {
   id: string
@@ -22,13 +22,13 @@ interface PatientData {
   avatar: string
 }
 
-interface VitalSign {
-  label: string
-  value: string
-  unit: string
-  trend: number[]
-  color: string
-}
+// interface VitalSign {
+//   label: string
+//   value: string
+//   unit: string
+//   trend: number[]
+//   color: string
+// }
 
 const mockPatient: PatientData = {
   id: "1",
@@ -49,75 +49,76 @@ const mockPatient: PatientData = {
 }
 
 
-const vitalSigns: VitalSign[] = [
-  {
-    label: "Blood Pressure",
-    value: "120",
-    unit: "mmHg",
-    trend: [118, 120, 119, 121, 120, 118, 122],
-    color: "blue",
-  },
-  {
-    label: "Heart Rate",
-    value: "72",
-    unit: "bpm",
-    trend: [70, 72, 74, 71, 72, 73, 72],
-    color: "purple",
-  },
-  {
-    label: "Temperature",
-    value: "98.6",
-    unit: "°F",
-    trend: [98.4, 98.6, 98.5, 98.7, 98.6, 98.5, 98.6],
-    color: "orange",
-  },
-  {
-    label: "Oxygen Saturation",
-    value: "98",
-    unit: "%",
-    trend: [97, 98, 98, 97, 98, 99, 98],
-    color: "green",
-  },
-]
+// const vitalSigns: VitalSign[] = [
+//   {
+//     label: "Blood Pressure",
+//     value: "120",
+//     unit: "mmHg",
+//     trend: [118, 120, 119, 121, 120, 118, 122],
+//     color: "blue",
+//   },
+//   {
+//     label: "Heart Rate",
+//     value: "72",
+//     unit: "bpm",
+//     trend: [70, 72, 74, 71, 72, 73, 72],
+//     color: "purple",
+//   },
+//   {
+//     label: "Temperature",
+//     value: "98.6",
+//     unit: "°F",
+//     trend: [98.4, 98.6, 98.5, 98.7, 98.6, 98.5, 98.6],
+//     color: "orange",
+//   },
+//   {
+//     label: "Oxygen Saturation",
+//     value: "98",
+//     unit: "%",
+//     trend: [97, 98, 98, 97, 98, 99, 98],
+//     color: "green",
+//   },
+// ]
 
-const physicalExamData = [
-  { category: "General", finding: "Blockage in left artery", value: "120 mmHg" },
-  { category: "Cardiac", finding: "Congestion in left side of chest", value: "72 / min" },
-  { category: "Abdomen", finding: "Mass on right side", value: "76 Kg" },
-  { category: "Volume status", finding: "S/P", value: "80 cm" },
-  { category: "Edema", finding: "Oedema in the left side", value: "80" },
-]
+// const physicalExamData = [
+//   { category: "General", finding: "Blockage in left artery", value: "120 mmHg" },
+//   { category: "Cardiac", finding: "Congestion in left side of chest", value: "72 / min" },
+//   { category: "Abdomen", finding: "Mass on right side", value: "76 Kg" },
+//   { category: "Volume status", finding: "S/P", value: "80 cm" },
+//   { category: "Edema", finding: "Oedema in the left side", value: "80" },
+// ]
 
 const ProfileManagement = () => {
   const [isEditing, setIsEditing] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [patient, setPatient] = useState<PatientData>(mockPatient)
-  const [consultationNotes, setConsultationNotes] = useState("Type")
+  // const [consultationNotes, setConsultationNotes] = useState("Type")
 
-  const handleSave = () => {
-    setIsEditing(false)
-    // Here you would typically save to an API
-  }
+  // const handleSave = () => {
+  //   setIsEditing(false)
+  //   // Here you would typically save to an API
+  // }
 
-  const MiniChart = ({ data, color }: { data: number[]; color: string }) => {
-    const max = Math.max(...data)
-    const min = Math.min(...data)
-    const range = max - min || 1
+  // const MiniChart = ({ data, color }: { data: number[]; color: string }) => {
+  //   const max = Math.max(...data)
+  //   const min = Math.min(...data)
+  //   const range = max - min || 1
 
-    return (
-      <div className="flex items-end h-8 gap-0.5">
-        {data.map((value, index) => {
-          const height = ((value - min) / range) * 100
-          return (
-            <div
-              key={index}
-              className={`w-1 bg-${color}-500 rounded-sm`}
-              style={{ height: `${Math.max(height, 10)}%` }}
-            />
-          )
-        })}
-      </div>
-    )
-  }
+  //   return (
+  //     <div className="flex items-end h-8 gap-0.5">
+  //       {data.map((value, index) => {
+  //         const height = ((value - min) / range) * 100
+  //         return (
+  //           <div
+  //             key={index}
+  //             className={`w-1 bg-${color}-500 rounded-sm`}
+  //             style={{ height: `${Math.max(height, 10)}%` }}
+  //           />
+  //         )
+  //       })}
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">

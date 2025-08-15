@@ -4,9 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Button } from "../../../components/ui/button"
 import { MoreHorizontal, MapPin } from "lucide-react"
 
+type Agent = {
+  id: string
+  name: string
+  status: string
+  location: string
+  lastSeen: string
+  missions: number
+  risk: string
+}
+
 const MembershipRequestInterface = () => {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedAgent, setSelectedAgent] = useState(null)
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
 
   const agents = [
     {
