@@ -211,7 +211,7 @@ export function Sidebar() {
               <button
                 className={`w-full flex justify-between items-center gap-3 p-3 rounded transition-colors ${activeSection === item.id
                     ? "bg-orange-500 text-white"
-                    : " dark:hover:text-white hover:bg-neutral-800"
+                    : " dark:hover:text-white dark:hover:bg-neutral-800"
                   }`}
                 onClick={() => toggleMenu(item.title)}
               >
@@ -236,7 +236,7 @@ export function Sidebar() {
                       className={`flex items-center gap-3 p-3 rounded text-sm transition-colors text-mono-caps ${
                         activeSection === sub.id
                           ? "bg-orange-500 text-white"
-                          : "text-foreground/80 hover:text-foreground hover:bg-neutral-800"
+                          : "text-foreground/80 hover:text-foreground hover:bg-neutral-500 dark:hover:bg-neutral-800"
                       }`}
                     >
                       <sub.icon className="h-4 w-4 shrink-0" />
