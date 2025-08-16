@@ -295,10 +295,10 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full ">
-          <TabsList className="grid w-full grid-cols-4 h-12 p-2 gap-2 transition-all duration-300 border-0 shadow-xl shadow-neutral-600  backdrop-blur-xl  ">
+          <TabsList className="grid w-full grid-cols-4 h-12 p-2 gap-2 transition-all duration-300 shadow-xl shadow-neutral-600  backdrop-blur-xl border border-primary rounded-lg">
             <TabsTrigger
               value="overview"
-              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer "
+              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer  "
             >
               Overview
             </TabsTrigger>
@@ -326,7 +326,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
           <TabsContent value="overview" className="mt-6 animate-fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+                <Card className="border border-primary shadow-md hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MessageCircle className="h-5 w-5 text-primary" />
@@ -349,7 +349,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                   </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+                <Card className="border border-primary shadow-md hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle>Community Guidelines</CardTitle>
                   </CardHeader>
@@ -377,17 +377,20 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                     <CardTitle>Community Stats</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 ">
-                    <div className="flex items-center justify-between p-3 rounded-l bg-gray-500 dark:bg-gray-700">
+                    <div className="flex items-center justify-between p-3 rounded-l  
+                    border-b border-primary">
                       <span className="text-muted-foreground">Total Members</span>
                       <span className="font-bold text-lg text-primary">{community.memberCount.toLocaleString()}</span>
                     </div>
-                    <Separator />
-                    <div className="flex items-center justify-between p-3 rounded-l bg-gray-500 dark:bg-gray-700">
+                    {/* <Separator /> */}
+                    <div className="flex items-center justify-between p-3 rounded-l  
+                    border-b border-primary">
                       <span className="text-muted-foreground">Shared Resources</span>
                       <span className="font-bold text-lg text-primary">{extendedDetails?.sharedData.length || 0}</span>
                     </div>
-                    <Separator />
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-500 dark:bg-gray-700">
+                    {/* <Separator /> */}
+                    <div className="flex items-center justify-between p-3 rounded-lg  
+                    border-b border-primary">
                       <span className="text-muted-foreground">Category</span>
                       <Badge variant="outline" className="font-semibold">
                         {community.category}

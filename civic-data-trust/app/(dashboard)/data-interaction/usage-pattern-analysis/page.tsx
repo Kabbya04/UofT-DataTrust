@@ -157,7 +157,7 @@ const UsagePatternAnalysis = () => {
               <Badge variant="secondary">Pie Chart</Badge>
               <Badge variant="outline">Last 30 Days</Badge>
             </div>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
@@ -204,7 +204,7 @@ const UsagePatternAnalysis = () => {
               <Badge variant="secondary">Bar Chart</Badge>
               <Badge variant="outline">Monthly Data</Badge>
             </div>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[200px]">
               <ResponsiveContainer width="50%" height="50%">
                 <BarChart data={usageTrendsData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -238,12 +238,12 @@ const UsagePatternAnalysis = () => {
               { name: "SalesReport.xlsx", views: 28, downloads: 15, size: "856 KB" },
               { name: "UserBehavior.json", views: 21, downloads: 6, size: "2.1 MB" },
             ].map((dataset, index) => (
-              <div
+              <Card
                 key={index}
                 className="flex items-center justify-between p-4 border rounded-lg cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 font-bold text-sm">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100  text-blue-600 font-bold text-sm">
                     {index + 1}
                   </div>
                   <div>
@@ -261,7 +261,7 @@ const UsagePatternAnalysis = () => {
                     <p className="text-xs ">Downloads</p>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </CardContent>
@@ -275,16 +275,16 @@ const UsagePatternAnalysis = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Peak Usage Time</h4>
-              <p className="text-blue-800 dark:text-blue-200 text-sm">
+            <div className="p-4 bg-blue-50  rounded-lg border border-blue-200 ">
+              <h4 className="font-medium text-blue-900  mb-2">Peak Usage Time</h4>
+              <p className="text-blue-800  text-sm">
                 Most data interactions occur between 2-4 PM, suggesting optimal time for system maintenance is early
                 morning.
               </p>
             </div>
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <h4 className="font-medium text-green-900 dark:text-green-100 mb-2">Popular File Types</h4>
-              <p className="text-green-800 dark:text-green-200 text-sm">
+            <div className="p-4 bg-green-50  rounded-lg border border-green-200 ">
+              <h4 className="font-medium text-green-900  mb-2">Popular File Types</h4>
+              <p className="text-green-800  text-sm">
                 CSV files account for 60% of all views, indicating strong preference for tabular data formats.
               </p>
             </div>

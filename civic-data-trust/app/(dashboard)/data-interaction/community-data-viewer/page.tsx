@@ -47,7 +47,7 @@ const mockDatasets = [
 
 const CommunityDataViewer = () => {
   return (
-        <div className="container mx-auto dark:bg-neutral-900 p-6 space-y-6">
+        <div className="container mx-auto  p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -60,7 +60,7 @@ const CommunityDataViewer = () => {
       </div>
 
       {/* Search and Filters */}
-      <Card className=" dark:bg-neutral-950">
+      <Card className="border border-primary ">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
@@ -70,15 +70,15 @@ const CommunityDataViewer = () => {
         <CardContent>
           <div className="flex gap-4">
             <div className="flex-1">
-              <Input placeholder="Search by dataset name..." className="w-full bg-gray-500" />
+              <Input placeholder="Search by dataset name..." className="w-full bg-primary/20 border border-primary" />
             </div>
-            <Button variant="outline">Filter</Button>
+            <Button variant="outline" className=" bg-primary hover:border-primary hover:text-primary">Filter</Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Data Table */}
-      <Card className="dark:bg-neutral-950">
+      <Card className=" border border-primary">
         <CardHeader>
           <CardTitle>Dataset Overview</CardTitle>
           <CardDescription>All community datasets with upload information and file details</CardDescription>
@@ -86,7 +86,7 @@ const CommunityDataViewer = () => {
         <CardContent>
           <Table  className="  w-full rounded-lg">
             <TableHeader className="">
-              <TableRow className="pt-4">
+              <TableRow className="pt-4 border-b border-primary">
                 <TableHead className="">
                   {/* <Database className="" /> */}
                   Dataset Name
@@ -105,7 +105,7 @@ const CommunityDataViewer = () => {
             </TableHeader>
             <TableBody>
               {mockDatasets.map((dataset) => (
-                <TableRow key={dataset.id}>
+                <TableRow key={dataset.id} className="border-b border-primary">
                   <TableCell className="font-medium">{dataset.name}</TableCell>
                   <TableCell>{dataset.uploadDate}</TableCell>
                   <TableCell>{dataset.fileSize}</TableCell>
@@ -126,8 +126,8 @@ const CommunityDataViewer = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled
-                      className="opacity-50 cursor-not-allowed "
+
+                      className="cursor-pointer  bg-primary hover:border-primary hover:text-primary"
                     >
                       View Details
                     </Button>
@@ -141,7 +141,7 @@ const CommunityDataViewer = () => {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="dark:bg-neutral-950">
+        <Card className="border border-primary">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -152,7 +152,7 @@ const CommunityDataViewer = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="dark:bg-gray-950">
+        <Card className="border border-primary">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -163,7 +163,7 @@ const CommunityDataViewer = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="dark:bg-gray-950">
+        <Card className="border border-primary">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>

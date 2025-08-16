@@ -54,16 +54,16 @@ export function CommunityDiscoveryPortal() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8 text-center sm:text-left">
-          <h1 className="text-3xl  dark:text-gray-300 sm:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text ">
+          <h1 className="text-3xl  sm:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text ">
             Discover Communities
           </h1>
-          <p className="dark:text-gray-300 text-lg">Explore and join communities that match your interests</p>
+          <p className=" text-lg">Explore and join communities that match your interests</p>
         </div>
 
         {/* Search and Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 dark:text-gray-300 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" />
             <Input
               placeholder="Search communities, categories, or tags..."
               value={searchQuery}
@@ -108,7 +108,7 @@ export function CommunityDiscoveryPortal() {
           {filteredCommunities.map((community) => (
             <Card
               key={community.id}
-              className="group hover:shadow-xl dark:hover:shadow-neutral-300 hover:-translate-y-1 transition-all duration-300 border-0 shadow-2xl shadow-neutral-600 hover:shadow-neutral-300 bg-card/50 backdrop-blur-lg cursor-pointer flex flex-col h-full"
+              className="group hover:shadow-xl  hover:-translate-y-1 transition-all duration-300 border border-primary shadow-2xl shadow-neutral-600 hover:shadow-neutral-300 bg-card/50 backdrop-blur-lg cursor-pointer flex flex-col h-full"
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start gap-3">
@@ -172,7 +172,7 @@ export function CommunityDiscoveryPortal() {
                     variant={community.isJoined ? "outline" : "default"}
                     onClick={() => handleCommunityAction(community.id, community.isJoined)}
                     disabled={loadingCommunityId === community.id}
-                    className="min-w-[70px] transition-all  cursor-pointer border duration-200 hover:scale-105"
+                    className="min-w-[70px] transition-all  cursor-pointer border border-primary duration-200 hover:scale-105 hover:bg-primary/20 hover:text-primary hover:border-primary/70 text-sm font-medium flex items-center justify-center"
                   >
                     {loadingCommunityId === community.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

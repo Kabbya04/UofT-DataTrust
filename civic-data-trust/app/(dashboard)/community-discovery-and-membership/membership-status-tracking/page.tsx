@@ -108,7 +108,7 @@ export default function MembershipStatusTracking () {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold dark:text-white tracking-wider">Membership Status Tracking</h1>
+          <h1 className="text-2xl font-bold  tracking-wider">Membership Status Tracking</h1>
           <p className="text-sm text-neutral-400">Manage and monitor field operatives</p>
         </div>
 
@@ -116,7 +116,7 @@ export default function MembershipStatusTracking () {
 
 
       {/* Agent List */}
-      <Card className="dark:bg-neutral-900 border-neutral-700">
+      <Card className="border border-primary">
         <CardHeader>
           {/* <CardTitle className="text-sm font-medium dark:text-neutral-300 tracking-wider">AGENT ROSTER</CardTitle> */}
         </CardHeader>
@@ -124,7 +124,7 @@ export default function MembershipStatusTracking () {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-neutral-700">
+                <tr className="border-b border-primary">
                   <th className="text-left py-3 px-4 text-xs font-medium text-neutral-500 racking-wider">ID</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-neutral-500 racking-wider">NAME</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-neutral-500 racking-wider">STATUS</th>
@@ -139,13 +139,13 @@ export default function MembershipStatusTracking () {
                 {filteredAgents.map((agent, index) => (
                   <tr
                     key={agent.id}
-                    className={`border-b border-neutral-800 hover:bg-neutral-800 transition-colors cursor-pointer ${
-                      index % 2 === 0 ? "bg-neutral-600 dark:bg-neutral-900 " : ""
+                    className={`border-b border-primary hover:bg-primary/50 transition-colors cursor-pointer ${
+                      index % 2 === 0 ? "bg-primary/20  " : ""
                     }`}
                     onClick={() => setSelectedAgent(agent)}
                   >
-                    <td className="py-3 px-4 text-sm dark:text-white font-mono">{agent.id}</td>
-                    <td className="py-3 px-4 text-sm dark:text-white">{agent.name}</td>
+                    <td className="py-3 px-4 text-sm  font-mono">{agent.id}</td>
+                    <td className="py-3 px-4 text-sm ">{agent.name}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
                         <div
@@ -159,22 +159,22 @@ export default function MembershipStatusTracking () {
                                   : "bg-red-500"
                           }`}
                         ></div>
-                        <span className="text-xs dark:text-neutral-300 uppercase tracking-wider">{agent.status}</span>
+                        <span className="text-xs  uppercase tracking-wider">{agent.status}</span>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-3 h-3 dark:text-neutral-400" />
-                        <span className="text-sm dark:text-neutral-300">{agent.location}</span>
+                        <MapPin className="w-3 h-3 " />
+                        <span className="text-sm ">{agent.location}</span>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3 dark:text-neutral-400" />
-                        <span className="text-sm dark:text-neutral-300 font-mono">{agent.lastSeen}</span>
+                        <Clock className="w-3 h-3 " />
+                        <span className="text-sm  font-mono">{agent.lastSeen}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm dark:text-white font-mono">{agent.missions}</td>
+                    <td className="py-3 px-4 text-sm  font-mono">{agent.missions}</td>
                   
                     <td className="py-3 px-4">
                       <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-orange-500">
@@ -191,7 +191,7 @@ export default function MembershipStatusTracking () {
 
       {/* Agent Detail Modal */}
       {selectedAgent && (
-        <div className="fixed inset-0 dark:bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0  flex items-center justify-center p-4 z-50">
           <Card className="bg-neutral-800 border-neutral-700 w-full max-w-2xl">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -201,7 +201,7 @@ export default function MembershipStatusTracking () {
               <Button
                 variant="ghost"
                 onClick={() => setSelectedAgent(null)}
-                className="text-neutral-400 hover:text-white"
+                className="text-neutral-400  hover:text-black"
               >
                 ✕
               </Button>

@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: oklch(var(--background));
-  --color-foreground: oklch(var(--foreground));
-  --color-card: oklch(var(--card));
-  --color-card-foreground: oklch(var(--card-foreground));
-  --color-popover: oklch(var(--popover));
-  --color-popover-foreground: oklch(var(--popover-foreground));
-  --color-primary: oklch(var(--primary));
-  --color-primary-foreground: oklch(var(--primary-foreground));
-  --color-secondary: oklch(var(--secondary));
-  --color-secondary-foreground: oklch(var(--secondary-foreground));
-  --color-muted: oklch(var(--muted));
-  --color-muted-foreground: oklch(var(--muted-foreground));
-  --color-accent: oklch(var(--accent));
-  --color-accent-foreground: oklch(var(--accent-foreground));
-  --color-destructive: oklch(var(--destructive));
-  --color-destructive-foreground: oklch(var(--destructive-foreground));
-  --color-border: oklch(var(--border));
-  --color-input: oklch(var(--input));
-  --color-ring: oklch(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
   --radius: var(--radius);
 }
 
@@ -88,51 +88,45 @@
 
 @layer base {
   * {
-    border-color: oklch(var(--border));
+    border-color: hsl(var(--border));
   }
-  
+
   body {
-    background-color: oklch(var(--background));
-    color: oklch(var(--foreground));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-mono), 'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas', 'Monaco', monospace;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0.025em; /* Slightly increase letter spacing for better monospace readability */
+    letter-spacing: 0.025em;
   }
 
-  /* Apply monospace to all text elements */
   h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select {
-    font-family: inherit; /* Inherit the monospace font */
+    font-family: inherit;
   }
 
-  /* Adjust font weights for better hierarchy with monospace */
   h1 {
     font-weight: 700;
-    font-size: 2.25rem; /* text-4xl */
+    font-size: 2.25rem;
   }
-
   h2 {
     font-weight: 600;
-    font-size: 1.875rem; /* text-3xl */
+    font-size: 1.875rem;
   }
-
   h3 {
     font-weight: 600;
-    font-size: 1.5rem; /* text-2xl */
+    font-size: 1.5rem;
   }
-
   h4, h5, h6 {
     font-weight: 500;
   }
 
-  /* Optional: If you want some elements to NOT be monospace */
   .font-sans {
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 }
 
-/* Custom animations for better UX */
+/* animations, hover, focus same as your version */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -143,22 +137,10 @@
     transform: translateY(0);
   }
 }
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
-}
-
-/* Enhanced hover effects */
-.hover-lift {
-  transition: transform 0.2s ease-out;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-}
-
-/* Improved focus states for accessibility */
+.animate-fade-in { animation: fade-in 0.5s ease-out; }
+.hover-lift { transition: transform 0.2s ease-out; }
+.hover-lift:hover { transform: translateY(-2px); }
 .focus-ring:focus {
-  outline: 2px solid oklch(var(--primary));
+  outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
 }

@@ -14,20 +14,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 // Option 2: Fira Code (Great for coding, has ligatures)
-const firaCode = Fira_Code({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-mono',
-  display: 'swap',
-});
+// const firaCode = Fira_Code({
+//   subsets: ['latin'],
+//   weight: ['300', '400', '500', '600', '700'],
+//   variable: '--font-mono',
+//   display: 'swap',
+// });
 
 // Option 3: Source Code Pro (Clean, Adobe font)
-const sourceCodePro = Source_Code_Pro({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-mono',
-  display: 'swap',
-});
+// const sourceCodePro = Source_Code_Pro({
+//   subsets: ['latin'],
+//   weight: ['300', '400', '500', '600', '700'],
+//   variable: '--font-mono',
+//   display: 'swap',
+// });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -30,7 +30,7 @@ const BasicDataViewing = () => {
       </div>
 
       {/* Dataset Info */}
-      <Card>
+      <Card className="border border-primary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -45,12 +45,13 @@ const BasicDataViewing = () => {
               <Badge variant="outline">5 Rows Shown</Badge>
               <Badge variant="outline">4 Columns</Badge>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
+            <div className="flex gap-2 ">
+              <Button variant="outline" size="sm" className="bg-primary hover:border-primary hover:text-primary">
+                <RefreshCw className="h-4 w-4 mr-2 " />
                 Refresh
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="bg-primary hover:border-primary hover:text-primary">
+    
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
@@ -60,16 +61,16 @@ const BasicDataViewing = () => {
       </Card>
 
       {/* Data Preview */}
-      <Card>
+      <Card className="border border-primary">
         <CardHeader>
           <CardTitle>Data Preview</CardTitle>
           <CardDescription>This is a static preview of your dataset.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg overflow-hidden border border-primary">
             <Table>
               <TableHeader>
-                <TableRow className="">
+                <TableRow className="border-b border-primary">
                   <TableHead className="font-semibold">Column 1</TableHead>
                   <TableHead className="font-semibold">Column 2</TableHead>
                   <TableHead className="font-semibold">Column 3</TableHead>
@@ -78,7 +79,7 @@ const BasicDataViewing = () => {
               </TableHeader>
               <TableBody>
                 {csvPreviewData.map((row, index) => (
-                  <TableRow key={index} className=" cursor-pointer">
+                  <TableRow key={index} className=" cursor-pointer border border-primary">
                     <TableCell className="font-mono text-sm">{row.col1}</TableCell>
                     <TableCell className="font-mono text-sm">{row.col2}</TableCell>
                     <TableCell className="font-mono text-sm">{row.col3}</TableCell>
@@ -90,12 +91,12 @@ const BasicDataViewing = () => {
           </div>
 
           {/* Preview Message */}
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="mt-4 p-4 bg-blue-50  rounded-lg border border-blue-400 ">
             <div className="flex items-center gap-2">
               <Eye className="h-5 w-5 text-blue-600" />
-              <p className="text-blue-800 dark:text-blue-200 font-medium">This is a static preview of your dataset.</p>
+              <p className="text-blue-800 font-medium">This is a static preview of your dataset.</p>
             </div>
-            <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
+            <p className="text-blue-700  text-sm mt-1">
               Only the first 5 rows are displayed. Use the full data viewer for complete dataset analysis.
             </p>
           </div>
@@ -104,7 +105,7 @@ const BasicDataViewing = () => {
 
       {/* Dataset Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border border-primary">
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold ">1,247</p>
@@ -112,7 +113,7 @@ const BasicDataViewing = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-primary">
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold">4</p>
@@ -120,7 +121,7 @@ const BasicDataViewing = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-primary">
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold">CSV</p>
@@ -128,7 +129,7 @@ const BasicDataViewing = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-primary">
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-2xl font-bold">2.1 MB</p>

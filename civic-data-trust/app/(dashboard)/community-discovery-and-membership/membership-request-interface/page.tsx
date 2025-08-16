@@ -113,7 +113,7 @@ const MembershipRequestInterface = () => {
         </div>
 
         {/* Agent List */}
-        <Card>
+        <Card className="border border-primary shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="text-sm font-medium tracking-wider">Before accept any request view the detail</CardTitle>
           </CardHeader>
@@ -121,7 +121,7 @@ const MembershipRequestInterface = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b border-primary">
                     <th className="text-left py-3 px-4 text-xs uppercase font-medium tracking-wider">Request ID</th>
                     <th className="text-left py-3 px-4 text-xs uppercase font-medium tracking-wider">Name</th>
                     <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground tracking-wider">LOCATION</th>
@@ -132,7 +132,7 @@ const MembershipRequestInterface = () => {
                   {filteredAgents.map((agent, index) => (
                     <tr
                       key={agent.id}
-                      className="border-b hover:bg-accent transition-colors cursor-pointer"
+                      className="border-b border-primary hover:bg-accent transition-colors cursor-pointer"
                       onClick={() => setSelectedAgent(agent)}
                     >
                       <td className="py-3 px-4 text-sm font-mono">{agent.id}</td>

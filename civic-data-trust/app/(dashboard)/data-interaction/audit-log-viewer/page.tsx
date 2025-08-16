@@ -100,7 +100,7 @@ const AuditLogViewer = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold  dark:text-white">Audit Log Viewer</h1>
+          <h1 className="text-3xl font-bold ">Audit Log Viewer</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Monitor all system activities and user actions</p>
         </div>
         <div className="flex items-center gap-2">
@@ -173,14 +173,14 @@ const AuditLogViewer = () => {
             {auditLogs.map((log) => ( 
               <div
                 key={log.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-800 dark:hover:bg-gray-400 transition-colors"
+                className="flex items-center justify-between p-4 border rounded-lg hover:border-2 hover:border-primary transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full  dark:bg-gray-800">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full  ">
                     {getActionIcon(log.type)}
                   </div>
                   <div>
-                    <p className="font-medium  dark:text-white">{log.action}</p>
+                    <p className="font-medium  ">{log.action}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {log.date} at {log.time}
@@ -206,7 +206,7 @@ const AuditLogViewer = () => {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold  dark:text-white">6</p>
+              <p className="text-2xl font-bold ">6</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Events</p>
             </div>
           </CardContent>

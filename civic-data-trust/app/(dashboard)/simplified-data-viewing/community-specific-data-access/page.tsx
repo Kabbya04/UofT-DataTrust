@@ -47,13 +47,13 @@ const mockDatasets = [
 
 const CommunitySpecificDataAccess = () => {
   return (
-    <div className="min-h-screen dark:bg-neutral-900">
+    <div className="min-h-screen  ">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Community Specific Data Access</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Community: <span className="font-semibold text-blue-600 dark:text-blue-400">AI Ethics Research Group</span>
+          <p className="text-lg text-gray-600 ">
+            Community: <span className="font-semibold text-blue-600 ">AI Ethics Research Group</span>
           </p>
         </div>
 
@@ -61,14 +61,14 @@ const CommunitySpecificDataAccess = () => {
         {mockDatasets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockDatasets.map((dataset) => (
-              <Card key={dataset.id} className="hover:shadow-lg hover:shadow-gray-600 dark:bg-neutral-950 border border-gray-600 transition-shadow duration-200 cursor-pointer">
+              <Card key={dataset.id} className="hover:shadow-lg hover:shadow-gray-600  border border-primary transition-shadow duration-200 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <Database className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
-                    <Badge variant={dataset.hasPermission ? "default" : "secondary"} className={` ${dataset.hasPermission ? "bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-950" : "bg-neutral-500 text-neutral-100"} `}>{dataset.accessLevel}</Badge>
+                    <Database className="h-8 w-8 text-blue-600  mb-2" />
+                    <Badge variant={dataset.hasPermission ? "default" : "secondary"} className={` ${dataset.hasPermission ? "bg-neutral-900  text-neutral-100 " : "bg-neutral-500 text-neutral-100"} `}>{dataset.accessLevel}</Badge>
                   </div>
                   <CardTitle className="text-lg font-semibold ">{dataset.title}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                  <CardDescription className="text-sm text-gray-600 ">
                     {dataset.description}
                   </CardDescription>
                 </CardHeader>
@@ -91,7 +91,7 @@ const CommunitySpecificDataAccess = () => {
                                 variant={dataset.hasPermission ? "default" : "secondary"}
                                 size="sm"
                                 disabled={!dataset.hasPermission}
-                                className={`w-full hover:bg-neutral-600 hover:text-neutral-50 hover:border-2 border-neutral-900 ${dataset.hasPermission ? " bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-950 " : "bg-neutral-600"} `}
+                                className={`w-full hover:primary hover:text-neutral-50 hover:border-2 border-primary ${dataset.hasPermission ? " bg-primary  text-neutral-100 " : "bg-neutral-600"} `}
                               >
                                 {dataset.hasPermission ? (
                                   <>
@@ -124,8 +124,8 @@ const CommunitySpecificDataAccess = () => {
           /* Empty State */
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <FileX className="h-16 w-16  mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No datasets available</h3>
-            <p className="text-gray-600 dark:text-gray-400 max-w-md">
+            <h3 className="text-xl font-semibold text-gray-900  mb-2">No datasets available</h3>
+            <p className="text-gray-600  max-w-md">
               No datasets available for this community. Check back later or contact your administrator.
             </p>
           </div>

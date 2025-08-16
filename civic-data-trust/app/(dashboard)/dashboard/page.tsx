@@ -24,7 +24,7 @@ const PlaceholderGraph = () => (
 const ActionCard = ({ href, icon: Icon, title, description }: { href: string; icon: React.ElementType; title: string; description: string }) => (
   <Link href={href} className="group">
     {/* --- CARD STYLING IS NOW THEME-AWARE --- */}
-    <Card className="relative h-full bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl 
+    <Card className="relative h-full bg-card rounded-xl 
                    overflow-hidden
                    transition-all duration-300 ease-in-out 
                    transform hover:-translate-y-1 hover:border-primary/70 hover:shadow-lg hover:shadow-primary/10">
@@ -36,7 +36,7 @@ const ActionCard = ({ href, icon: Icon, title, description }: { href: string; ic
       <div className="pl-4">
         <CardHeader>
           {/* --- ICON BACKGROUND IS NOW THEME-AWARE --- */}
-          <div className="mb-4 w-12 h-12 rounded-lg bg-primary/10 dark:bg-neutral-800 text-primary 
+          <div className="mb-4 w-12 h-12 rounded-lg bg-primary/10 text-primary 
                          flex items-center justify-center 
                          transition-colors duration-300 group-hover:bg-primary/20 dark:group-hover:bg-primary/10">
             <Icon className="w-6 h-6" />
@@ -96,7 +96,7 @@ export default function DashboardWelcomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="lg:col-span-2"> {/* This makes the card span the full width on large screens */}
           <h2 className="text-2xl font-bold text-mono-caps mb-4">Platform Statistics</h2>
-          <Card className="bg-card dark:bg-neutral-900 border border-border dark:border-neutral-800 rounded-xl">
+          <Card className="bg-card  border border-border  rounded-xl">
              <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-lg text-mono-caps">Data Upload Trends</CardTitle>
