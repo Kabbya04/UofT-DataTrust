@@ -2,15 +2,75 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Users, Download, FileText, Database, Activity, Loader2, Heart, MessageCircle } from "lucide-react"
-import { Button } from "../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-import { Badge } from "../components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { Input } from "../components/ui/input"
-import { Separator } from "../components/ui/separator"
+import {
+  ArrowLeft,
+  Users,
+  Download,
+  FileText,
+  Database,
+  Activity,
+  Loader2,
+  Heart,
+  MessageCircle,
+  Plus,
+  X,
+  Upload,
+} from "lucide-react"
+import { Button } from "./ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Badge } from "./ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
+import { Input } from "./ui/input"
+import { Separator } from "./ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
 import { useCommunity } from "./contexts/community-context"
+
+const mockUserDatasets = [
+  {
+    id: 1,
+    name: "Sales Analytics Dataset",
+    type: "CSV",
+    size: "1.5 MB",
+    uploadDate: "2024-01-20",
+    category: "Business",
+    isSharedInCommunity: true,
+  },
+  {
+    id: 2,
+    name: "Machine Learning Models",
+    type: "Python Scripts",
+    size: "3.2 MB",
+    uploadDate: "2024-01-18",
+    category: "Technology",
+    isSharedInCommunity: false,
+  },
+  {
+    id: 3,
+    name: "Market Research Data",
+    type: "Excel",
+    size: "2.8 MB",
+    uploadDate: "2024-01-15",
+    category: "Business",
+    isSharedInCommunity: false,
+  },
+  {
+    id: 4,
+    name: "Image Classification Dataset",
+    type: "ZIP",
+    size: "45.2 MB",
+    uploadDate: "2024-01-10",
+    category: "AI/ML",
+    isSharedInCommunity: true,
+  },
+]
 
 // Mock data for extended community details
 const mockCommunityDetails = {
@@ -97,6 +157,42 @@ const mockCommunityDetails = {
         lastUpdated: "2024-01-08",
         downloads: 312,
       },
+      {
+        id: 5,
+        name: "Image Classification Models",
+        type: "ZIP",
+        size: "15.7 MB",
+        owner: "Lisa Wang",
+        lastUpdated: "2024-01-05",
+        downloads: 178,
+      },
+      {
+        id: 6,
+        name: "Financial Market Analysis",
+        type: "Excel",
+        size: "4.1 MB",
+        owner: "Alex Thompson",
+        lastUpdated: "2024-01-03",
+        downloads: 267,
+      },
+      {
+        id: 7,
+        name: "Natural Language Processing Toolkit",
+        type: "Python Scripts",
+        size: "2.9 MB",
+        owner: "Maria Garcia",
+        lastUpdated: "2023-12-28",
+        downloads: 145,
+      },
+      {
+        id: 8,
+        name: "Social Media Sentiment Dataset",
+        type: "JSON",
+        size: "8.3 MB",
+        owner: "James Wilson",
+        lastUpdated: "2023-12-25",
+        downloads: 203,
+      },
     ],
     activities: [
       {
@@ -131,6 +227,7 @@ const mockCommunityDetails = {
   },
 }
 
+
 interface CommunityDetailsViewerProps {
   communityId: string
 }
@@ -141,6 +238,11 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
   // Added loading states for better interactions
   const [isJoining, setIsJoining] = useState(false)
   const [downloadingFiles, setDownloadingFiles] = useState<Set<number>>(new Set())
+  const [userDatasets, setUserDatasets] = useState(mockUserDatasets)
+  const [isAttachDialogOpen, setIsAttachDialogOpen] = useState(false)
+  const [attachingDatasets, setAttachingDatasets] = useState<Set<number>>(new Set())
+  const [unattachingDatasets, setUnattachingDatasets] = useState<Set<number>>(new Set())
+
   const { getCommunity, toggleJoinStatus } = useCommunity()
   const router = useRouter()
 
@@ -176,6 +278,10 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
         member.role.toLowerCase().includes(memberSearch.toLowerCase()),
     ) || []
 
+  const userSharedDatasets = userDatasets.filter((dataset) => dataset.isSharedInCommunity)
+  const userUnsharedDatasets = userDatasets.filter((dataset) => !dataset.isSharedInCommunity)
+  const otherMembersDatasets = extendedDetails?.sharedData || []
+
   const handleJoinLeave = async () => {
     setIsJoining(true)
     // Added artificial delay for better UX
@@ -195,6 +301,36 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
     setDownloadingFiles((prev) => {
       const newSet = new Set(prev)
       newSet.delete(fileId)
+      return newSet
+    })
+  }
+
+  const handleAttachDataset = async (datasetId: number) => {
+    setAttachingDatasets((prev) => new Set(prev).add(datasetId))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    setUserDatasets((prev) =>
+      prev.map((dataset) => (dataset.id === datasetId ? { ...dataset, isSharedInCommunity: true } : dataset)),
+    )
+
+    setAttachingDatasets((prev) => {
+      const newSet = new Set(prev)
+      newSet.delete(datasetId)
+      return newSet
+    })
+  }
+
+  const handleUnattachDataset = async (datasetId: number) => {
+    setUnattachingDatasets((prev) => new Set(prev).add(datasetId))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    setUserDatasets((prev) =>
+      prev.map((dataset) => (dataset.id === datasetId ? { ...dataset, isSharedInCommunity: false } : dataset)),
+    )
+
+    setUnattachingDatasets((prev) => {
+      const newSet = new Set(prev)
+      newSet.delete(datasetId)
       return newSet
     })
   }
@@ -240,7 +376,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
             className="p-0 h-auto hover:text-primary transition-colors duration-200 hover:bg-transparent"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Discover Community
+            Discover Communities
           </Button>
           <span>/</span>
           <span className="text-foreground font-medium">{community.name}</span>
@@ -294,29 +430,29 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
         </div>
 
         {/* Tabs Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full ">
-          <TabsList className="grid w-full grid-cols-4 h-12 p-2 gap-2 transition-all duration-300 shadow-xl shadow-neutral-600  backdrop-blur-xl border border-primary rounded-lg">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 h-12 bg-muted/50 backdrop-blur-sm">
             <TabsTrigger
               value="overview"
-              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer  "
+              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="members"
-              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer"
+              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               Members
             </TabsTrigger>
             <TabsTrigger
               value="data"
-              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer"
+              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               Shared Data
             </TabsTrigger>
             <TabsTrigger
               value="activity"
-              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-neutral-300 hover:shadow-md hover:shadow-neutral-500 dark:hover:shadow-neutral-500 hover:-translate-y-1 cursor-pointer"
+              className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               Activity
             </TabsTrigger>
@@ -326,7 +462,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
           <TabsContent value="overview" className="mt-6 animate-fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <Card className="border border-primary shadow-md hover:shadow-lg transition-shadow duration-300">
+                <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MessageCircle className="h-5 w-5 text-primary" />
@@ -349,7 +485,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                   </CardContent>
                 </Card>
 
-                <Card className="border border-primary shadow-md hover:shadow-lg transition-shadow duration-300">
+                <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle>Community Guidelines</CardTitle>
                   </CardHeader>
@@ -372,25 +508,22 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
               </div>
 
               <div className="space-y-6">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle>Community Stats</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 ">
-                    <div className="flex items-center justify-between p-3 rounded-l  
-                    border-b border-primary">
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-muted-foreground">Total Members</span>
                       <span className="font-bold text-lg text-primary">{community.memberCount.toLocaleString()}</span>
                     </div>
-                    {/* <Separator /> */}
-                    <div className="flex items-center justify-between p-3 rounded-l  
-                    border-b border-primary">
+                    <Separator />
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-muted-foreground">Shared Resources</span>
                       <span className="font-bold text-lg text-primary">{extendedDetails?.sharedData.length || 0}</span>
                     </div>
-                    {/* <Separator /> */}
-                    <div className="flex items-center justify-between p-3 rounded-lg  
-                    border-b border-primary">
+                    <Separator />
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-muted-foreground">Category</span>
                       <Badge variant="outline" className="font-semibold">
                         {community.category}
@@ -455,55 +588,190 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
             </Card>
           </TabsContent>
 
-          {/* Shared Data Tab */}
           <TabsContent value="data" className="mt-6 animate-fade-in">
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle>Shared Resources ({extendedDetails?.sharedData.length || 0})</CardTitle>
-                <CardDescription>Files and datasets shared by community members</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {extendedDetails?.sharedData.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 hover:shadow-sm transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">{getFileIcon(item.type)}</div>
-                        <div>
-                          <p className="font-medium hover:text-primary transition-colors duration-200">{item.name}</p>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                            <span className="font-medium">
-                              {item.type} • {item.size}
-                            </span>
-                            <span>by {item.owner}</span>
-                            <span>Updated {item.lastUpdated}</span>
+            <div className="space-y-6">
+              {/* My Shared Datasets Section */}
+              <Card className="border-0 shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>My Shared Datasets ({userSharedDatasets.length})</CardTitle>
+                      <CardDescription>Datasets you have shared with this community</CardDescription>
+                    </div>
+                    <Dialog open={isAttachDialogOpen} onOpenChange={setIsAttachDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="hover:scale-105 transition-transform duration-200">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Attach Dataset
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Attach Dataset to Community</DialogTitle>
+                          <DialogDescription>
+                            Select datasets to share with the {community.name} community
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 max-h-96 overflow-y-auto">
+                          {userUnsharedDatasets.length > 0 ? (
+                            userUnsharedDatasets.map((dataset) => (
+                              <div
+                                key={dataset.id}
+                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors duration-200"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-primary/10 rounded-lg">{getFileIcon(dataset.type)}</div>
+                                  <div>
+                                    <p className="font-medium">{dataset.name}</p>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                      <span>
+                                        {dataset.type} • {dataset.size}
+                                      </span>
+                                      <Badge variant="outline">{dataset.category}</Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleAttachDataset(dataset.id)}
+                                  disabled={attachingDatasets.has(dataset.id)}
+                                  className="min-w-[80px] hover:scale-105 transition-transform duration-200"
+                                >
+                                  {attachingDatasets.has(dataset.id) ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    "Attach"
+                                  )}
+                                </Button>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-8">
+                              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                              <p className="text-muted-foreground mb-4">No datasets available to attach</p>
+                              <Button
+                                onClick={() => {
+                                  setIsAttachDialogOpen(false)
+                                  router.push("/upload-dataset")
+                                }}
+                                className="hover:scale-105 transition-transform duration-200"
+                              >
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload New Dataset
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {userSharedDatasets.length > 0 ? (
+                    <div className="space-y-3">
+                      {userSharedDatasets.map((dataset) => (
+                        <div
+                          key={dataset.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 hover:shadow-sm transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/10 rounded-lg">{getFileIcon(dataset.type)}</div>
+                            <div>
+                              <p className="font-medium">{dataset.name}</p>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span>
+                                  {dataset.type} • {dataset.size}
+                                </span>
+                                <span>Uploaded {dataset.uploadDate}</span>
+                                <Badge variant="outline">{dataset.category}</Badge>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUnattachDataset(dataset.id)}
+                            disabled={unattachingDatasets.has(dataset.id)}
+                            className="min-w-[100px] hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+                          >
+                            {unattachingDatasets.has(dataset.id) ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                            ) : (
+                              <X className="h-4 w-4 mr-1" />
+                            )}
+                            {unattachingDatasets.has(dataset.id) ? "Removing..." : "Unattach"}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground mb-4">
+                        You have not shared any datasets with this community yet
+                      </p>
+                      <Button
+                        onClick={() => setIsAttachDialogOpen(true)}
+                        className="hover:scale-105 transition-transform duration-200"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Attach Dataset
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Community Shared Resources Section */}
+              <Card className="border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle>Community Shared Resources ({otherMembersDatasets.length})</CardTitle>
+                  <CardDescription>Files and datasets shared by other community members</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {otherMembersDatasets.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 hover:shadow-sm transition-all duration-200"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-primary/10 rounded-lg">{getFileIcon(item.type)}</div>
+                          <div>
+                            <p className="font-medium hover:text-primary transition-colors duration-200">{item.name}</p>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                              <span className="font-medium">
+                                {item.type} • {item.size}
+                              </span>
+                              <span>by {item.owner}</span>
+                              <span>Updated {item.lastUpdated}</span>
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-muted-foreground font-medium">{item.downloads} downloads</span>
+                          <Button
+                            disabled={true}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownload(item.id)}
+                            // disabled={downloadingFiles.has(item.id)}
+                            className="min-w-[100px] hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105"
+                          >
+                            {downloadingFiles.has(item.id) ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                            ) : (
+                              <Download className="h-4 w-4 mr-1" />
+                            )}
+                            {downloadingFiles.has(item.id) ? "Downloading..." : "Download"}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground font-medium">{item.downloads} downloads</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDownload(item.id)}
-                          disabled={downloadingFiles.has(item.id)}
-                          className="min-w-[100px] hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105"
-                        >
-                          {downloadingFiles.has(item.id) ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                          ) : (
-                            <Download className="h-4 w-4 mr-1" />
-                          )}
-                          {downloadingFiles.has(item.id) ? "Downloading..." : "Download"}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Activity Tab */}
