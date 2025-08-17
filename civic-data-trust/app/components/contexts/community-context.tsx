@@ -30,7 +30,7 @@ const initialCommunities: Community[] = [
     tags: ["Data Science", "Machine Learning", "Python"],
     memberCount: 1247,
     coverImage: "/placeholder-np7tk.png",
-    isJoined: false,
+    isJoined: true,
   },
   {
     id: 2,
