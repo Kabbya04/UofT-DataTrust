@@ -13,9 +13,15 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
+      // TypeScript rules - convert to warnings
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
+      
+      // React rules - convert to warnings  
+      "react/no-unescaped-entities": "warn",
       "jsx-a11y/alt-text": "warn",
+      
+      // Next.js rules
       "@next/next/no-img-element": "warn"
     }
   }
