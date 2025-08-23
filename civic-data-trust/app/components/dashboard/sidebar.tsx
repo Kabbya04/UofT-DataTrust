@@ -123,6 +123,110 @@ const communityMemberSidebar = [
   },
 ];
 
+// COMMUNITY MEMBER WF SIDEBAR - Updated paths for the wf version
+const communityMemberWFSidebar = [
+  {
+    id: "data-center",
+    title: "Data Center",
+    href: "/community-member-wf/data-center",
+    icon: Database,
+    subItems: [
+      { id: "upload-dataset", title: "Upload dataset", href: "/community-member-wf/data-center/upload-dataset", icon: UploadCloud },
+      { id: "file-management", title: "File Management", href: "/community-member-wf/data-center/file-management", icon: FileIcon },
+      { id: "metadata-configuration", title: "Metadata Configuration", href: "/community-member-wf/data-center/metadata-configuration", icon: Settings2 },
+      { id: "data-history", title: "Data History", href: "/community-member-wf/data-center/data-history", icon: History },
+    ],
+  },
+  {
+    id: "request-center",
+    title: "Request Center",
+    href: "/community-member-wf/request-center",
+    icon: FileCheck,
+    subItems: [
+      { id: "request-review", title: "Request Review", href: "/community-member-wf/request-center/request-review", icon: FileSearch },
+      { id: "request-history", title: "Request History", href: "/community-member-wf/request-center/request-history", icon: History },
+    ],
+  },
+  {
+    id: "plugin-configuration",
+    title: "Plugin Configuration",
+    href: "/community-member-wf/plugin-configuration",
+    icon: SlidersHorizontal,
+    subItems: [
+      { id: "access-control", title: "Access Control", href: "/community-member-wf/plugin-configuration/access-control", icon: KeyRound },
+      { id: "data-expose-control", title: "Data Expose Control", href: "/community-member-wf/plugin-configuration/data-expose-control", icon: EyeOff },
+      { id: "plugin-request-review", title: "Plugin Request Review", href: "/community-member-wf/plugin-configuration/plugin-request-review", icon: FileSearch },
+    ],
+  },
+  {
+    id: "enhanced-data-features",
+    title: "Enhanced Data features",
+    href: "/community-member-wf/enhanced-data-features",
+    icon: LayoutGrid,
+    subItems: [
+      { id: "dataset-metadata", title: "Dataset Metadata", href: "/community-member-wf/enhanced-data-features/dataset-metadata", icon: FileJson2 },
+      { id: "history", title: "History", href: "/community-member-wf/enhanced-data-features/history", icon: History },
+      { id: "audit-log", title: "Audit Log", href: "/community-member-wf/enhanced-data-features/audit-log", icon: FileClock },
+    ],
+  },
+  {
+    id: "terms-and-conditions",
+    title: "Terms & Conditions",
+    href: "/community-member-wf/terms-and-conditions",
+    icon: FileText,
+    subItems: [
+      { id: "tc", title: "T&C", href: "/community-member-wf/terms-and-conditions/tc", icon: FileText },
+      { id: "version-control", title: "Version Control", href: "/community-member-wf/terms-and-conditions/version-control", icon: GitBranch },
+      { id: "compliance-tracking", title: "Compliance Tracking", href: "/community-member-wf/terms-and-conditions/compliance-tracking", icon: ShieldCheck },
+    ],
+  },
+  {
+    id: "authentication-profile",
+    title: "Authentication & Profile",
+    href: "/community-member-wf/authentication-profile",
+    icon: ShieldUserIcon,
+    subItems: [
+      { id: "profile-management", title: "Profile Management", href: "/community-member-wf/authentication-profile/profile-management", icon: UserCog },
+      { id: "notification-center", title: "Notification Center", href: "/community-member-wf/authentication-profile/notification-center", icon: Bell },
+    ],
+  },
+  {
+    id: "community-discovery-and-membership",
+    title: "Community Discovery & Membership",
+    href: "/community-member-wf/community-discovery-and-membership",
+    icon: Users2,
+    subItems: [
+      { id: "community-discovery-portal", title: "Community Discovery Portal", href: "/community-member-wf/community-discovery-and-membership/community-discovery-portal", icon: Search },
+      { id: "membership-request-interface", title: "Membership Request Interface", href: "/community-member-wf/community-discovery-and-membership/membership-request-interface", icon: UserPlus },
+      { id: "membership-status-tracking", title: "Membership Status Tracking", href: "/community-member-wf/community-discovery-and-membership/membership-status-tracking", icon: Users },
+    ],
+  },
+  {
+    id: "data-interaction",
+    title: "Data Interaction",
+    href: "/community-member-wf/data-interaction",
+    icon: BetweenHorizonalEndIcon,
+    subItems: [
+      { id: "community-data-viewer", title: "Community Data Viewer", href: "/community-member-wf/data-interaction/community-data-viewer", icon: Eye },
+      { id: "basic-data-viewing", title: "Basic Data Viewing", href: "/community-member-wf/data-interaction/basic-data-viewing", icon: FileText },
+      { id: "data-visualization-tools", title: "Data Visualization Tools", href: "/community-member-wf/data-interaction/data-visualization-tools", icon: BarChart3 },
+      { id: "audit-log-viewer", title: "Audit Log Viewer", href: "/community-member-wf/data-interaction/audit-log-viewer", icon: FileClock },
+      { id: "basic-log-viewing", title: "Basic Log Viewing", href: "/community-member-wf/data-interaction/basic-log-viewing", icon: History },
+      { id: "usage-pattern-analysis", title: "Usage Pattern Analysis", href: "/community-member-wf/data-interaction/usage-pattern-analysis", icon: Activity },
+    ],
+  },
+  {
+    id: "simplified-data-viewing",
+    title: "Simplified Data Viewing",
+    href: "/community-member-wf/simplified-data-viewing",
+    icon: NotebookTabsIcon,
+    subItems: [
+      { id: "community-specific-data-access", title: "Community Specific Data Access", href: "/community-member-wf/simplified-data-viewing/community-specific-data-access", icon: KeyRound },
+      { id: "basic-community-insight", title: "Basic Community Insight", href: "/community-member-wf/simplified-data-viewing/basic-community-insight", icon: Lightbulb },
+    ],
+  },
+];
+
 // ADD the new researcher sidebar (with corrected hrefs)
 const researcherSidebar = [
   {
@@ -188,7 +292,11 @@ export function Sidebar() {
   const [activeSection, setActiveSection] = useState("overview");
 
   // *** DYNAMICALLY CHOOSE THE MENU ITEMS ***
-  const menuItems = pathname.startsWith('/researcher') ? researcherSidebar : communityMemberSidebar;
+  const menuItems = pathname.startsWith('/researcher') 
+    ? researcherSidebar 
+    : pathname.startsWith('/community-member-wf') 
+      ? communityMemberWFSidebar 
+      : communityMemberSidebar;
   
   const toggleMenu = (title: string) => {
     setOpenMenu(openMenu === title ? null : title);

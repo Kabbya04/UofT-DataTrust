@@ -17,7 +17,7 @@ interface RoleSelectorDialogProps {
 }
 
 // Updated type to include the new role
-type Role = 'community-member' | 'researcher' | 'researcher-wf/home';
+type Role = 'community-member' | 'community-member-wf' | 'researcher' | 'researcher-wf/home';
 
 export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelectorDialogProps) {
   const router = useRouter();
@@ -25,7 +25,15 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
   const handleRoleSelect = (role: Role) => {
     // Navigate to the dashboard corresponding to the selected role
     // For researcher-wf, the role string already includes the path
-    const path = role.includes('/') ? `/${role}` : `/${role}/dashboard`;
+    // For community-member-wf, route to the root page
+    let path: string;
+    if (role.includes('/')) {
+      path = `/${role}`;
+    } else if (role === 'community-member-wf') {
+      path = `/${role}`;
+    } else {
+      path = `/${role}/dashboard`;
+    }
     router.push(path);
     onOpenChange(false); // Close the dialog
   };
@@ -73,6 +81,12 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
             role="community-member"
             title="Community Member"
             description="Engage with communities, view shared data, and participate in discussions."
+            icon={User}
+          />
+          <RoleCard
+            role="community-member-wf"
+            title="Community Member WF"
+            description="Enhanced community member experience with advanced features and tools."
             icon={User}
           />
           <RoleCard
