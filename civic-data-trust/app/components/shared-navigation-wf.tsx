@@ -65,10 +65,18 @@ function SharedNavigationContent({ children }: SharedNavigationProps) {
   }
 
   const getActiveCategory = () => {
+    // Check for exact matches first
+    if (pathname === '/community-member-wf') return 'dashboard'
     if (pathname.includes('discover-community-wf')) return 'discover'
     if (pathname.includes('popular-wf')) return 'popular'
     if (pathname.includes('community-discovery-portal')) return 'home'
-    return 'home'
+    
+    // Check for top navigation tabs
+    if (pathname.includes('my-communities-wf')) return 'my-communities'
+    if (pathname.includes('data-usage-wf')) return 'data-usage'
+    if (pathname.includes('statistics-wf')) return 'statistics'
+    
+    return ''
   }
 
   return (
