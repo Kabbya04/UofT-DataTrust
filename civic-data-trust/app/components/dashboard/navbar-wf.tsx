@@ -24,45 +24,59 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 };
 
 export function NavbarWf() {
+    const pathname = usePathname();
+    const isResearcherWf = pathname.startsWith('/researcher-wf');
+    const isCommunityMemberWf = pathname.startsWith('/community-member-wf');
+
+    const getBreadcrumb = () => {
+        if (isResearcherWf) return 'Researcher / Research / Get Started';
+        if (isCommunityMemberWf) return 'Community Member / Home';
+        return 'Dashboard';
+    };
+
+    const getHomeLink = () => {
+        if (isResearcherWf) return "/researcher-wf/home";
+        if (isCommunityMemberWf) return "/community-member-wf/home";
+        return "/";
+    }
+
   return (
     <header className="h-16 flex-shrink-0 border-b border-border bg-card flex items-center px-6 justify-between">
-      {/* Left Section: Logo & Breadcrumbs */}
       <div className="flex items-center gap-4">
-        <Link href="/researcher-wf/home" className="font-bold text-lg text-mono-caps">Logo</Link>
-        <div className="hidden md:flex items-center text-sm text-muted-foreground">
-          {/* You can dynamically generate this later */}
-          <span className="font-mono">Researcher / Research / Get Started</span>
-        </div>
+        <Link href={getHomeLink()} className="font-bold text-lg text-mono-caps">Logo</Link>
       </div>
 
-      {/* Center Section: Navigation */}
       <nav className="hidden lg:flex items-center gap-2">
-        <NavLink href="/researcher-wf/communities">My Communities</NavLink>
-        <NavLink href="/researcher-wf/data-usage">Data Usage</NavLink>
-        <NavLink href="/researcher-wf/statistics">Statistics</NavLink>
-        <NavLink href="/researcher-wf/overview">Research</NavLink>
+        {isResearcherWf && (
+            <>
+                <NavLink href="/researcher-wf/communities">My Communities</NavLink>
+                <NavLink href="/researcher-wf/data-usage">Data Usage</NavLink>
+                <NavLink href="/researcher-wf/statistics">Statistics</NavLink>
+                <NavLink href="/researcher-wf/overview">Research</NavLink>
+            </>
+        )}
+        {isCommunityMemberWf && (
+             <>
+                <NavLink href="/community-member-wf/my-communities">My Communities</NavLink>
+                <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink>
+                <NavLink href="/community-member-wf/statistics">Statistics</NavLink>
+             </>
+        )}
       </nav>
 
-      {/* Right Section: Search & Profile */}
       <div className="flex items-center gap-4">
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search" className="pl-9" />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground">
-            <X className="h-4 w-4" />
-          </button>
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"><X className="h-4 w-4" /></button>
         </div>
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarImage src="/profile.jpg" alt="Jhon Doe" />
             <AvatarFallback>JD</AvatarFallback>
           </Avatar>
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold">Jhon Doe</p>
-          </div>
-          <button className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">
-            EN <ChevronDown className="h-4 w-4" />
-          </button>
+          <div className="hidden sm:block"><p className="text-sm font-semibold">Jhon Doe</p></div>
+          <button className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">EN <ChevronDown className="h-4 w-4" /></button>
         </div>
       </div>
     </header>
