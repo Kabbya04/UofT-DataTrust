@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { User, FlaskConical } from 'lucide-react';
+import { User, FlaskConical, Microscope } from 'lucide-react'; // Added Microscope icon
 import {
   Dialog,
   DialogContent,
@@ -16,14 +16,17 @@ interface RoleSelectorDialogProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
-type Role = 'community-member' | 'researcher';
+// Updated type to include the new role
+type Role = 'community-member' | 'researcher' | 'researcher-wf/home';
 
 export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelectorDialogProps) {
   const router = useRouter();
 
   const handleRoleSelect = (role: Role) => {
     // Navigate to the dashboard corresponding to the selected role
-    router.push(`/${role}/dashboard`);
+    // For researcher-wf, the role string already includes the path
+    const path = role.includes('/') ? `/${role}` : `/${role}/dashboard`;
+    router.push(path);
     onOpenChange(false); // Close the dialog
   };
 
@@ -77,6 +80,13 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
             title="Researcher"
             description="Access advanced tools, perform analysis, and manage research datasets."
             icon={FlaskConical}
+          />
+          {/* --- NEW ROLE ADDED HERE --- */}
+          <RoleCard
+            role="researcher-wf/home"
+            title="Researcher-WF"
+            description="A dedicated workflow for managing research projects and datasets."
+            icon={Microscope}
           />
         </div>
       </DialogContent>
