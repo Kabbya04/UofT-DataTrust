@@ -1,47 +1,26 @@
+// app/components/dashboard/sidebar.tsx
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Activity,
-  BarChart3,
-  Bell,
-  BetweenHorizonalEndIcon,
-  ChevronDown,
-  ChevronLeft,
-  Database,
-  Eye,
-  EyeOff,
-  FileCheck,
-  FileClock,
-  FileIcon,
-  FileJson2,
-  FileSearch,
-  FileText,
-  GitBranch,
-  History,
-  KeyRound,
-  LayoutGrid,
-  Library,
-  Lightbulb,
-  NotebookTabsIcon,
-  Search,
-  Settings2,
-  ShieldCheck,
-  ShieldUserIcon,
-  SlidersHorizontal,
-  UploadCloud,
-  User,
-  UserCog,
-  UserPlus,
-  Users,
-  Users2,
+  // Existing Icons
+  Activity, BarChart3, Bell, BetweenHorizonalEndIcon, ChevronDown, ChevronLeft,
+  Database, Eye, EyeOff, FileCheck, FileClock, FileIcon, FileJson2, FileSearch,
+  FileText, GitBranch, History, KeyRound, LayoutGrid, Library, Lightbulb, NotebookTabsIcon,
+  Search, Settings2, ShieldCheck, ShieldUserIcon, SlidersHorizontal, UploadCloud,
+  User, UserCog, UserPlus, Users, Users2,
+  // New Icons for Researcher Sidebar
+  LayoutDashboard, Send, Clock, CheckCircle, FolderKanban, PieChart, BarChart2,
 } from 'lucide-react';
 
+// --- MENU DEFINITIONS ---
 
-// NOTE: All hrefs are now prefixed with `/community-member/` to match the new folder structure.
-const menuItems = [
+// RENAME original menuItems to be specific
+const communityMemberSidebar = [
+  // NOTE: All hrefs are now prefixed with `/community-member/` to match the new folder structure.
   {
     id: "data-center",
     title: "Data Center",
@@ -144,6 +123,61 @@ const menuItems = [
   },
 ];
 
+// ADD the new researcher sidebar (with corrected hrefs)
+const researcherSidebar = [
+  {
+    id: "dashboard",
+    title: "Dashboard",
+    href: "/researcher/dashboard",
+    icon: LayoutDashboard,
+    subItems: [],
+  },
+  {
+    id: "community-discovery",
+    title: "Community Discovery",
+    href: "/researcher/search-community",
+    icon: Search,
+    subItems: [
+      { id: "search-community", title: "Search", href: "/researcher/search-community", icon: Search },
+    ],
+  },
+  {
+    id: "access-requests",
+    title: "Access Requests",
+    href: "/researcher/access-requests",
+    icon: FileText,
+    subItems: [
+      { id: "submit-request", title: "Submit Request", href: "/researcher/access-requests/submit-request", icon: Send },
+      { id: "track-requests", title: "Track Requests", href: "/researcher/access-requests/track-requests", icon: Clock },
+      { id: "request-history", title: "Request History", href: "/researcher/access-requests/request-history", icon: History },
+    ],
+  },
+  {
+    id: "terms-compliance",
+    title: "T&C Compliance",
+    href: "/researcher/terms-compliance",
+    icon: ShieldCheck,
+    subItems: [
+      { id: "tc-review", title: "T&C Review Interface", href: "/researcher/terms-compliance/tc-review-interface", icon: FileCheck },
+      { id: "agreement-confirmation", title: "Agreement Confirmation", href: "/researcher/terms-compliance/agreement-confirmation", icon: CheckCircle },
+      { id: "compliance-status-tracking", title: "Compliance Status Tracking", href: "/researcher/terms-compliance/compliance-status-tracking", icon: Activity },
+    ],
+  },
+  {
+    id: "research-activity",
+    title: "Research Activity",
+    href: "/researcher/research-activity",
+    icon: FolderKanban,
+    subItems: [
+      { id: "active-projects", title: "Active Projects", href: "/researcher/research-activity/active-projects", icon: FolderKanban },
+      { id: "data-usage", title: "Data Usage Summary", href: "/researcher/research-activity/data-usage", icon: PieChart },
+      { id: "compliance-reports", title: "Compliance Reports", href: "/researcher/research-activity/compliance-reports", icon: FileText },
+      { id: "plugin-metrics", title: "Plugin Performance Metrics", href: "/researcher/research-activity/plugin-metrics", icon: BarChart2 },
+    ],
+  },
+];
+
+// --- SIDEBAR COMPONENT ---
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -151,7 +185,11 @@ export function Sidebar() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const [activeSection, setActiveSection] = useState("overview")
+  const [activeSection, setActiveSection] = useState("overview");
+
+  // *** DYNAMICALLY CHOOSE THE MENU ITEMS ***
+  const menuItems = pathname.startsWith('/researcher') ? researcherSidebar : communityMemberSidebar;
+  
   const toggleMenu = (title: string) => {
     setOpenMenu(openMenu === title ? null : title);
   };
@@ -163,38 +201,35 @@ export function Sidebar() {
     role: 'Project Admin',
   };
 
-  // Effect to handle clicks outside of the popover to close it
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setIsPopoverOpen(false);
       }
     }
-    // Bind the event listener
     document.addEventListener("mousedown", handleClickOutside);
-    // Unbind the event listener on clean up
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [popoverRef]);
 
-  // Effect to set the active menu based on the current URL
   useEffect(() => {
     for (const item of menuItems) {
       if (pathname.startsWith(item.href)) {
         setOpenMenu(item.title);
         setActiveSection(item.id);
-        for (const subItem of item.subItems) {
-          if (pathname === subItem.href) {
-            setActiveSection(subItem.id);
-            return;
-          }
+        if (item.subItems) {
+            for (const subItem of item.subItems) {
+              if (pathname === subItem.href) {
+                setActiveSection(subItem.id);
+                return;
+              }
+            }
         }
         return;
       }
     }
-  }, [pathname]);
-
+  }, [pathname, menuItems]); // Added menuItems to dependency array
 
   return (
     <aside
@@ -235,14 +270,14 @@ export function Sidebar() {
                   <item.icon className="h-5 w-5" />
                   {!isCollapsed && <span className="font-medium text-mono-caps text-start text-sm">{item.title}</span>}
                 </div>
-                {!isCollapsed && item.subItems.length > 0 && (
+                {!isCollapsed && item.subItems && item.subItems.length > 0 && (
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''
                       }`}
                   />
                 )}
               </button>
-              {!isCollapsed && isMenuOpen && (
+              {!isCollapsed && isMenuOpen && item.subItems && (
                 <div className={`pl-8 mt-2 space-y-2 border-l-2 border-primary/20 ml-4 `}>
                   {item.subItems.map((sub) => (
                     <Link
@@ -264,7 +299,6 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* --- Custom Popover Implementation --- */}
       <div className="p-4 border-t border-border mt-auto relative" ref={popoverRef}>
         {isPopoverOpen && (
           <div className="absolute bottom-full mb-2 w-64 bg-card border border-border rounded-lg shadow-lg p-4 z-50 text-mono-caps left-1/2 -translate-x-1/2">
@@ -273,7 +307,6 @@ export function Sidebar() {
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <p className="text-sm text-muted-foreground">{user.role}</p>
             </div>
-            {/* CSS-based arrow */}
             <div className="absolute bottom-[-9px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-border"></div>
             <div className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-card"></div>
           </div>
