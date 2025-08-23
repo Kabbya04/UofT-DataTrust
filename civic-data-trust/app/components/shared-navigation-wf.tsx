@@ -13,6 +13,7 @@ import { UserProvider } from "./contexts/user-context"
 
 // Left sidebar categories data
 const sidebarCategories = [
+  { id: 'dashboard', name: 'Dashboard', icon: Home, href: '/community-member-wf' },
   { id: 'home', name: 'Home', icon: Home, href: '/community-member-wf/community-discovery-and-membership/community-discovery-portal' },
   { id: 'popular', name: 'Popular', icon: Star, href: '/community-member-wf/community-discovery-and-membership/popular-wf' },
   { id: 'discover', name: 'Discover', icon: Compass, href: '/community-member-wf/community-discovery-and-membership/discover-community-wf' },

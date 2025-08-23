@@ -1,5 +1,4 @@
 import { OtherUserProfileWF } from "@/app/components/other-user-profile-wf"
-import { SharedNavigationWF } from "@/app/components/shared-navigation-wf"
 
 interface PageProps {
   params: Promise<{
@@ -10,9 +9,5 @@ interface PageProps {
 export default async function UserProfilePage({ params }: PageProps) {
   const { userId } = await params
   
-  return (
-    <SharedNavigationWF>
-      <OtherUserProfileWF userId={userId} />
-    </SharedNavigationWF>
-  )
+  return <OtherUserProfileWF userId={userId} />
 }
