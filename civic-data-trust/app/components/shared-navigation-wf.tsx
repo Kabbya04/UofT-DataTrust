@@ -52,7 +52,7 @@ function SharedNavigationContent({ children }: SharedNavigationProps) {
   }
 
   const handleProfileClick = () => {
-    router.push('/authentication-profile/profile-management')
+    router.push('/community-member-wf/authentication-profile/profile-management')
   }
 
   const handleLogout = () => {
