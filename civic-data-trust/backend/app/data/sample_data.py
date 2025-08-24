@@ -51,11 +51,24 @@ def get_sample_datasets() -> Dict[str, pd.DataFrame]:
                   'Shipped', 'Delivered', 'Processing', 'Shipped', 'Delivered']
     })
     
+    # Load sample_employees from CSV if available
+    try:
+        import os
+        csv_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'public', 'sample_employees.csv')
+        if os.path.exists(csv_path):
+            sample_employees_data = pd.read_csv(csv_path)
+        else:
+            # Fallback to users data if CSV not found
+            sample_employees_data = users_data.copy()
+    except Exception:
+        sample_employees_data = users_data.copy()
+    
     return {
         'users': users_data,
         'sales': sales_data,
         'products': products_data,
-        'orders': orders_data
+        'orders': orders_data,
+        'sample_employees': sample_employees_data
     }
 
 # Global sample data instance

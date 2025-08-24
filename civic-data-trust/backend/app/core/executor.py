@@ -18,7 +18,8 @@ matplotlib.use('Agg')
 # Python 3.12+ optimizations
 if sys.version_info >= (3, 12):
     warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
-    warnings.filterwarnings('ignore', category=np.ComplexWarning)
+    # ComplexWarning is not available in this NumPy version
+    warnings.filterwarnings('ignore', category=Warning)
 
 
 class DataScienceExecutor:
@@ -48,6 +49,23 @@ class DataScienceExecutor:
     
     def initialize_data(self, input_data: Optional[Dict[str, Any]]) -> Any:
         """Initialize data from input or use sample data"""
+        if not input_data:
+            # Default to first sample dataset if no input provided
+            return list(SAMPLE_DATA.values())[0]
+        
+        # If dataset_name is provided, use the corresponding sample dataset
+        if 'dataset_name' in input_data and input_data['dataset_name'] in SAMPLE_DATA:
+            return SAMPLE_DATA[input_data['dataset_name']]
+        
+        # If dataframe is provided directly
+        if 'dataframe' in input_data and isinstance(input_data['dataframe'], dict):
+            try:
+                return pd.DataFrame(input_data['dataframe'])
+            except Exception as e:
+                raise ValueError(f"Could not convert input data to DataFrame: {str(e)}")
+        
+        # Default fallback
+        return list(SAMPLE_DATA.values())[0]
         if input_data:
             if 'dataset_name' in input_data and input_data['dataset_name'] in SAMPLE_DATA:
                 return SAMPLE_DATA[input_data['dataset_name']].copy()

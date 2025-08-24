@@ -3,6 +3,59 @@ import { useSelector, useDispatch } from 'react-redux';
 import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play } from 'lucide-react';
 import { updateNode } from '@/app/store/workflowSlice';
 import { RootState } from '@/app/store';
+import { toast } from 'react-hot-toast';
+import axios from 'axios';
+
+// Function to execute the function chain via API
+const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any) => {
+  try {
+    toast.loading('Executing function chain...');
+    
+    const response = await axios.post('http://localhost:8000/api/v1/execute/', {
+      node_id: nodeId,
+      library: library,
+      function_chain: functionChain.map(step => ({
+        id: step.id,
+        functionName: step.functionName,
+        category: step.category,
+        parameters: step.parameters,
+        description: step.description || ''
+      })),
+      input_data: {
+        dataset_name: "sample_employees"
+      }
+    });
+    
+    toast.dismiss();
+    
+    if (response.data && response.data.success) {
+      toast.success('Function chain executed successfully');
+      
+      // Update the node with execution results
+      dispatch(updateNode({
+        id: nodeId,
+        updates: { 
+          parameters: {
+            ...functionChain[0].parameters,
+            executionResults: response.data.results,
+            lastExecuted: new Date().toISOString()
+          }
+        }
+      }));
+      
+      return response.data;
+    } else {
+      toast.error('Error executing function chain');
+      console.error('API error:', response.data);
+      return null;
+    }
+  } catch (error) {
+    toast.dismiss();
+    toast.error('Failed to execute function chain');
+    console.error('Execution error:', error);
+    return null;
+  }
+};
 
 interface NodeConfigPanelProps {
   nodeId: string;
@@ -563,6 +616,19 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
       </div>
       
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+        {/* Execute Function Chain Button */}
+        {isDataScienceNode && isChainMode && functionChain.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Play className="w-4 h-4" />
+              Execute Function Chain
+            </button>
+          </div>
+        )}
+        
         {/* Data Science Library Configuration */}
         {isDataScienceNode && currentLibrary && currentFunctions && (
           <div className="space-y-4">

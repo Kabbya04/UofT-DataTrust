@@ -244,8 +244,73 @@ function CommunityPageContent() {
   };
 
   const handleAddCsvData = () => {
-    alert('CSV upload functionality would be implemented here');
-    // In a real implementation, this would open a file picker for CSV files
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const csvContent = e.target?.result as string;
+          
+          try {
+            // Send CSV to backend for processing
+            const response = await fetch('http://localhost:8000/api/v1/data/upload-csv', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                csv_content: csvContent,
+                filename: file.name
+              })
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Failed to process CSV: ${response.statusText}`);
+            }
+            
+            const csvInfo = await response.json();
+            
+            // Create CSV data node with processed info
+            const csvNode = {
+              id: `csv-${Date.now()}`,
+              type: 'csv_input',
+              name: `CSV: ${file.name}`,
+              x: 100,
+              y: 150,
+              width: 180,
+              height: 100,
+              color: '#8B5CF6',
+              inputs: [],
+              outputs: [{ id: 'main', type: 'main' as const, label: 'CSV Data', connected: false }],
+              parameters: {
+                fileName: file.name,
+                csvContent: csvContent,
+                fileSize: file.size,
+                shape: csvInfo.shape,
+                columns: csvInfo.columns,
+                summary: csvInfo.summary
+              },
+              data: { 
+                csvData: csvContent,
+                processedInfo: csvInfo
+              }
+            };
+            
+            store.dispatch(addNode(csvNode));
+            setSelectedDataSources([...selectedDataSources, 'csv']);
+            
+          } catch (error) {
+            console.error('Error processing CSV:', error);
+            alert(`Error processing CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
   };
 
   return (
@@ -362,9 +427,11 @@ function CommunityPageContent() {
 
                 {/* CSV Data Card */}
                 <div
-                  className="relative bg-white border-2 rounded-lg p-4 cursor-pointer
-                         transition-all hover:shadow-md border-gray-200
-                           hover:border-gray-300"
+                  className={`relative bg-white border-2 rounded-lg p-4 cursor-pointer 
+                          transition-all hover:shadow-md ${selectedDataSources.includes('csv')
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                    }`}
                   onClick={handleAddCsvData}
                 >
                   <div className="flex items-start gap-3">
@@ -380,6 +447,9 @@ function CommunityPageContent() {
                       </div>
                     </div>
                   </div>
+                  {selectedDataSources.includes('csv') && (
+                    <div className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full"></div>
+                  )}
                 </div>
 
                 {/* Database Card */}
