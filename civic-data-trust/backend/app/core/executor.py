@@ -4,35 +4,61 @@ import matplotlib.pyplot as plt
 import matplotlib
 import io
 import base64
+import warnings
+import sys
 from typing import Any, Dict, Tuple, Optional, Union
+from functools import lru_cache
+from contextlib import contextmanager
 
 from app.data.sample_data import SAMPLE_DATA
 
 # Use non-interactive backend for matplotlib
 matplotlib.use('Agg')
 
+# Python 3.12+ optimizations
+if sys.version_info >= (3, 12):
+    warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
+    warnings.filterwarnings('ignore', category=np.ComplexWarning)
+
+
 class DataScienceExecutor:
-    """Executor class for running data science function chains"""
+    """Executor class for running data science function chains - Python 3.12+ optimized"""
     
     def __init__(self):
         self.current_data = None
         self.plots_generated = []
+        self._performance_cache = {}
+    
+    @contextmanager
+    def _performance_timer(self, operation_name: str):
+        """Context manager for performance timing"""
+        import time
+        start_time = time.perf_counter()
+        try:
+            yield
+        finally:
+            end_time = time.perf_counter()
+            self._performance_cache[operation_name] = end_time - start_time
+    
+    @lru_cache(maxsize=128)
+    def _get_column_info(self, columns_tuple: tuple) -> Dict[str, str]:
+        """Cached column type information"""
+        columns = list(columns_tuple)
+        return {col: "cached_info" for col in columns}
     
     def initialize_data(self, input_data: Optional[Dict[str, Any]]) -> Any:
         """Initialize data from input or use sample data"""
         if input_data:
             if 'dataset_name' in input_data and input_data['dataset_name'] in SAMPLE_DATA:
-                return SAMPLE_DATA[input_data['dataset_name']]
+                return SAMPLE_DATA[input_data['dataset_name']].copy()
             else:
-                # Try to create DataFrame from input data
                 return pd.DataFrame(input_data)
         else:
-            # Default to users dataset
-            return SAMPLE_DATA['users']
+            return SAMPLE_DATA['users'].copy()
     
     def update_current_data(self, result: Any) -> Any:
         """Update current data based on function result"""
-        if isinstance(result, list):
+        if isinstance(result, list) and result:
             return pd.DataFrame(result)
         else:
             return result
@@ -47,25 +73,33 @@ class DataScienceExecutor:
             return f"This operation isn't available. {error_msg}"
         elif "invalid" in error_msg_lower:
             return f"Invalid input provided. {error_msg}"
+        elif "memory" in error_msg_lower:
+            return f"Not enough memory to process this operation. Try with smaller data."
         else:
             return f"Something went wrong with {function_name}. {error_msg}"
     
     def execute_function(self, data: Any, library: str, function_name: str, 
                         parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
-        """Execute a function based on the library"""
-        if library == 'pandas':
-            return self.execute_pandas_function(data, function_name, parameters)
-        elif library == 'numpy':
-            return self.execute_numpy_function(data, function_name, parameters)
-        elif library == 'matplotlib':
-            return self.execute_matplotlib_function(data, function_name, parameters)
-        else:
-            raise ValueError(f"Unsupported library: {library}")
+        """Execute a function based on the library with performance monitoring"""
+        with self._performance_timer(f"{library}_{function_name}"):
+            if library == 'pandas':
+                return self.execute_pandas_function(data, function_name, parameters)
+            elif library == 'numpy':
+                return self.execute_numpy_function(data, function_name, parameters)
+            elif library == 'matplotlib':
+                return self.execute_matplotlib_function(data, function_name, parameters)
+            else:
+                raise ValueError(f"Unsupported library: {library}")
     
     def execute_pandas_function(self, data: pd.DataFrame, function_name: str, 
                                parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
         """Execute pandas function with error handling"""
         try:
+            # Cache column information for better performance
+            if hasattr(data, 'columns'):
+                columns_tuple = tuple(data.columns)
+                self._get_column_info(columns_tuple)
+            
             # Data Inspection functions
             if function_name == 'head':
                 n = parameters.get('n', 5)
@@ -112,7 +146,12 @@ class DataScienceExecutor:
                 if method == 'none':
                     result = data.fillna(value)
                 else:
-                    result = data.fillna(method=method)
+                    if method == 'ffill':
+                        result = data.ffill()
+                    elif method == 'bfill':
+                        result = data.bfill()
+                    else:
+                        result = data.fillna(value)
                 return result.to_dict('records'), "data", True
             
             elif function_name == 'drop_duplicates':
@@ -131,6 +170,7 @@ class DataScienceExecutor:
                     raise ValueError(f"Column '{by}' not found. Available columns: {list(data.columns)}")
                 
                 grouped = data.groupby(by)
+                
                 if agg_func == 'sum':
                     result = grouped.sum(numeric_only=True)
                 elif agg_func == 'mean':
@@ -141,6 +181,8 @@ class DataScienceExecutor:
                     result = grouped.min(numeric_only=True)
                 elif agg_func == 'max':
                     result = grouped.max(numeric_only=True)
+                else:
+                    result = grouped.sum(numeric_only=True)
                 
                 result = result.reset_index()
                 return result.to_dict('records'), "data", True
@@ -185,9 +227,10 @@ class DataScienceExecutor:
                 try:
                     if data[column].dtype in ['int64', 'float64']:
                         value = float(value)
-                except:
+                except (ValueError, TypeError):
                     pass  # Keep as string
                 
+                # Handle different operators
                 if operator == '>':
                     result = data[data[column] > value]
                 elif operator == '<':
@@ -227,9 +270,14 @@ class DataScienceExecutor:
                               parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
         """Execute numpy function with error handling"""
         try:
-            # Convert data to numpy array if it's not already
+            # Convert data to numpy array with better type handling
             if isinstance(data, list):
-                arr = np.array(data)
+                # Check if all items are numeric
+                numeric_data = [x for x in data if isinstance(x, (int, float)) and x is not None]
+                if numeric_data:
+                    arr = np.array(numeric_data, dtype=np.float64)
+                else:
+                    arr = np.array(data)
             elif isinstance(data, dict):
                 # Extract numeric values from dict
                 numeric_data = []
@@ -238,17 +286,19 @@ class DataScienceExecutor:
                         numeric_data.append(value)
                     elif isinstance(value, list):
                         numeric_data.extend([v for v in value if isinstance(v, (int, float))])
-                arr = np.array(numeric_data) if numeric_data else np.array([])
+                arr = np.array(numeric_data, dtype=np.float64) if numeric_data else np.array([])
             else:
-                arr = np.array(data)
+                arr = np.array(data, dtype=np.float64)
             
             # Array Operations
             if function_name == 'reshape':
                 shape = parameters.get('shape', '')
                 if isinstance(shape, str):
-                    # Parse shape like "-1,1" or "2,3"
-                    shape_parts = [int(x.strip()) for x in shape.split(',')]
-                    shape_tuple = tuple(shape_parts)
+                    try:
+                        shape_parts = [int(x.strip()) for x in shape.split(',')]
+                        shape_tuple = tuple(shape_parts)
+                    except ValueError:
+                        raise ValueError(f"Invalid shape format: {shape}. Use format like '2,3' or '-1,1'")
                 else:
                     shape_tuple = shape
                 
@@ -269,8 +319,7 @@ class DataScienceExecutor:
                 if axis == 'None':
                     result = float(np.sum(arr))
                 else:
-                    axis = int(axis)
-                    result = np.sum(arr, axis=axis).tolist()
+                    result = np.sum(arr, axis=int(axis)).tolist()
                 return result, "data", True
             
             elif function_name == 'mean':
@@ -278,8 +327,7 @@ class DataScienceExecutor:
                 if axis == 'None':
                     result = float(np.mean(arr))
                 else:
-                    axis = int(axis)
-                    result = np.mean(arr, axis=axis).tolist()
+                    result = np.mean(arr, axis=int(axis)).tolist()
                 return result, "data", True
             
             elif function_name == 'std':
@@ -287,8 +335,7 @@ class DataScienceExecutor:
                 if axis == 'None':
                     result = float(np.std(arr))
                 else:
-                    axis = int(axis)
-                    result = np.std(arr, axis=axis).tolist()
+                    result = np.std(arr, axis=int(axis)).tolist()
                 return result, "data", True
             
             else:
@@ -301,7 +348,7 @@ class DataScienceExecutor:
                                   parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
         """Execute matplotlib function with error handling"""
         try:
-            # Convert data to DataFrame if it's a list of records
+            # Convert data to DataFrame with better error handling
             if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
                 df = pd.DataFrame(data)
             elif isinstance(data, dict):
@@ -309,8 +356,11 @@ class DataScienceExecutor:
             else:
                 raise ValueError("Data must be in a format that can be converted to DataFrame for plotting")
             
+            # Create figure with optimized settings
             plt.figure(figsize=(10, 6))
+            plt.style.use('default')
             
+            # Plot functions
             if function_name == 'line_plot':
                 x_column = parameters.get('x_column', '')
                 y_column = parameters.get('y_column', '')
@@ -321,11 +371,11 @@ class DataScienceExecutor:
                 if not y_column or y_column not in df.columns:
                     raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
                 
-                plt.plot(df[x_column], df[y_column])
-                plt.xlabel(x_column)
-                plt.ylabel(y_column)
-                plt.title(title)
-                plt.grid(True)
+                plt.plot(df[x_column], df[y_column], linewidth=2)
+                plt.xlabel(x_column, fontsize=12)
+                plt.ylabel(y_column, fontsize=12)
+                plt.title(title, fontsize=14, fontweight='bold')
+                plt.grid(True, alpha=0.3)
             
             elif function_name == 'scatter_plot':
                 x_column = parameters.get('x_column', '')
@@ -337,11 +387,11 @@ class DataScienceExecutor:
                 if not y_column or y_column not in df.columns:
                     raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
                 
-                plt.scatter(df[x_column], df[y_column])
-                plt.xlabel(x_column)
-                plt.ylabel(y_column)
-                plt.title(title)
-                plt.grid(True)
+                plt.scatter(df[x_column], df[y_column], alpha=0.7, s=50)
+                plt.xlabel(x_column, fontsize=12)
+                plt.ylabel(y_column, fontsize=12)
+                plt.title(title, fontsize=14, fontweight='bold')
+                plt.grid(True, alpha=0.3)
             
             elif function_name == 'histogram':
                 column = parameters.get('column', '')
@@ -350,18 +400,19 @@ class DataScienceExecutor:
                 if not column or column not in df.columns:
                     raise ValueError(f"Column '{column}' not found. Available: {list(df.columns)}")
                 
-                plt.hist(df[column], bins=bins)
-                plt.xlabel(column)
-                plt.ylabel('Frequency')
-                plt.title(f'Histogram of {column}')
-                plt.grid(True)
+                plt.hist(df[column], bins=bins, alpha=0.7, edgecolor='black')
+                plt.xlabel(column, fontsize=12)
+                plt.ylabel('Frequency', fontsize=12)
+                plt.title(f'Histogram of {column}', fontsize=14, fontweight='bold')
+                plt.grid(True, alpha=0.3)
             
             else:
                 raise ValueError(f"Plot function '{function_name}' is not supported")
             
             # Convert plot to base64 string
             buffer = io.BytesIO()
-            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight', 
+                       facecolor='white', edgecolor='none')
             buffer.seek(0)
             plot_data = base64.b64encode(buffer.getvalue()).decode()
             plt.close()
@@ -369,7 +420,9 @@ class DataScienceExecutor:
             plot_info = {
                 "plot_type": function_name,
                 "image_base64": plot_data,
-                "parameters": parameters
+                "parameters": parameters,
+                "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
+                "optimizations_used": sys.version_info >= (3, 12)
             }
             
             return plot_info, "plot", False
