@@ -912,6 +912,25 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
           </div>
         )}
 
+        {/* Execution Results Display */}
+        {parameters.executionResults && (
+          <div className="pt-4 border-t border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Execution Results</h3>
+            <div className="bg-gray-50 rounded-lg p-3 max-h-64 overflow-y-auto">
+              <pre className="text-xs text-gray-800 whitespace-pre-wrap">
+                {typeof parameters.executionResults === 'string'
+                  ? parameters.executionResults
+                  : JSON.stringify(parameters.executionResults, null, 2)}
+              </pre>
+            </div>
+            {parameters.lastExecuted && (
+              <div className="text-xs text-gray-500 mt-2">
+                Last executed: {new Date(parameters.lastExecuted).toLocaleString()}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Performance & Compatibility Warnings */}
         {isDataScienceNode && isChainMode && functionChain.length > 0 && (
           <div className="pt-4 border-t border-gray-200">
