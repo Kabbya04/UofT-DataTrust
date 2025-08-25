@@ -14,7 +14,7 @@ import { useAuth } from "./contexts/auth-context"
 
 // Left sidebar categories data
 const sidebarCategories = [
-  { id: 'dashboard', name: 'Dashboard', icon: Home, href: '/community-member-wf' },
+  { id: 'dashboard', name: 'Dashboard', icon: Home, href: '/community-member-wf/dashboard' },
   { id: 'home', name: 'Home', icon: Home, href: '/community-member-wf/community-discovery-and-membership/community-discovery-portal' },
   { id: 'popular', name: 'Popular', icon: Star, href: '/community-member-wf/community-discovery-and-membership/popular-wf' },
   { id: 'discover', name: 'Discover', icon: Compass, href: '/community-member-wf/community-discovery-and-membership/discover-community-wf' },
@@ -85,7 +85,7 @@ function SharedNavigationContent({ children }: SharedNavigationProps) {
 
   const getActiveCategory = () => {
     // Check for exact matches first
-    if (pathname === '/community-member-wf') return 'dashboard'
+    if (pathname === '/community-member-wf/dashboard' || pathname === '/community-member-wf') return 'dashboard'
     if (pathname.includes('discover-community-wf')) return 'discover'
     if (pathname.includes('popular-wf')) return 'popular'
     if (pathname.includes('community-discovery-portal')) return 'home'
