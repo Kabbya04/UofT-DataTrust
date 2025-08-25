@@ -68,7 +68,8 @@ class AuthService {
     }
   }
 
-  private setTokens(tokens: any) {
+  private setTokens(tokens: Token) {
+    console.log('Setting tokens:', tokens)
     apiClient.setToken(tokens.access_token)
     this.refreshToken = tokens.refresh_token
     
@@ -109,25 +110,17 @@ class AuthService {
 
   // Sign up new user
   async signup(userData: UserSignup): Promise<ApiResponse<AuthUserResponse>> {
-    const response = await apiClient.post<any>('/auth/signup', userData)
-    
-    if (response.success && response.data && response.data.data) {
-      // The API wraps the user data in a nested 'data' object
-      return { success: true, data: response.data.data }
-    }
-    
+    const response = await apiClient.post<AuthUserResponse>('/auth/signup', userData)
     return response
   }
 
   // Sign in user
   async login(credentials: UserLogin): Promise<ApiResponse<Token>> {
-    const response = await apiClient.post<any>('/auth/login', credentials)
+    const response = await apiClient.post<Token>('/auth/login', credentials)
     
-    if (response.success && response.data && response.data.data) {
-      // The API wraps the token in a nested 'data' object
-      const tokenData = response.data.data
-      this.setTokens(tokenData)
-      return { success: true, data: tokenData }
+    if (response.success && response.data) {
+      this.setTokens(response.data)
+      return response
     }
     
     return response

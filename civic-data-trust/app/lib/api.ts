@@ -74,6 +74,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}/api/v1${endpoint}`
+    console.log(`API Request: ${options.method || 'GET'} ${url}`)
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -110,24 +111,29 @@ class ApiClient {
         return { success: true }
       }
 
+      const responseText = await response.text()
+      
       try {
-        const backendResponse = await response.json() as BackendResponse<any>
+        const jsonData = JSON.parse(responseText)
         
-        // Check if the backend response indicates success
-        if (backendResponse.status) {
-          return { success: true, data: backendResponse.data, message: backendResponse.message }
+        // Check if this is a wrapped backend response (has status, message, data)
+        if (jsonData.status !== undefined && jsonData.message !== undefined) {
+          const backendResponse = jsonData as BackendResponse<T>
+          console.log('Wrapped API Response:', backendResponse)
+          
+          if (backendResponse.status) {
+            return { success: true, data: backendResponse.data, message: backendResponse.message }
+          } else {
+            return { success: false, error: backendResponse.message }
+          }
         } else {
-          return { success: false, error: backendResponse.message }
+          // Direct response (like auth endpoints)
+          console.log('Direct API Response:', jsonData)
+          return { success: true, data: jsonData as T }
         }
       } catch (parseError) {
-        // If it's not the expected format, try to parse as direct data
-        const text = await response.text()
-        try {
-          const parsed = JSON.parse(text)
-          return { success: true, data: parsed }
-        } catch {
-          return { success: true, data: text }
-        }
+        // If JSON parsing fails, return as text
+        return { success: true, data: responseText as T }
       }
     } catch (error) {
       console.error(`API request failed: ${endpoint}`, error)
@@ -197,3 +203,8 @@ export const updateTenant = async (tenantId: string, data: TenantUpdate): Promis
 export const addUserToTenant = async (data: TenantAddUserRequest): Promise<ApiResponse<void>> => {
   return apiClient.put('/tenants/add-user', data)
 }
+
+// Note: Delete tenant endpoint is not available in the API
+// export const deleteTenant = async (tenantId: string): Promise<ApiResponse<void>> => {
+//   return apiClient.delete(`/tenants/${tenantId}`)
+// }

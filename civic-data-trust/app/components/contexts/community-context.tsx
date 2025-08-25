@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, type ReactNode, useEffect, useCallback } from "react"
-import { getAllTenants, createTenant, addUserToTenant, type TenantCreate, type TenantResponse } from "@/app/lib/api"
+import { getAllTenants, createTenant, updateTenant, addUserToTenant, type TenantCreate, type TenantUpdate, type TenantResponse } from "@/app/lib/api"
 
 export interface Community {
   id: string
@@ -19,6 +19,7 @@ interface CommunityContextType {
   loading: boolean
   error: string | null
   createCommunity: (name: string) => Promise<boolean>
+  updateCommunity: (communityId: string, name: string) => Promise<boolean>
   joinCommunity: (communityId: string, userId: string) => Promise<boolean>
   toggleJoinStatus: (communityId: string) => void
   getCommunity: (communityId: string) => Community | undefined
@@ -107,6 +108,32 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateCommunityHandler = async (communityId: string, name: string): Promise<boolean> => {
+    if (!name.trim()) return false
+    
+    try {
+      const response = await updateTenant(communityId, { name: name.trim() })
+      if (response.success) {
+        setCommunities(prev => 
+          prev.map(community =>
+            community.id === communityId 
+              ? { ...community, name: name.trim() }
+              : community
+          )
+        )
+        return true
+      } else {
+        setError(response.error || 'Failed to update community')
+        return false
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred')
+      return false
+    }
+  }
+
+  // Note: Delete functionality is not available - API doesn't support tenant deletion
+
   const joinCommunity = async (communityId: string, userId: string): Promise<boolean> => {
     try {
       const response = await addUserToTenant({
@@ -154,7 +181,8 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       communities, 
       loading,
       error,
-      createCommunity: createCommunityHandler, 
+      createCommunity: createCommunityHandler,
+      updateCommunity: updateCommunityHandler,
       joinCommunity,
       toggleJoinStatus, 
       getCommunity,

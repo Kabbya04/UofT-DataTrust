@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Users, Database, TrendingUp, Clock, Settings, Plus } from "lucide-react"
+import { Users, Database, TrendingUp, Clock, Settings, Plus, Edit } from "lucide-react"
 import { Card, CardContent, CardHeader } from "./ui/card"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
@@ -21,14 +21,17 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 
 export function MyCommunitiesWF() {
-  const { communities, createCommunity, loading, error } = useCommunity()
+  const { communities, createCommunity, updateCommunity, loading, error } = useCommunity()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [communityName, setCommunityName] = useState("")
   const [creating, setCreating] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState("")
+  const [updating, setUpdating] = useState(false)
 
-  // Filter joined communities
-  const joinedCommunities = communities.filter(c => c.isJoined)
+  // Show all communities since users can manage any community they have access to
+  const managedCommunities = communities
 
   const handleViewCommunity = (communityId: string) => {
     router.push(`/community-member-wf/community-discovery-and-membership/community-details-wf/${communityId}`)
@@ -50,6 +53,29 @@ export function MyCommunitiesWF() {
         setOpen(false)
       }
     }
+  }
+
+  const handleEditCommunity = (community: any) => {
+    setEditingId(community.id)
+    setEditName(community.name)
+  }
+
+  const handleUpdateCommunity = async () => {
+    if (editingId && editName.trim()) {
+      setUpdating(true)
+      const success = await updateCommunity(editingId, editName.trim())
+      setUpdating(false)
+      
+      if (success) {
+        setEditingId(null)
+        setEditName("")
+      }
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditName("")
   }
 
   return (
@@ -106,7 +132,7 @@ export function MyCommunitiesWF() {
 
       <Tabs defaultValue="joined" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="joined">Joined Communities</TabsTrigger>
+          <TabsTrigger value="joined">All Communities</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           <TabsTrigger value="recommendations">Recommended</TabsTrigger>
         </TabsList>
@@ -116,29 +142,67 @@ export function MyCommunitiesWF() {
             <div className="flex items-center justify-center py-12">
               <div className="text-muted-foreground">Loading communities...</div>
             </div>
-          ) : joinedCommunities.length === 0 ? (
+          ) : managedCommunities.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-muted-foreground mb-4">You haven't joined any communities yet.</div>
+              <div className="text-muted-foreground mb-4">No communities available.</div>
               <Button 
                 variant="outline" 
-                onClick={() => router.push('/community-member-wf/community-discovery-and-membership')}
+                onClick={() => setOpen(true)}
               >
-                Discover Communities
+                Create Your First Community
               </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {joinedCommunities.map((community) => (
+              {managedCommunities.map((community) => (
               <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      {community.category && <Badge variant="secondary" className="mb-2">{community.category}</Badge>}
+                    <div className="flex-1">
+                      {editingId === community.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="text-lg font-semibold"
+                            placeholder="Community name"
+                          />
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={handleUpdateCommunity}
+                              disabled={updating || !editName.trim()}
+                            >
+                              {updating ? "Saving..." : "Save"}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={cancelEdit}
+                              disabled={updating}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                          {community.category && <Badge variant="secondary" className="mb-2">{community.category}</Badge>}
+                        </>
+                      )}
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Settings className="h-4 w-4" />
-                    </Button>
+                    {editingId !== community.id && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleEditCommunity(community)}
+                        disabled={!!editingId}
+                        title="Rename community"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
