@@ -68,13 +68,15 @@ class AuthService {
     }
   }
 
-  private setTokens(tokens: Token) {
+  private setTokens(tokens: any) {
     apiClient.setToken(tokens.access_token)
     this.refreshToken = tokens.refresh_token
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('refresh_token', tokens.refresh_token)
-      localStorage.setItem('token_expires_in', tokens.expires_in.toString())
+      // Handle expires_in safely
+      const expiresIn = tokens.expires_in || 3600 // Default to 1 hour if not provided
+      localStorage.setItem('token_expires_in', expiresIn.toString())
       localStorage.setItem('token_timestamp', Date.now().toString())
     }
   }
@@ -107,16 +109,25 @@ class AuthService {
 
   // Sign up new user
   async signup(userData: UserSignup): Promise<ApiResponse<AuthUserResponse>> {
-    const response = await apiClient.post<AuthUserResponse>('/auth/signup', userData)
+    const response = await apiClient.post<any>('/auth/signup', userData)
+    
+    if (response.success && response.data && response.data.data) {
+      // The API wraps the user data in a nested 'data' object
+      return { success: true, data: response.data.data }
+    }
+    
     return response
   }
 
   // Sign in user
   async login(credentials: UserLogin): Promise<ApiResponse<Token>> {
-    const response = await apiClient.post<Token>('/auth/login', credentials)
+    const response = await apiClient.post<any>('/auth/login', credentials)
     
-    if (response.success && response.data) {
-      this.setTokens(response.data)
+    if (response.success && response.data && response.data.data) {
+      // The API wraps the token in a nested 'data' object
+      const tokenData = response.data.data
+      this.setTokens(tokenData)
+      return { success: true, data: tokenData }
     }
     
     return response
