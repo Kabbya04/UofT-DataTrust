@@ -1,6 +1,7 @@
 // layout.tsx - Next.js Font Optimization Approach
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { AuthProvider } from "./components/contexts/auth-context";
 import { JetBrains_Mono, Fira_Code, Source_Code_Pro } from 'next/font/google';
 
 // Choose one of these popular monospace fonts:
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className={jetbrainsMono.className}> {/* This applies monospace to entire body */}
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

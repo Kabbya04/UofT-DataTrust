@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, ReactNode } from "react"
+import { useAuth } from "./auth-context"
 
 export interface User {
   id: string
@@ -312,8 +313,23 @@ const mockDatasets: Dataset[] = [
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  // Current user (Alex Ryder) - in a real app this would come from authentication
-  const currentUser = mockUsers[0]
+  const { user: authUser, isAuthenticated } = useAuth()
+  
+  // Use authenticated user if available, otherwise fall back to mock user
+  const currentUser = isAuthenticated && authUser 
+    ? {
+        id: authUser.id,
+        name: authUser.name,
+        bio: `${authUser.roles.map((r: any) => r.name).join(', ')} on the platform`,
+        avatar: "/api/placeholder/72/72",
+        joinedDate: new Date(authUser.created_at),
+        totalContributions: 0,
+        totalDownloads: 0,
+        totalViews: 0,
+        isOnline: true,
+        lastActive: new Date()
+      }
+    : mockUsers[0] // Fallback to Alex Ryder for development/mock mode
 
   const getUserById = (id: string): User | undefined => {
     return mockUsers.find(user => user.id === id)
