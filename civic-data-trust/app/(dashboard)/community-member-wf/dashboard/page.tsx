@@ -1,8 +1,10 @@
 // civic-data-trust/app/(dashboard)/community-member-wf/dashboard/page.tsx
+'use client';
 
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from '@/app/components/ui/card';
 import { UploadCloud, FileSearch, Search, UserCog, ChartLine } from 'lucide-react';
+import { useAuth } from '@/app/components/contexts/auth-context';
 
 // A reusable placeholder for the graph SVG
 const PlaceholderGraph = () => (
@@ -56,13 +58,30 @@ const ActionCard = ({ href, icon: Icon, title, description }: { href: string; ic
 );
 
 export default function DashboardWelcomePage() {
-  const userName = "Alex Ryder"; 
+  const { user, isAuthenticated } = useAuth();
+
+  // Use authenticated user name
+  const userName = user?.name || "User";
+  const userRole = user?.roles?.[0]?.name || "Member";
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-mono-caps">Welcome Back, {userName}!</h1>
-        <p className="text-muted-foreground mt-2 font-mono">Here&apos;s a quick overview of your Civic Data Trust dashboard.</p>
+        <p className="text-muted-foreground mt-2 font-mono">
+          Here&apos;s a quick overview of your Civic Data Trust dashboard.
+        </p>
+        {isAuthenticated && (
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+            <p className="text-sm font-mono">
+              <strong>User ID:</strong> {user?.id}<br/>
+              <strong>Email:</strong> {user?.email}<br/>
+              <strong>Role:</strong> {userRole}<br/>
+              <strong>Status:</strong> {user?.status ? 'Active' : 'Inactive'}<br/>
+              <strong>Last Login:</strong> {user?.auth?.last_login ? new Date(user.auth.last_login).toLocaleString() : 'Just now'}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

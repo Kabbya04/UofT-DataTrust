@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback } from "./ui/avatar"
 import { Input } from "./ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "./ui/dropdown-menu"
 import { SearchProvider, useSearch } from "./contexts/search-context"
-import { UserProvider } from "./contexts/user-context"
+import { UserProvider, useUser } from "./contexts/user-context"
+import { useAuth } from "./contexts/auth-context"
 
 // Left sidebar categories data
 const sidebarCategories = [
@@ -42,22 +43,40 @@ function SharedNavigationContent({ children }: SharedNavigationProps) {
   const { searchQuery, setSearchQuery } = useSearch()
   const pathname = usePathname()
   const router = useRouter()
+  const { user: authUser, logout } = useAuth()
+  const { currentUser } = useUser()
 
-  // Mock user data - this would come from auth context in real app
+  // Helper function to get user initials
+  const getUserInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  }
+
+  // Helper function to get user email
+  const getUserEmail = () => {
+    if (authUser?.email) return authUser.email
+    if ('email' in (currentUser || {})) return (currentUser as any).email
+    return 'user@example.com'
+  }
+
+  // Use real authenticated user data
   const user = {
-    id: 'USR-734-B',
-    name: 'Alex Ryder',
-    email: 'alex.ryder@example.com',
-    initials: 'AR'
+    id: authUser?.id || currentUser?.id || 'unknown',
+    name: authUser?.name || currentUser?.name || 'User',
+    email: getUserEmail(),
+    initials: getUserInitials(authUser?.name || currentUser?.name || 'User')
   }
 
   const handleProfileClick = () => {
     router.push('/community-member-wf/authentication-profile/profile-management')
   }
 
-  const handleLogout = () => {
-    // Handle logout logic here
-    console.log('Logging out...')
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push('/sign-in')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   const isActiveRoute = (href: string) => {

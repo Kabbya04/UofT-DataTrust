@@ -86,3 +86,16 @@ export function getCurrentUserRole(): UserRole | null {
   
   return getRoleFromId(decoded.role)
 }
+
+/**
+ * Get role name by ID for display purposes
+ */
+export function getRoleDisplayName(roleId: string): string {
+  const role = getRoleFromId(roleId)
+  switch (role) {
+    case 'community_member': return 'Community Member'
+    case 'researcher': return 'Researcher'  
+    case 'admin': return 'Admin'
+    default: return 'User'
+  }
+}

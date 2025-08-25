@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
 import { authService, AuthUserResponse } from "../../lib/auth"
+import { getRoleDisplayName } from "../../lib/routing"
 
 interface AuthContextType {
   user: AuthUserResponse | null
@@ -25,21 +26,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUserResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const isAuthenticated = authService.isAuthenticated()
+  const isAuthenticated = authService.isAuthenticated() && user !== null
 
   useEffect(() => {
     // Check for existing authentication on mount
     const checkAuth = async () => {
-      if (authService.isAuthenticated()) {
-        // Try to get current user data
-        // Since the API doesn't have a /me endpoint, we'll need to store user data
-        const storedUser = localStorage.getItem('current_user')
-        if (storedUser) {
-          try {
-            setUser(JSON.parse(storedUser))
-          } catch (error) {
-            console.error('Error parsing stored user data:', error)
-          }
+      console.log('Checking auth on mount...')
+      const hasToken = authService.isAuthenticated()
+      const storedUser = localStorage.getItem('current_user')
+      
+      console.log('Auth check:', { hasToken, hasStoredUser: !!storedUser })
+      
+      if (hasToken && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser)
+          console.log('Loading stored user data:', userData)
+          setUser(userData)
+        } catch (error) {
+          console.error('Error parsing stored user data:', error)
+          // Clear invalid stored data
+          localStorage.removeItem('current_user')
+        }
+      } else if (hasToken && !storedUser) {
+        // Has token but no user data - try to decode token
+        const token = localStorage.getItem('access_token')
+        if (token) {
+          const decoded = authService.decodeJWT(token)
+          console.log('Decoded token on mount:', decoded)
+          // We don't have email here, so we'll need to handle this case
         }
       }
       setIsLoading(false)
@@ -53,21 +67,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.login({ email, password })
       
       if (response.success) {
-        // For now, we'll create a minimal user object since we don't have user data from login
-        // In a real implementation, the login response might include user data
-        const userData: AuthUserResponse = {
-          id: 'temp-id', // This should come from the API response
-          name: email.split('@')[0], // Temporary name from email
-          email,
-          status: true,
-          roles: [],
-          auth: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        // After successful login, we need to get the user info
+        // For now, decode the JWT token to get basic info
+        const token = localStorage.getItem('access_token')
+        if (token) {
+          const decoded = authService.decodeJWT(token)
+          const userData: AuthUserResponse = {
+            id: decoded?.sub || 'unknown',
+            name: email.split('@')[0], // Extract name from email as fallback
+            email,
+            status: true,
+            roles: decoded?.role ? [{ 
+              id: decoded.role, 
+              name: getRoleDisplayName(decoded.role) 
+            }] : [],
+            auth: {
+              is_active: true,
+              email_verified: false,
+              last_login: new Date().toISOString(),
+              failed_login_attempts: 0,
+              locked_until: null
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          
+          console.log('Setting user data in auth context:', userData)
+          setUser(userData)
+          localStorage.setItem('current_user', JSON.stringify(userData))
         }
-        
-        setUser(userData)
-        localStorage.setItem('current_user', JSON.stringify(userData))
         
         return { success: true }
       } else {

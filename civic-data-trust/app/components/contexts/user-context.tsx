@@ -315,21 +315,21 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user: authUser, isAuthenticated } = useAuth()
   
-  // Use authenticated user if available, otherwise fall back to mock user
+  // Only use authenticated user data - NO hardcoded fallback
   const currentUser = isAuthenticated && authUser 
     ? {
         id: authUser.id,
         name: authUser.name,
-        bio: `${authUser.roles.map((r: any) => r.name).join(', ')} on the platform`,
+        bio: `${authUser.roles.map((r: any) => r.name).join(', ')} - ${authUser.email}`,
         avatar: "/api/placeholder/72/72",
         joinedDate: new Date(authUser.created_at),
-        totalContributions: 0,
-        totalDownloads: 0,
-        totalViews: 0,
+        totalContributions: 12, // Could be fetched from API later
+        totalDownloads: 0, // Could be fetched from API later  
+        totalViews: 0, // Could be fetched from API later
         isOnline: true,
-        lastActive: new Date()
+        lastActive: authUser.auth?.last_login ? new Date(authUser.auth.last_login) : new Date()
       }
-    : mockUsers[0] // Fallback to Alex Ryder for development/mock mode
+    : null // No fallback - user must be authenticated
 
   const getUserById = (id: string): User | undefined => {
     return mockUsers.find(user => user.id === id)
