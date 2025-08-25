@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../components/contexts/auth-context';
 import { getUserRoles } from '../../lib/api';
+import { getDefaultRouteForRole, getRoleFromId } from '../../lib/routing';
 
 const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/50 dark:bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-500/70 focus-within:bg-violet-500/10">
@@ -86,7 +87,16 @@ export default function SignUpPage() {
       });
       
       if (result.success) {
-        router.push('/community-member/dashboard');
+        // Get the selected role and redirect to appropriate dashboard
+        const selectedRole = getRoleFromId(formData.role);
+        if (selectedRole) {
+          const roleRoute = getDefaultRouteForRole(selectedRole);
+          console.log('Redirecting new user to role-based route:', roleRoute, 'for role:', selectedRole);
+          router.push(roleRoute);
+        } else {
+          // Fallback to community member wireframe
+          router.push('/community-member-wf/dashboard');
+        }
       } else {
         console.error('Signup failed:', result.error);
         setError(result.error || 'Signup failed');

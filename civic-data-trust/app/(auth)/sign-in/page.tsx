@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../components/contexts/auth-context';
+import { getRouteFromToken } from '../../lib/routing';
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.398 12.58C34.823 9.213 29.86 7 24 7C12.955 7 4 15.955 4 27s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path><path fill="#FF3D00" d="M6.306 14.691L12.74 19.338C14.657 14.593 18.986 11 24 11c3.059 0 5.842 1.154 7.961 3.039L38.398 12.58C34.823 9.213 29.86 7 24 7C16.894 7 10.706 10.158 6.306 14.691z"></path><path fill="#4CAF50" d="M24 47c5.86 0 11.222-2.213 15.099-5.922L32.74 35.662C30.823 37.407 27.671 39 24 39c-5.014 0-9.343-3.593-11.26-8.338L6.306 36.309C10.706 42.842 16.894 47 24 47z"></path><path fill="#1976D2" d="M43.611 20.083H24v8h11.303c-.792 2.237-2.231 4.16-4.087 5.571L38.5 41.08C42.223 37.319 44 32.55 44 27c0-1.341-.138-2.65-.389-3.917z"></path></svg>
@@ -42,8 +43,16 @@ export default function SignInPage() {
       const result = await login(email, password);
       
       if (result.success) {
-        // Redirect to dashboard based on user role
-        router.push('/community-member/dashboard');
+        // Get the access token and determine role-based route
+        const accessToken = localStorage.getItem('access_token');
+        if (accessToken) {
+          const roleRoute = getRouteFromToken(accessToken);
+          console.log('Redirecting to role-based route:', roleRoute);
+          router.push(roleRoute);
+        } else {
+          // Fallback if no token found
+          router.push('/community-member-wf/dashboard');
+        }
       } else {
         setError(result.error || 'Login failed');
       }
