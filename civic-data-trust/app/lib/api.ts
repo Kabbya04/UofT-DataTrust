@@ -8,12 +8,38 @@ export interface ApiResponse<T> {
   message?: string
 }
 
+// Actual API response wrapper
+export interface BackendResponse<T> {
+  status: boolean
+  message: string
+  data: T
+}
+
 export interface ApiError {
   detail: Array<{
     loc: (string | number)[]
     msg: string
     type: string
   }>
+}
+
+// Tenant/Community types based on OpenAPI spec
+export interface TenantResponse {
+  id: string
+  name: string
+}
+
+export interface TenantCreate {
+  name: string
+}
+
+export interface TenantUpdate {
+  name?: string | null
+}
+
+export interface TenantAddUserRequest {
+  tenant_id: string
+  user_id: string
 }
 
 class ApiClient {
@@ -84,8 +110,25 @@ class ApiClient {
         return { success: true }
       }
 
-      const data = await response.json()
-      return { success: true, data }
+      try {
+        const backendResponse = await response.json() as BackendResponse<any>
+        
+        // Check if the backend response indicates success
+        if (backendResponse.status) {
+          return { success: true, data: backendResponse.data, message: backendResponse.message }
+        } else {
+          return { success: false, error: backendResponse.message }
+        }
+      } catch (parseError) {
+        // If it's not the expected format, try to parse as direct data
+        const text = await response.text()
+        try {
+          const parsed = JSON.parse(text)
+          return { success: true, data: parsed }
+        } catch {
+          return { success: true, data: text }
+        }
+      }
     } catch (error) {
       console.error(`API request failed: ${endpoint}`, error)
       return {
@@ -133,4 +176,24 @@ export const checkHealth = async () => {
 // Get available user roles
 export const getUserRoles = async () => {
   return apiClient.get('/user-roles/')
+}
+
+// Tenant/Community API functions
+export const getAllTenants = async (page: number = 1, limit: number = 100): Promise<ApiResponse<TenantResponse[]>> => {
+  // API expects page starting from 1, not 0
+  const validPage = Math.max(1, Math.floor(page))
+  const validLimit = Math.min(100, Math.max(1, Math.floor(limit)))
+  return apiClient.get(`/tenants/?page=${validPage}&limit=${validLimit}`)
+}
+
+export const createTenant = async (data: TenantCreate): Promise<ApiResponse<TenantResponse>> => {
+  return apiClient.post('/tenants/create', data)
+}
+
+export const updateTenant = async (tenantId: string, data: TenantUpdate): Promise<ApiResponse<TenantResponse>> => {
+  return apiClient.put(`/tenants/update/${tenantId}`, data)
+}
+
+export const addUserToTenant = async (data: TenantAddUserRequest): Promise<ApiResponse<void>> => {
+  return apiClient.put('/tenants/add-user', data)
 }

@@ -8,68 +8,48 @@ import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { useCommunity } from "./contexts/community-context"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
 
 export function MyCommunitiesWF() {
-  const { communities } = useCommunity()
+  const { communities, createCommunity, loading, error } = useCommunity()
   const router = useRouter()
-  
+  const [open, setOpen] = useState(false)
+  const [communityName, setCommunityName] = useState("")
+  const [creating, setCreating] = useState(false)
+
   // Filter joined communities
   const joinedCommunities = communities.filter(c => c.isJoined)
-  
-  // Mock activity data
-  const recentActivity = [
-    {
-      id: 1,
-      action: "New post in",
-      community: "Data Science Enthusiasts",
-      communityId: 1,
-      title: "Machine Learning Best Practices",
-      time: "2 hours ago",
-      type: "post"
-    },
-    {
-      id: 2,
-      action: "Dataset uploaded to",
-      community: "Urban Gardening", 
-      communityId: 5,
-      title: "Soil Composition Data 2024",
-      time: "5 hours ago",
-      type: "dataset"
-    },
-    {
-      id: 3,
-      action: "Comment on your post in",
-      community: "Sustainable Living",
-      communityId: 2,
-      title: "Climate Action Framework",
-      time: "1 day ago",
-      type: "comment"
-    },
-    {
-      id: 4,
-      action: "New member joined",
-      community: "Data Science Enthusiasts",
-      communityId: 1,
-      title: "Dr. Sarah Mitchell",
-      time: "2 days ago",
-      type: "member"
-    }
-  ]
 
-  // Mock recommendations
-  const recommendedCommunities = [
-    { id: 7, name: "Medical AI Research Hub", memberCount: 892, datasets: 23, description: "AI applications in healthcare", category: "Medicine" },
-    { id: 8, name: "Gaming Analytics Pro", memberCount: 4567, datasets: 67, description: "Game performance metrics", category: "Games" },
-    { id: 9, name: "Financial Analytics Pro", memberCount: 4123, datasets: 58, description: "Financial market data", category: "Business" }
-  ]
-
-  const handleViewCommunity = (communityId: number) => {
+  const handleViewCommunity = (communityId: string) => {
     router.push(`/community-member-wf/community-discovery-and-membership/community-details-wf/${communityId}`)
   }
 
-  const handleJoinCommunity = (communityId: number) => {
+  const handleJoinCommunity = (communityId: string) => {
     // In a real app, this would join the community
     router.push(`/community-member-wf/community-discovery-and-membership/community-details-wf/${communityId}`)
+  }
+
+  const handleCreateCommunity = async () => {
+    if (communityName.trim()) {
+      setCreating(true)
+      const success = await createCommunity(communityName.trim())
+      setCreating(false)
+      
+      if (success) {
+        setCommunityName("")
+        setOpen(false)
+      }
+    }
   }
 
   return (
@@ -77,12 +57,51 @@ export function MyCommunitiesWF() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-foreground">My Communities</h1>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Community
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create Community
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create a new community</DialogTitle>
+                <DialogDescription>
+                  Give your community a name. You can change this later.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    value={communityName}
+                    onChange={(e) => setCommunityName(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  type="submit" 
+                  onClick={handleCreateCommunity}
+                  disabled={creating || !communityName.trim()}
+                >
+                  {creating ? "Creating..." : "Create"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="text-muted-foreground">Manage your communities and stay updated with recent activities</p>
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-2 rounded-md text-sm">
+            {error}
+          </div>
+        )}
       </div>
 
       <Tabs defaultValue="joined" className="space-y-6">
@@ -93,14 +112,29 @@ export function MyCommunitiesWF() {
         </TabsList>
 
         <TabsContent value="joined" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {joinedCommunities.map((community) => (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-muted-foreground">Loading communities...</div>
+            </div>
+          ) : joinedCommunities.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground mb-4">You haven't joined any communities yet.</div>
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/community-member-wf/community-discovery-and-membership')}
+              >
+                Discover Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {joinedCommunities.map((community) => (
               <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <Badge variant="secondary" className="mb-2">{community.category}</Badge>
+                      {community.category && <Badge variant="secondary" className="mb-2">{community.category}</Badge>}
                     </div>
                     <Button variant="ghost" size="sm">
                       <Settings className="h-4 w-4" />
@@ -108,14 +142,14 @@ export function MyCommunitiesWF() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                  {community.description && <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                     {community.description}
-                  </p>
+                  </p>}
                   
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      <span>{community.memberCount.toLocaleString()}</span>
+                      <span>{community.memberCount?.toLocaleString()}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Database className="h-4 w-4" />
@@ -139,88 +173,16 @@ export function MyCommunitiesWF() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
-          {recentActivity.map((activity) => (
-            <Card key={activity.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {activity.type === 'post' && <TrendingUp className="h-4 w-4 text-blue-500" />}
-                    {activity.type === 'dataset' && <Database className="h-4 w-4 text-foreground" />}
-                    {activity.type === 'comment' && <Users className="h-4 w-4 text-orange-500" />}
-                    {activity.type === 'member' && <Plus className="h-4 w-4 text-purple-500" />}
-                    <span className="text-sm text-muted-foreground">
-                      {activity.action}{' '}
-                      <span 
-                        className="font-medium text-foreground hover:text-primary cursor-pointer"
-                        onClick={() => handleViewCommunity(activity.communityId)}
-                      >
-                        {activity.community}
-                      </span>
-                    </span>
-                  </div>
-                  <h4 className="font-medium text-foreground mb-1">{activity.title}</h4>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {activity.time}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
+          <p>Recent activity is not available yet.</p>
         </TabsContent>
 
         <TabsContent value="recommendations" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendedCommunities.map((community) => (
-              <Card key={community.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                    <Badge variant="outline" className="mb-2">{community.category}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {community.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>{community.memberCount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Database className="h-4 w-4" />
-                      <span>{community.datasets} datasets</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleViewCommunity(community.id)}
-                    >
-                      View Details
-                    </Button>
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleJoinCommunity(community.id)}
-                    >
-                      Join
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <p>Recommendations are not available yet.</p>
         </TabsContent>
       </Tabs>
     </div>
