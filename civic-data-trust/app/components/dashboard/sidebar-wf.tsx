@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
     ChevronDown, Cog, File, Folder, Home, Plus, Upload, BarChart2, 
-    TrendingUp, Search, Users, LayoutDashboard, MessageSquareWarning, FileClock 
+    TrendingUp, Search, Users, LayoutDashboard, MessageSquareWarning, FileClock, BarChart3,
+    Shield, Sliders
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -16,7 +17,7 @@ const dataCategories = [
 
 const SidebarLink = ({ href, children, icon: Icon, count }: { href: string; children: React.ReactNode; icon: React.ElementType; count?: number }) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || (href !== '/super-admin-wf/dashboard' && pathname.startsWith(href));
   return (
     <Link
       href={href}
@@ -39,10 +40,9 @@ export function SidebarWf() {
   const isResearcherWf = pathname.startsWith('/researcher-wf');
   const isCommunityMemberWf = pathname.startsWith('/community-member-wf');
   const isProjectAdminWf = pathname.startsWith('/project-admin-wf');
+  const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
 
-  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    'Technology': true,
-  });
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({'Technology': true});
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const toggleCategory = (category: string) => {
@@ -91,7 +91,17 @@ export function SidebarWf() {
         <SidebarLink href="/project-admin-wf/membership-requests" icon={Users} count={240}>Membership Requests</SidebarLink>
         <SidebarLink href="/project-admin-wf/post-review" icon={MessageSquareWarning} count={320}>Post Review</SidebarLink>
         <SidebarLink href="/project-admin-wf/community-audit-logs" icon={FileClock}>Community Audit Logs</SidebarLink>
-        <SidebarLink href="/project-admin-wf/community-analytics" icon={BarChart2}>Community Analytics</SidebarLink>
+        <SidebarLink href="/project-admin-wf/community-analytics" icon={BarChart3}>Community Analytics</SidebarLink>
+    </div>
+  );
+  
+  const SuperAdminNav = () => (
+    <div className="space-y-1">
+        <SidebarLink href="/super-admin-wf/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
+        <SidebarLink href="/super-admin-wf/user-management" icon={Users}>User Management</SidebarLink>
+        <SidebarLink href="/super-admin-wf/content-moderation" icon={Shield}>Content Moderation</SidebarLink>
+        <SidebarLink href="/super-admin-wf/analytics-reports" icon={BarChart3}>Analytics & Reports</SidebarLink>
+        <SidebarLink href="/super-admin-wf/performance-monitoring" icon={Sliders}>Performance Monitoring</SidebarLink>
     </div>
   );
 
@@ -101,6 +111,7 @@ export function SidebarWf() {
         {isResearcherWf && <ResearcherNav />}
         {isCommunityMemberWf && <CommunityMemberNav />}
         {isProjectAdminWf && <ProjectAdminNav />}
+        {isSuperAdminWf && <SuperAdminNav />}
       </nav>
       <div className="mt-auto">
         <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted">

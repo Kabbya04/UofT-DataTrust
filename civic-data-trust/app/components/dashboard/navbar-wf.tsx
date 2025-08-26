@@ -28,14 +28,14 @@ export function NavbarWf() {
     const isResearcherWf = pathname.startsWith('/researcher-wf');
     const isCommunityMemberWf = pathname.startsWith('/community-member-wf');
     const isProjectAdminWf = pathname.startsWith('/project-admin-wf');
+    const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
 
     const getBreadcrumb = () => {
-        if (isResearcherWf) return 'Researcher / Research / Get Started';
-        if (isCommunityMemberWf) return 'Community Member / Home';
-        if (isProjectAdminWf) {
-            const page = pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard';
-            return `Admin / ${page}`;
-        }
+        const page = pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard';
+        if (isResearcherWf) return `Researcher / ${page}`;
+        if (isCommunityMemberWf) return `Community Member / ${page}`;
+        if (isProjectAdminWf) return `Admin / ${page}`;
+        if (isSuperAdminWf) return `Super Admin / ${page}`;
         return 'Dashboard';
     };
 
@@ -43,6 +43,7 @@ export function NavbarWf() {
         if (isResearcherWf) return "/researcher-wf/home";
         if (isCommunityMemberWf) return "/community-member-wf/home";
         if (isProjectAdminWf) return "/project-admin-wf/dashboard";
+        if (isSuperAdminWf) return "/super-admin-wf/dashboard";
         return "/";
     }
 
@@ -55,27 +56,12 @@ export function NavbarWf() {
         </div>
       </div>
 
-      {/* Center Navigation - Conditional */}
       <nav className="hidden lg:flex items-center gap-2">
-        {isResearcherWf && (
-            <>
-                <NavLink href="/researcher-wf/communities">My Communities</NavLink>
-                <NavLink href="/researcher-wf/data-usage">Data Usage</NavLink>
-                <NavLink href="/researcher-wf/statistics">Statistics</NavLink>
-                <NavLink href="/researcher-wf/overview">Research</NavLink>
-            </>
-        )}
-        {isCommunityMemberWf && (
-             <>
-                <NavLink href="/community-member-wf/my-communities">My Communities</NavLink>
-                <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink>
-                <NavLink href="/community-member-wf/statistics">Statistics</NavLink>
-             </>
-        )}
-        {/* No center nav for Admin as per wireframe */}
+        {/* No center nav for Admin roles as per wireframes */}
+        {isResearcherWf && (<><NavLink href="/researcher-wf/communities">My Communities</NavLink><NavLink href="/researcher-wf/data-usage">Data Usage</NavLink></>)}
+        {isCommunityMemberWf && (<><NavLink href="/community-member-wf/my-communities">My Communities</NavLink><NavLink href="/community-member-wf/data-usage">Data Usage</NavLink></>)}
       </nav>
 
-      {/* Right Section */}
       <div className="flex items-center gap-4">
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -83,13 +69,8 @@ export function NavbarWf() {
           <button className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"><X className="h-4 w-4" /></button>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 rounded-full hover:bg-muted">
-            <Bell className="h-5 w-5 text-foreground/80"/>
-          </button>
-          <Avatar className="h-9 w-9">
-            <AvatarImage src="/profile.jpg" alt="Jhon Doe" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
+          <button className="p-2 rounded-full hover:bg-muted"><Bell className="h-5 w-5 text-foreground/80"/></button>
+          <Avatar className="h-9 w-9"><AvatarImage src="/profile.jpg" alt="Jhon Doe" /><AvatarFallback>JD</AvatarFallback></Avatar>
           <div className="hidden sm:block"><p className="text-sm font-semibold">Jhon Doe</p></div>
           <button className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">EN <ChevronDown className="h-4 w-4" /></button>
         </div>
