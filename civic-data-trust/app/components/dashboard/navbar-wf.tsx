@@ -59,8 +59,16 @@ export function NavbarWf() {
 
       <nav className="hidden lg:flex items-center gap-2">
         {/* No center nav for Admin roles as per wireframes */}
-        {isResearcherWf && (<><NavLink href="/researcher-wf/communities">My Communities</NavLink><NavLink href="/researcher-wf/data-usage">Data Usage</NavLink></>)}
-        {isCommunityMemberWf && (<><NavLink href="/community-member-wf/my-communities">My Communities</NavLink><NavLink href="/community-member-wf/data-usage">Data Usage</NavLink></>)}
+        {isResearcherWf && (<>
+          <NavLink href="/researcher-wf/communities">My Communities</NavLink>
+          <NavLink href="/researcher-wf/data-usage">Data Usage</NavLink>
+          <NavLink href="/researcher-wf/statistics">Statistics</NavLink>
+          <NavLink href="/researcher-wf/research">Research</NavLink>
+        </>)}
+        {isCommunityMemberWf && (<>
+          <NavLink href="/community-member-wf/my-communities">My Communities</NavLink>
+          <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink>
+        </>)}
       </nav>
 
       <div className="flex items-center gap-4">
