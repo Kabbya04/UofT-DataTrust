@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-    ChevronDown, Cog, File, Folder, Home, Plus, Upload, BarChart2, 
-    TrendingUp, Search, Users, LayoutDashboard, MessageSquareWarning, FileClock, BarChart3,
-    Shield, Sliders
+import {
+  ChevronDown, Cog, File, Folder, Home, Plus, Upload, BarChart2,
+  TrendingUp, Search, Users, LayoutDashboard, MessageSquareWarning, FileClock, BarChart3,
+  Shield, Sliders
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,7 @@ export function SidebarWf() {
   const isProjectAdminWf = pathname.startsWith('/project-admin-wf');
   const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
 
-  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({'Technology': true});
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({ 'Technology': true });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const toggleCategory = (category: string) => {
@@ -61,15 +61,26 @@ export function SidebarWf() {
         <SidebarLink href="/researcher-wf/get-started" icon={File}>Get Started</SidebarLink>
         <div className="px-3 pt-2"><Button className="w-full"><Plus className="w-4 h-4 mr-2" />Add Project</Button></div>
       </div>
+      <div className="space-y-2 pt-4">
+        {dataCategories.map((category) => (
+          <div key={category}>
+            <button onClick={() => toggleCategory(category)} className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted">
+              <div className="flex items-center gap-3"><span>{category}</span></div>
+              <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category] && "rotate-180")} />
+            </button>
+            {openCategories[category] && (<div className="pl-8 mt-1 space-y-1"><p className="text-xs text-muted-foreground p-2">No items yet.</p></div>)}
+          </div>
+        ))}
+      </div>
     </>
   );
 
   const CommunityMemberNav = () => (
     <>
       <div className="space-y-2">
-          <SidebarLink href="/community-member-wf/home" icon={Home}>Home</SidebarLink>
-          <SidebarLink href="/community-member-wf/popular" icon={TrendingUp}>Popular</SidebarLink>
-          <SidebarLink href="/community-member-wf/discover-community" icon={Search}>Discover</SidebarLink>
+        <SidebarLink href="/community-member-wf/home" icon={Home}>Home</SidebarLink>
+        <SidebarLink href="/community-member-wf/popular" icon={TrendingUp}>Popular</SidebarLink>
+        <SidebarLink href="/community-member-wf/discover-community" icon={Search}>Discover</SidebarLink>
       </div>
       <div className="space-y-2 pt-4">
         {dataCategories.map((category) => (
@@ -87,21 +98,21 @@ export function SidebarWf() {
 
   const ProjectAdminNav = () => (
     <div className="space-y-1">
-        <SidebarLink href="/project-admin-wf/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
-        <SidebarLink href="/project-admin-wf/membership-requests" icon={Users} count={240}>Membership Requests</SidebarLink>
-        <SidebarLink href="/project-admin-wf/post-review" icon={MessageSquareWarning} count={320}>Post Review</SidebarLink>
-        <SidebarLink href="/project-admin-wf/community-audit-logs" icon={FileClock}>Community Audit Logs</SidebarLink>
-        <SidebarLink href="/project-admin-wf/community-analytics" icon={BarChart3}>Community Analytics</SidebarLink>
+      <SidebarLink href="/project-admin-wf/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
+      <SidebarLink href="/project-admin-wf/membership-requests" icon={Users} count={240}>Membership Requests</SidebarLink>
+      <SidebarLink href="/project-admin-wf/post-review" icon={MessageSquareWarning} count={320}>Post Review</SidebarLink>
+      <SidebarLink href="/project-admin-wf/community-audit-logs" icon={FileClock}>Community Audit Logs</SidebarLink>
+      <SidebarLink href="/project-admin-wf/community-analytics" icon={BarChart3}>Community Analytics</SidebarLink>
     </div>
   );
-  
+
   const SuperAdminNav = () => (
     <div className="space-y-1">
-        <SidebarLink href="/super-admin-wf/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
-        <SidebarLink href="/super-admin-wf/user-management" icon={Users}>User Management</SidebarLink>
-        <SidebarLink href="/super-admin-wf/content-moderation" icon={Shield}>Content Moderation</SidebarLink>
-        <SidebarLink href="/super-admin-wf/analytics-reports" icon={BarChart3}>Analytics & Reports</SidebarLink>
-        <SidebarLink href="/super-admin-wf/performance-monitoring" icon={Sliders}>Performance Monitoring</SidebarLink>
+      <SidebarLink href="/super-admin-wf/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
+      <SidebarLink href="/super-admin-wf/user-management" icon={Users}>User Management</SidebarLink>
+      <SidebarLink href="/super-admin-wf/content-moderation" icon={Shield}>Content Moderation</SidebarLink>
+      <SidebarLink href="/super-admin-wf/analytics-reports" icon={BarChart3}>Analytics & Reports</SidebarLink>
+      <SidebarLink href="/super-admin-wf/performance-monitoring" icon={Sliders}>Performance Monitoring</SidebarLink>
     </div>
   );
 
