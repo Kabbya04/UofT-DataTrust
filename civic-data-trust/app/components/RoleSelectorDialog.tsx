@@ -1,3 +1,4 @@
+// app/components/RoleSelectorDialog.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -16,6 +17,13 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
   const router = useRouter();
 
   const handleRoleSelect = (role: Role) => {
+    // --- FIX 2: Add a guard clause to prevent calling .push on null ---
+    if (!router) {
+      console.error("Router is not available yet.");
+      return; // Exit the function if router is null
+    }
+    // --- End of Fix ---
+
     const path = `/${role}`;
     router.push(path);
     onOpenChange(false);

@@ -1,11 +1,11 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
 import React from 'react'
 import { useState } from "react"
-import { Checkbox } from "../../../../components/ui/checkbox"
+import { Checkbox } from "@/app/components/ui/checkbox"
 import {  CheckCircle, Shield } from "lucide-react"
-import { Badge } from "../../../../components/ui/badge"
-import { Button } from "../../../../components/ui/button"
+import { Badge } from "@/app/components/ui/badge"
+import { Button } from "@/app/components/ui/button"
 const AgreementConfirmation = () => {
 
     const [selectedTerms, setSelectedTerms] = useState<string[]>([])

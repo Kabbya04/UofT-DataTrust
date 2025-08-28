@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 import { Users, Database, TrendingUp, Clock, Settings, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"

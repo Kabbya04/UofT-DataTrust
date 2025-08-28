@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { Search, Filter, BookmarkPlus, History, ArrowUpDown, Users, Calendar, Tag } from "lucide-react"
-import { Button } from "../../../components/ui/button"
-import { Input } from "../../../components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Badge } from "../../../components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
-import { Checkbox } from "../../../components/ui/checkbox"
-import { Separator } from "../../../components/ui/separator"
+import { Button } from "@/app/components/ui/button"
+import { Input } from "@/app/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Badge } from "@/app/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
+import { Checkbox } from "@/app/components/ui/checkbox"
+import { Separator } from "@/app/components/ui/separator"
 import {
     Dialog,
     DialogContent,
@@ -16,7 +16,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../../../components/ui/dialog"
+} from "@/app/components/ui/dialog"
 
 const mockCommunities = [
     {

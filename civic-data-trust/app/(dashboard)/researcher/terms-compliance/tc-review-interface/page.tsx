@@ -1,13 +1,13 @@
 "use client"
 
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
-import { Button } from "../../../../components/ui/button"
-import { Badge } from "../../../../components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui/tabs"
-import { ScrollArea } from "../../../../components/ui/scroll-area"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Button } from "@/app/components/ui/button"
+import { Badge } from "@/app/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
+import { ScrollArea } from "@/app/components/ui/scroll-area"
 
-import { Progress } from "../../../../components/ui/progress"
+import { Progress } from "@/app/components/ui/progress"
 import { CheckCircle, Clock, AlertTriangle, Eye, Download, Calendar } from "lucide-react"
 
 const TCReviewInterface = () => {

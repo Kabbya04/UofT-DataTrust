@@ -1,10 +1,10 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
-import { Button } from "../../../../components/ui/button"
-import { Badge } from "../../../../components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../../../../components/ui/chart"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Button } from "@/app/components/ui/button"
+import { Badge } from "@/app/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart"
 import { PieChart, BarChart3, TrendingUp, Eye, Database, Calendar, RefreshCw, Download } from "lucide-react"
 import {
   Pie,

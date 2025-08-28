@@ -1,7 +1,7 @@
 import React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { AlertTriangle, CheckCircle, Clock, Eye, FileText } from 'lucide-react'
-import { ScrollArea } from "../../../../components/ui/scroll-area"
+import { ScrollArea } from "@/app/components/ui/scroll-area"
 const ComplianceStatusTracking = () => {
     const complianceHistory = [
         {

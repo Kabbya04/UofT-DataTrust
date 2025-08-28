@@ -1,7 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../../../../components/ui/chart"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart"
 import { Users, Database, Trophy } from "lucide-react"
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 

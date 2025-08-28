@@ -1,6 +1,6 @@
 // app/(dashboard)/community-discovery-and-membership/community-discovery-portal/[id]/page.tsx
 
-import { CommunityDetailsViewer } from "../../../../components/community-details-viewer"
+import { CommunityDetailsViewer } from "@/app/components/community-details-viewer"
 
 interface CommunityDetailsPageProps {
   params: Promise<{
