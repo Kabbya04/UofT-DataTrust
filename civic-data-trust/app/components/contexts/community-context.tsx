@@ -17,7 +17,6 @@ interface CommunityContextType {
   communities: Community[]
   toggleJoinStatus: (communityId: number) => void
   getCommunity: (communityId: number) => Community | undefined
-  submitJoinRequest: (communityId: number, message: string) => void
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined)
@@ -100,16 +99,8 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     return communities.find((community) => community.id === communityId)
   }
 
-  const submitJoinRequest = (communityId: number, message: string) => {
-    // In a real app, this would make an API call to submit the join request
-    console.log(`Join request submitted for community ${communityId}:`, message)
-    
-    // For demo purposes, we could set the community as "pending" or similar
-    // This could be extended to have a pending status in the community interface
-  }
-
   return (
-    <CommunityContext.Provider value={{ communities, toggleJoinStatus, getCommunity, submitJoinRequest }}>
+    <CommunityContext.Provider value={{ communities, toggleJoinStatus, getCommunity }}>
       {children}
     </CommunityContext.Provider>
   )
