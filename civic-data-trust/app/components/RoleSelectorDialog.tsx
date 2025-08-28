@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { User, FlaskConical, Microscope, Users, Shield, Star } from 'lucide-react';
+import { Users, Microscope, Shield, Star } from 'lucide-react'; // <-- Unused icons like User, FlaskConical removed
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import { Card, CardDescription, CardHeader, CardTitle } from './ui/card';
 
@@ -11,18 +11,17 @@ interface RoleSelectorDialogProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
-type Role = 'community-member' | 'researcher' | 'researcher-wf/home' | 'community-member-wf/home' | 'project-admin-wf/dashboard' | 'super-admin-wf/dashboard';
+// --- TYPE UPDATED: Removed the deleted roles ---
+type Role = 'community-member-wf/home' | 'researcher-wf/home' | 'project-admin-wf/dashboard' | 'super-admin-wf/dashboard';
 
 export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelectorDialogProps) {
   const router = useRouter();
 
   const handleRoleSelect = (role: Role) => {
-    // --- FIX 2: Add a guard clause to prevent calling .push on null ---
     if (!router) {
       console.error("Router is not available yet.");
-      return; // Exit the function if router is null
+      return; 
     }
-    // --- End of Fix ---
 
     const path = `/${role}`;
     router.push(path);
@@ -48,12 +47,11 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
           <DialogDescription>Choose a role to view the corresponding dashboard experience.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {/* --- ROLES UPDATED: The two redundant roles have been removed --- */}
           <RoleCard role="super-admin-wf/dashboard" title="Super Admin" description="Full platform oversight, user management, and global analytics." icon={Star}/>
           <RoleCard role="project-admin-wf/dashboard" title="Project Admin" description="Manage communities, review posts, and view platform-wide analytics." icon={Shield}/>
-          <RoleCard role="community-member" title="Community Member" description="Engage with communities and view shared data." icon={User}/>
-          <RoleCard role="community-member-wf/home" title="Community Member Wf" description="A workflow to manage and discover communities." icon={Users}/>
-          <RoleCard role="researcher" title="Researcher" description="Access advanced tools and manage research." icon={FlaskConical}/>
-          <RoleCard role="researcher-wf/home" title="Researcher-WF" description="A workflow for managing research projects." icon={Microscope}/>
+          <RoleCard role="community-member-wf/home" title="Community Member" description="A workflow to manage and discover communities." icon={Users}/>
+          <RoleCard role="researcher-wf/home" title="Researcher" description="A workflow for managing research projects." icon={Microscope}/>
         </div>
       </DialogContent>
     </Dialog>

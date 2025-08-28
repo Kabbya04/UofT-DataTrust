@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, Suspense } from "react"
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // <-- ADD useSearchParams HERE
 import { Button } from "@/app/components/ui/button"
+// ... rest of the file
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Textarea } from "@/app/components/ui/textarea"
 import { useCommunity } from "@/app/components/contexts/community-context"
