@@ -2,12 +2,14 @@
 
 import CommunityDetailsView from "./community-details-view";
 
-// Define the props correctly for a Next.js page component.
-// `params` is an object, not a promise.
+// Updated interface for Next.js 15 - params is now a Promise
 interface CommunityDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function CommunityDetailsPage({ params }: CommunityDetailsPageProps) {
-  return <CommunityDetailsView id={params.id} />;
+export default async function CommunityDetailsPage({ params }: CommunityDetailsPageProps) {
+  // Await the params in Next.js 15
+  const { id } = await params;
+  
+  return <CommunityDetailsView id={id} />;
 }

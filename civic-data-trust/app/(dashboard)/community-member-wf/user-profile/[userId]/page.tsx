@@ -27,10 +27,13 @@ const achievements = [
     { id: 3, name: "Top Contributor", icon: Star, description: "100+ contributions" },
 ];
 
-interface PageProps { params: { userId: string } }
+// Updated interface for Next.js 15 - params is now a Promise
+interface PageProps { 
+    params: Promise<{ userId: string }> 
+}
 
-export default function UserProfilePage({ params }: PageProps) {
-    const { userId } = params;
+// Create a client component that receives the userId as a prop
+function UserProfileContent({ userId }: { userId: string }) {
     const [activeTab, setActiveTab] = useState("latest");
 
     const userProfile = mockUsers[userId as keyof typeof mockUsers] || { id: "N/A", name: "Unknown User", bio: "User not found.", joinedDate: new Date() };
@@ -82,4 +85,12 @@ export default function UserProfilePage({ params }: PageProps) {
             </div>
         </div>
     )
+}
+
+// Main page component that handles the async params
+export default async function UserProfilePage({ params }: PageProps) {
+    // Await the params in Next.js 15
+    const { userId } = await params;
+    
+    return <UserProfileContent userId={userId} />;
 }
