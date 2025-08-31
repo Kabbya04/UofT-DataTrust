@@ -54,7 +54,7 @@ export default function UserProfilePage({ params }: PageProps) {
                         <TabsList className="grid w-full grid-cols-3"><TabsTrigger value="latest">Latest</TabsTrigger><TabsTrigger value="popular">Popular</TabsTrigger><TabsTrigger value="most-used">Most Used</TabsTrigger></TabsList>
                     </Tabs>
                     <div className="space-y-4">
-                        {sortedDatasets.length === 0 ? <Card className="border border-border"><CardContent className="p-8 text-center"><div className="text-muted-foreground"><FileText className="h-12 w-12 mx-auto mb-4 opacity-50" /><h3 className="text-lg font-medium mb-2">No datasets found</h3><p className="text-sm">This user hasn't shared any public datasets yet.</p></div></CardContent></Card> : sortedDatasets.map((dataset) => (
+                        {sortedDatasets.length === 0 ? <Card className="border border-border"><CardContent className="p-8 text-center"><div className="text-muted-foreground"><FileText className="h-12 w-12 mx-auto mb-4 opacity-50" /><h3 className="text-lg font-medium mb-2">No datasets found</h3><p className="text-sm">This user has not shared any public datasets yet.</p></div></CardContent></Card> : sortedDatasets.map((dataset) => (
                             <Card key={dataset.id} className="border border-border hover:shadow-md transition-shadow">
                                 <CardContent className="p-0">
                                     <div className="flex">
