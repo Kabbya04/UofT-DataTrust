@@ -25,7 +25,7 @@ interface CommunityCardProps {
 
 function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps) {
   return (
-    <Card className="p-4 hover:shadow-lg transition-all duration-200 border border-border bg-card">
+    <Card className="p-2 hover:shadow-lg w-fit transition-all duration-200 border border-border bg-card">
       <div className="flex items-start gap-3 mb-3">
         <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
           <ImageIcon className="h-4 w-4 text-muted-foreground" />
@@ -40,8 +40,8 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
             <div>• {community.description}</div>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => onViewDetails(community.id)}>View Details</Button>
-            <Button size="sm" variant={community.isJoined ? "outline" : "default"} className="flex-1 text-xs h-7" onClick={() => onJoin(community.id)}>
+            <Button size="sm" variant="outline" className=" text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
+            <Button size="sm" variant={community.isJoined ? "outline" : "default"} className=" text-xs h-7  cursor-pointer" onClick={() => onJoin(community.id)}>
               {community.isJoined ? "Joined" : "Join Community"}
             </Button>
           </div>
