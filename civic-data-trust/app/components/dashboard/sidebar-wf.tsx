@@ -117,7 +117,7 @@ export function SidebarWf() {
   );
 
   return (
-    <aside className="w-72 flex-shrink-0 border-r border-border bg-card flex flex-col p-4">
+    <aside className="w-72 overflow-auto flex-shrink-0 border-r border-border bg-card flex flex-col p-4">
       <nav className="flex-1 space-y-6">
         {isResearcherWf && <ResearcherNav />}
         {isCommunityMemberWf && <CommunityMemberNav />}
@@ -125,11 +125,11 @@ export function SidebarWf() {
         {isSuperAdminWf && <SuperAdminNav />}
       </nav>
       <div className="mt-auto">
-        <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted">
+        <Link href="/community-member-wf/settings" className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted">
           <div className="flex items-center gap-3"><Cog className="h-5 w-5 text-foreground/60" /><span className="font-semibold">Settings</span></div>
-          <ChevronDown className={cn("h-4 w-4 transition-transform", isSettingsOpen && "rotate-180")} />
-        </button>
-        {isSettingsOpen && (<div className="p-2 mt-2 border rounded-lg"><p className="text-xs text-muted-foreground p-2">Setting options here.</p></div>)}
+          {/* <ChevronDown className={cn("h-4 w-4 transition-transform", isSettingsOpen && "rotate-180")} /> */}
+        </Link>
+        {/* {isSettingsOpen && (<div className="p-2 mt-2 border rounded-lg"><p className="text-xs text-muted-foreground p-2">Setting options here.</p></div>)} */}
       </div>
     </aside>
   );

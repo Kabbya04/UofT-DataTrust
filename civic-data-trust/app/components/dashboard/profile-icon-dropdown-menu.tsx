@@ -34,22 +34,22 @@ export default function Profile01({
   const menuItems: MenuItem[] = [
     {
       label: "My Profile",
-      href: "#",
+      href: "/community-member-wf/my-profile",
       icon: <User className="w-4 h-4" />,
     },
     {
       label: "Membership Requests",
-      href: "/community-access-request",
+      href: "/community-member-wf/membership-requests",
       icon: <Users className="w-4 h-4" />,
     },
     {
       label: "Audit Logs",
-      href: "/data-interaction/audit-log-viewer",
+      href: "/community-member-wf/audit-logs",
       icon: <FileSearch className="w-4 h-4" />,
     },
     {
       label: "Researcher Access Requests",
-      href: "/community-access-request",
+      href: "/community-member-wf/researcher-access-requests",
       icon: <UserCheck className="w-4 h-4" />,
     },
   ]

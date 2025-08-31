@@ -10,7 +10,7 @@ import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
 import ThemeToggle from "../theme-toggle";
 import { NotificationButton } from "../dashboard/notification-button"
-import Profile from "./profile"
+import Profile from "./profile-icon-dropdown-menu"
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -72,6 +72,7 @@ export function NavbarWf() {
         {isCommunityMemberWf && (<>
           <NavLink href="/community-member-wf/my-communities">My Communities</NavLink>
           <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink>
+          <NavLink href="/community-member-wf/statistics">Statistics</NavLink>
         </>)}
       </nav>
 

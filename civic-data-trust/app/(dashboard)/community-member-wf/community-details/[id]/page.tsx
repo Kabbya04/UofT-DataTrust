@@ -97,7 +97,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="">
         <div className="w-full h-48 bg-muted border border-primary rounded-lg mb-6 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-muted-foreground/20 to-muted-foreground/10" />
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
@@ -105,8 +105,10 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
               <Avatar className="w-20 h-20 border-4 border-background"><AvatarFallback className="bg-background text-foreground text-lg font-semibold">{community.name.split(' ').map(word => word[0]).join('').slice(0, 2)}</AvatarFallback></Avatar>
               <div className="pb-2"><h1 className="text-2xl font-bold text-foreground mb-1">{community.name}</h1></div>
             </div>
+
             <div className="flex items-center gap-2 pb-2">
-              <Button variant="outline" size="sm" onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}>Create Post</Button>
+              {community.isJoined && <Button variant="outline" size="sm" onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}>Create Post</Button>}
+              
               <Button variant={community.isJoined ? "outline" : "default"} size="sm" onClick={handleJoinToggle}>{community.isJoined ? "Joined" : "Join"}</Button>
               {/* Added three-dot dropdown menu with favorite and mute options */}
               <DropdownMenu>
@@ -138,10 +140,12 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
             <h2 className="font-semibold text-foreground mb-2">Description</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">{community.description}</p>
           </div>
-          <div>{mockCommunityPosts.map((post) => (<PostCard key={post.id} post={post} />))}</div>
+          <div className={`transition-all duration-300 ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>{mockCommunityPosts.map((post) => (<PostCard key={post.id} post={post} />))}</div>
         </div>
-        <div className="w-80">
-          <div className="sticky top-6 space-y-6">
+        <div className={`w-80" ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>
+          {/* Right Sidebar */}
+          {/* Stats and Popular Posts */}
+          <div className="top-6 space-y-6">
             <Card className="p-4">
               <h3 className="font-semibold text-foreground mb-4">Stats</h3>
               <div className="space-y-4">

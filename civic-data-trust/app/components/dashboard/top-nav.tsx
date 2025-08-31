@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "../theme-toggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import Profile from "./profile";
+import Profile from "./profile-icon-dropdown-menu";
 import { NotificationButton } from './notification-button'; // <-- IMPORT the new component
 
 // This is the four-dot logo from your reference image

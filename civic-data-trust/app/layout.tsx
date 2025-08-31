@@ -38,7 +38,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className={jetbrainsMono.className}> {/* This applies monospace to entire body */}
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
+          <div className="w-full min-h-screen overflow-hidden">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
