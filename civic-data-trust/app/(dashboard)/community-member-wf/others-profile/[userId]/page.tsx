@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "../../../../components/ui/card"
 import { Button } from "../../../../components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../../components/ui/avatar"
@@ -11,16 +11,30 @@ import { Input } from "../../../../components/ui/input"
 import ExpandableContentCard from "../../../../components/dashboard/expandable-content-card"
 
 interface OthersProfilePageProps {
-    username: string
+    params: Promise<{ userId: string }>
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default function OthersProfilePage({ username }: OthersProfilePageProps) {
+export default function OthersProfilePage({ params }: OthersProfilePageProps) {
     const [activeTab, setActiveTab] = useState("latest")
+    const [userId, setUserId] = useState<string>("")
+    useEffect(() => {
+        const resolveParams = async () => {
+            const resolvedParams = await params
+            setUserId(resolvedParams.userId)
+        }
+        resolveParams()
+    }, [params])
+
+    // Add loading state
+    if (!userId) {
+        return <div>Loading...</div>
+    }
 
     // Mock user data
     const userData = {
         name: "Jane Doe",
-        username: username,
+        username: "janedoe",
         avatar: "/placeholder.svg?height=100&width=100",
         isFollowing: false,
         stats: {

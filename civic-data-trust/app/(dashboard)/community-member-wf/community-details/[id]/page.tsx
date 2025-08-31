@@ -6,8 +6,9 @@ import { Card, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Avatar, AvatarFallback } from "@/app/components/ui/avatar"
 import { useCommunity } from "@/app/components/contexts/community-context"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
+
 const mockCommunityPosts = [
   { id: 1, title: "Revolutionary Data Sharing Protocol Implementation", content: "A comprehensive guide to implementing secure data sharing protocols in healthcare environments...", author: "Dr. Alex Chen", timestamp: "2 hours ago", type: "video" as const },
   { id: 2, title: "New Healthcare Analytics Framework Released - Version 3.0", content: "The latest update to our open-source healthcare analytics framework includes improved patient privacy features...", author: "Dr. Sarah Wilson", timestamp: "4 hours ago", type: "video" as const },
@@ -27,8 +28,9 @@ const mockPopularPosts = [
   { id: 5, title: "Healthcare Cost Reduction Strategies", author: "Finance Dept" },
 ];
 
+// Updated interface for Next.js 15
 interface CommunityDetailsPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 interface PostCardProps {
@@ -69,12 +71,26 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
   const { communities, toggleJoinStatus } = useCommunity();
   const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(false)
+  const [communityId, setCommunityId] = useState<string>("")
   const router = useRouter();
 
-  const community = communities.find(c => c.id.toString() === params.id) || {
-    id: parseInt(params.id), name: "Toronto Health Community",
+  // Use useEffect to resolve the Promise params
+  useEffect(() => {
+    const resolveParams = async () => {
+      const resolvedParams = await params;
+      setCommunityId(resolvedParams.id);
+    };
+    resolveParams();
+  }, [params]);
+
+  const community = communities.find(c => c.id.toString() === communityId) || {
+    id: parseInt(communityId || "1"), 
+    name: "Toronto Health Community",
     description: "Tincidunt cursque ipsum sit sit urna arci molestaque tincidunt et commodo. Praesent massa elit faucibus odio elit in adipiscing nec ipsum ut. Vestibulum ipsum sit.",
-    memberCount: 123, category: "Healthcare", isJoined: false, tags: ["Healthcare", "Research", "Data"]
+    memberCount: 123, 
+    category: "Healthcare", 
+    isJoined: false, 
+    tags: ["Healthcare", "Research", "Data"]
   };
 
   const handleAddToFavorite = () => {
@@ -95,9 +111,14 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
 
   const datasets = 18;
 
+  // Show loading state while params are being resolved
+  if (!communityId) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
-      <div className="">
+      <div className="mb-8">
         <div className="w-full h-48 bg-muted border border-primary rounded-lg mb-6 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-muted-foreground/20 to-muted-foreground/10" />
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
@@ -110,7 +131,6 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
               {community.isJoined && <Button variant="outline" size="sm" onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}>Create Post</Button>}
               
               <Button variant={community.isJoined ? "outline" : "default"} size="sm" onClick={handleJoinToggle}>{community.isJoined ? "Joined" : "Join"}</Button>
-              {/* Added three-dot dropdown menu with favorite and mute options */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -128,7 +148,6 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* <Button variant="outline" size="sm" className="px-2"><MoreHorizontal className="h-4 w-4" /></Button> */}
             </div>
           </div>
         </div>
@@ -143,8 +162,6 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           <div className={`transition-all duration-300 ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>{mockCommunityPosts.map((post) => (<PostCard key={post.id} post={post} />))}</div>
         </div>
         <div className={`w-80" ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>
-          {/* Right Sidebar */}
-          {/* Stats and Popular Posts */}
           <div className="top-6 space-y-6">
             <Card className="p-4">
               <h3 className="font-semibold text-foreground mb-4">Stats</h3>

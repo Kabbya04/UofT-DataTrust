@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Play, FileText, Download, Eye, Calendar, Users, Award, Star } from "lucide-react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
@@ -27,15 +27,27 @@ const achievements = [
     { id: 3, name: "Top Contributor", icon: Star, description: "100+ contributions" },
 ];
 
-interface PageProps { params: { userId: string } }
+interface PageProps {
+    params: Promise<{ userId: string }>
+}
 
 export default function UserProfilePage({ params }: PageProps) {
-    const { userId } = params;
+    const [userId, setUserId] = useState<string>("")
     const [activeTab, setActiveTab] = useState("latest");
 
+    useEffect(() => {
+        const resolveParams = async () => {
+            const resolvedParams = await params
+            setUserId(resolvedParams.userId)
+        }
+        resolveParams()
+    }, [params])
+
     const userProfile = mockUsers[userId as keyof typeof mockUsers] || { id: "N/A", name: "Unknown User", bio: "User not found.", joinedDate: new Date() };
-    const userDatasets = mockUserDatasets[userId as keyof typeof mockUserDatasets] || [];
-    
+    const userDatasets = useMemo(() => {
+        return mockUserDatasets[userId as keyof typeof mockUserDatasets] || [];
+    }, [userId]);
+
     const sortedDatasets = useMemo(() => {
         const datasets = [...userDatasets];
         switch (activeTab) {
@@ -44,6 +56,10 @@ export default function UserProfilePage({ params }: PageProps) {
             default: return datasets.sort((a, b) => b.uploadDate.getTime() - a.uploadDate.getTime());
         }
     }, [userDatasets, activeTab]);
+
+    if (!userId) {
+        return <div>Loading...</div>
+    }
 
     return (
         <div className="flex-1">
