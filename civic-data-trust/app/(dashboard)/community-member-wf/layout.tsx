@@ -9,10 +9,11 @@ export default function CommunityMemberWfLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-background">
-      <SidebarWf />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <NavbarWf />
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <NavbarWf />
+
+      <div className="flex h-screen bg-background">
+        <SidebarWf />
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">
           <UserProvider>
             <CommunityProvider>

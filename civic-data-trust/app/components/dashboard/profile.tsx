@@ -1,4 +1,4 @@
-import { LogOut, MoveUpRight, Settings, CreditCard, FileText } from "lucide-react"
+import { LogOut, MoveUpRight, User, Users, FileSearch, UserCheck } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card } from "../ui/card"
@@ -33,22 +33,24 @@ export default function Profile01({
 }: Partial<Profile01Props> = defaultProfile) {
   const menuItems: MenuItem[] = [
     {
-      label: "Subscription",
-      value: subscription,
+      label: "My Profile",
       href: "#",
-      icon: <CreditCard className="w-4 h-4" />,
-      external: false,
+      icon: <User className="w-4 h-4" />,
     },
     {
-      label: "Settings",
-      href: "#",
-      icon: <Settings className="w-4 h-4" />,
+      label: "Membership Requests",
+      href: "/community-access-request",
+      icon: <Users className="w-4 h-4" />,
     },
     {
-      label: "Terms & Policies",
-      href: "#",
-      icon: <FileText className="w-4 h-4" />,
-      external: true,
+      label: "Audit Logs",
+      href: "/data-interaction/audit-log-viewer",
+      icon: <FileSearch className="w-4 h-4" />,
+    },
+    {
+      label: "Researcher Access Requests",
+      href: "/community-access-request",
+      icon: <UserCheck className="w-4 h-4" />,
     },
   ]
 

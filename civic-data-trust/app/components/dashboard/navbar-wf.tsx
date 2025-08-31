@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import Image from "next/image"
 import { usePathname } from 'next/navigation';
 import { Search, X, ChevronDown, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
 import ThemeToggle from "../theme-toggle";
+import { NotificationButton } from "../dashboard/notification-button"
+import Profile from "./profile"
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -78,13 +82,35 @@ export function NavbarWf() {
           <button className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"><X className="h-4 w-4" /></button>
         </div>
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9"><AvatarImage src="/profile.jpg" alt="Jhon Doe" /><AvatarFallback>JD</AvatarFallback></Avatar>
-          <div className="hidden sm:block"><p className="text-sm font-semibold">Jhon Doe</p></div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-2 justify-center cursor-pointer">
+              <Image
+                src="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
+                alt="User avatar"
+                width={28}
+                height={28}
+                className="rounded-full ring-2 ring-gray-600 sm:w-8 sm:h-8 "
+              />
+              <div className="hidden sm:block cursor-pointer">
+                <button className="text-xs font-semibold">Jhon Doe</button>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              sideOffset={8}
+              className="w-[280px] sm:w-80 bg-background border-border rounded-lg shadow-lg"
+            >
+              <Profile avatar="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png" />
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* <Avatar className="h-9 w-9"><AvatarImage src="/profile.jpg" alt="Jhon Doe" /><AvatarFallback>JD</AvatarFallback></Avatar> */}
+
         </div>
         <ThemeToggle />
-        <button className="p-2 rounded-full hover:bg-muted"><Bell className="h-5 w-5 text-foreground/80" /></button>
+        {/* <button className="p-2 rounded-full hover:bg-muted"><Bell className="h-5 w-5 text-foreground/80" /></button> */}
+        <NotificationButton />
 
-        <button className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">EN <ChevronDown className="h-4 w-4" /></button>
+        <button className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">EN <ChevronDown className="h-4 w-4" /></button>
       </div>
     </header>
   );

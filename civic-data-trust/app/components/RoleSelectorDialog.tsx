@@ -42,9 +42,9 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
         <div className="space-y-4 py-4">
           <RoleCard role="super-admin-wf/dashboard" title="Super Admin" description="Full platform oversight, user management, and global analytics." icon={Star}/>
           <RoleCard role="project-admin-wf/dashboard" title="Project Admin" description="Manage communities, review posts, and view platform-wide analytics." icon={Shield}/>
-          <RoleCard role="community-member" title="Community Member" description="Engage with communities and view shared data." icon={User}/>
+          {/* <RoleCard role="community-member" title="Community Member" description="Engage with communities and view shared data." icon={User}/> */}
           <RoleCard role="community-member-wf/home" title="Community Member Wf" description="A workflow to manage and discover communities." icon={Users}/>
-          <RoleCard role="researcher" title="Researcher" description="Access advanced tools and manage research." icon={FlaskConical}/>
+          {/* <RoleCard role="researcher" title="Researcher" description="Access advanced tools and manage research." icon={FlaskConical}/> */}
           <RoleCard role="researcher-wf/home" title="Researcher-WF" description="A workflow for managing research projects." icon={Microscope}/>
         </div>
       </DialogContent>
