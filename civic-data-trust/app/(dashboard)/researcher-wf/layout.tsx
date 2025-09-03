@@ -1,5 +1,8 @@
 import { NavbarWf } from "@/app/components/dashboard/navbar-wf";
 import { SidebarWf } from "@/app/components/dashboard/sidebar-wf";
+import { CommunityProvider } from "@/app/components/contexts/community-context";
+import { UserProvider } from "@/app/components/contexts/user-context";
+import { Provider } from "@radix-ui/react-tooltip";
 
 export default function ResearcherWfLayout({
   children,
@@ -7,12 +10,21 @@ export default function ResearcherWfLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-background">
-      <SidebarWf />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <NavbarWf />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
-          {children}
+    // The parent is now a flex container that takes the full screen height
+    <div className="flex flex-col w-full h-screen overflow-hidden">
+      <NavbarWf />
+      {/* This container will grow to fill the remaining space */}
+      <div className="flex flex-1 overflow-hidden">
+        <SidebarWf />
+        {/* The main content area is now the only part that scrolls */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8">
+          <UserProvider>
+            <CommunityProvider>
+              <Provider>
+                {children}
+              </Provider>
+            </CommunityProvider>
+          </UserProvider>
         </main>
       </div>
     </div>

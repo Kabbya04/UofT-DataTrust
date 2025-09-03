@@ -9,11 +9,13 @@ export default function CommunityMemberWfLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col w-full min-h-screen overflow-hidden">
+    // The parent is now a flex container that takes the full screen height
+    <div className="flex flex-col w-full h-screen overflow-hidden">
       <NavbarWf />
-
-      <div className="flex h-screen bg-background">
+      {/* This container will grow to fill the remaining space */}
+      <div className="flex flex-1 overflow-hidden">
         <SidebarWf />
+        {/* The main content area is now the only part that scrolls */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8">
           <UserProvider>
             <CommunityProvider>
