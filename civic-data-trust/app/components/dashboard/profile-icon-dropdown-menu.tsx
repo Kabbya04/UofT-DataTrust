@@ -2,6 +2,8 @@ import { LogOut, MoveUpRight, User, Users, FileSearch, UserCheck } from "lucide-
 import Image from "next/image"
 import Link from "next/link"
 import { Card } from "../ui/card"
+import { useAuth } from '../contexts/auth-context'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 
 interface MenuItem {
   label: string
@@ -26,11 +28,30 @@ const defaultProfile = {
 } satisfies Required<Profile01Props>
 
 export default function Profile01({
-  name = defaultProfile.name,
-  role = defaultProfile.role,
   avatar = defaultProfile.avatar,
-  subscription = defaultProfile.subscription,
-}: Partial<Profile01Props> = defaultProfile) {
+}: Partial<Profile01Props> = {}) {
+  const { user, logout } = useAuth();
+  
+  // Get user initials for avatar fallback
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Map role IDs to readable role names
+  const getRoleName = (role: string) => {
+    const roleNames: Record<string, string> = {
+      '7d1222ee-a32b-4981-8b31-89ac68b640fb': 'Researcher',
+      '38252b5f-55ff-4cae-aad1-f442971e2e16': 'Community User',
+      '445acacc-aa8c-4902-892d-13e8afc8be3f': 'Community Admin',
+      '093e572a-3226-4786-a16b-8020e2cf5bfd': 'Super Admin',
+    };
+    return roleNames[role] || role;
+  };
   const menuItems: MenuItem[] = [
     {
       label: "My Profile",
@@ -60,20 +81,18 @@ export default function Profile01({
         <Card className="relative px-6 pt-12 pb-6">
           <div className="flex items-center gap-4 mb-8">
             <div className="relative shrink-0">
-              <Image
-                src={avatar}
-                alt={name}
-                width={72}
-                height={72}
-                className="rounded-full ring-4 ring-white  object-cover"
-              />
-              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white  " />
+              <Avatar className="w-18 h-18 ring-4 ring-white">
+                <AvatarImage src={avatar} alt={user?.name || 'User'} />
+                <AvatarFallback className="text-lg">{user ? getUserInitials(user.name) : 'U'}</AvatarFallback>
+              </Avatar>
+              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white" />
             </div>
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h2 className="text-xl font-semibold ">{name}</h2>
-              <p className=" ">{role}</p>
+              <h2 className="text-xl font-semibold">{user?.name || 'Loading...'}</h2>
+              <p className="text-muted-foreground">{user ? getRoleName(user.role) : 'Loading...'}</p>
+              <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
             </div>
           </div>
           <div className="h-px bg-zinc-200  my-6" />
@@ -98,12 +117,13 @@ export default function Profile01({
 
             <button
               type="button"
-              className="w-full flex items-center justify-between p-2  hover:bg-zinc-500 
+              onClick={logout}
+              className="w-full flex items-center justify-between p-2 hover:bg-zinc-500 
                                   rounded-lg transition-colors duration-200"
             > 
               <div className="flex items-center gap-2">
                 <LogOut className="w-4 h-4" />
-                <span className="text-sm font-medium  ">Logout</span>
+                <span className="text-sm font-medium">Logout</span>
               </div>
             </button>
           </div>

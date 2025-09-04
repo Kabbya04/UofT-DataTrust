@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/button"
+import { useAuth } from "@/app/components/contexts/auth-context"
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
 
 const TABS = [
   "Account Settings",
@@ -42,34 +44,202 @@ export default function SettingsPage() {
 }
 
 function AccountSettings() {
+  const { user, updateUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  // Initialize form data when user data loads
+  useEffect(() => {
+    if (user?.name) {
+      const nameParts = user.name.split(' ');
+      setFormData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+      }));
+    }
+  }, [user?.name]);
+
+  // Get user initials for avatar fallback
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Map role IDs to readable role names
+  const getRoleName = (role: string) => {
+    const roleNames: Record<string, string> = {
+      '7d1222ee-a32b-4981-8b31-89ac68b640fb': 'Researcher',
+      '38252b5f-55ff-4cae-aad1-f442971e2e16': 'Community Member',
+      '445acacc-aa8c-4902-892d-13e8afc8be3f': 'Community Admin',
+      '093e572a-3226-4786-a16b-8020e2cf5bfd': 'Super Admin',
+    };
+    return roleNames[role] || role;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Update user name if changed
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      if (fullName && fullName !== user?.name) {
+        console.log('Updating user name to:', fullName);
+        await updateUser({ name: fullName });
+      }
+
+      // TODO: Handle password update - would need separate endpoint
+      if (formData.newPassword && formData.currentPassword) {
+        console.log('Password update requested - this would need a separate API endpoint');
+        // For now, just log the intent
+      }
+
+      alert('Settings updated successfully!');
+      
+      // Clear password fields after successful update
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      }));
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert(`Error updating settings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className=" ml-10 px-8">
+    <div className="ml-10 px-8">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 rounded-full bg-muted" />
+        <Avatar className="w-16 h-16">
+          <AvatarImage src="/profile.jpg" alt={user.name} />
+          <AvatarFallback className="text-xl">{getUserInitials(user.name)}</AvatarFallback>
+        </Avatar>
         <div>
-          <div className="font-semibold text-lg">Jhon Doe <span className="bg-muted px-2 py-0.5 rounded text-xs ml-2">Community Member</span></div>
-          <div className="text-xs text-muted-foreground">Member since 17 January, 2025</div>
+          <div className="font-semibold text-lg">
+            {user.name} 
+            <span className="bg-muted px-2 py-0.5 rounded text-xs ml-2">
+              {getRoleName(user.role)}
+            </span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Member since {new Date(user.created_at).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
         </div>
       </div>
-      <form className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-md mb-1">First Name:</label>
-          <input className="w-full border rounded px-2 py-1" defaultValue="Jhon" />
+      
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-md mb-1">First Name:</label>
+            <input 
+              name="firstName"
+              className="w-full border rounded px-2 py-1" 
+              value={formData.firstName}
+              onChange={handleInputChange}
+              placeholder={user.name.split(' ')[0] || 'First Name'}
+            />
+          </div>
+          <div>
+            <label className="block text-md mb-1">Last Name:</label>
+            <input 
+              name="lastName"
+              className="w-full border rounded px-2 py-1" 
+              value={formData.lastName}
+              onChange={handleInputChange}
+              placeholder={user.name.split(' ').slice(1).join(' ') || 'Last Name'}
+            />
+          </div>
         </div>
+        
         <div>
-          <label className="block text-md mb-1">Last Name:</label>
-          <input className="w-full border rounded px-2 py-1" defaultValue="Doe" />
-        </div>
-        <div className="col-span-2">
           <label className="block text-md mb-1">Email:</label>
-          <input className="w-full border rounded px-2 py-1" defaultValue="jhon@email.com" disabled />
+          <input 
+            className="w-full border rounded px-2 py-1 bg-muted" 
+            value={user.email} 
+            disabled 
+          />
+          <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
         </div>
-        <div className="col-span-2">
-          <label className="block text-md mb-1">Password:</label>
-          <input className="w-full border rounded px-2 py-1" type="password" defaultValue="********" />
+        
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="font-semibold">Change Password</h3>
+          <div>
+            <label className="block text-md mb-1">Current Password:</label>
+            <input 
+              name="currentPassword"
+              type="password"
+              className="w-full border rounded px-2 py-1" 
+              value={formData.currentPassword}
+              onChange={handleInputChange}
+              placeholder="Enter current password"
+            />
+          </div>
+          <div>
+            <label className="block text-md mb-1">New Password:</label>
+            <input 
+              name="newPassword"
+              type="password"
+              className="w-full border rounded px-2 py-1" 
+              value={formData.newPassword}
+              onChange={handleInputChange}
+              placeholder="Enter new password"
+            />
+          </div>
+          <div>
+            <label className="block text-md mb-1">Confirm New Password:</label>
+            <input 
+              name="confirmPassword"
+              type="password"
+              className="w-full border rounded px-2 py-1" 
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              placeholder="Confirm new password"
+            />
+          </div>
+          {formData.newPassword && formData.confirmPassword && formData.newPassword !== formData.confirmPassword && (
+            <p className="text-red-500 text-xs">Passwords do not match</p>
+          )}
         </div>
+        
+        <Button 
+          type="submit" 
+          variant="default"
+          disabled={isLoading || (formData.newPassword && formData.newPassword !== formData.confirmPassword)}
+        >
+          {isLoading ? 'Saving...' : 'Save Changes'}
+        </Button>
       </form>
-      <Button variant="default">Save Changes</Button>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../../components/contexts/auth-context';
 
 const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/50 dark:bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-500/70 focus-within:bg-violet-500/10">
@@ -15,6 +16,43 @@ const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: '',
+  });
+  
+  const { signup, isLoading, error, clearError } = useAuth();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (error) clearError();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.password || !formData.role) {
+      return;
+    }
+
+    await signup({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+    });
+  };
 
   return (
     <div className="h-[100dvh] flex flex-col md:flex-row w-full">
@@ -28,50 +66,52 @@ export default function SignUpPage() {
               Enter your details to begin your journey with us.
             </p>
 
-            <form className="space-y-4">
+            {error && (
+              <div className="animate-element animate-delay-250 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="animate-element animate-delay-300">
                 <label className="text-sm font-medium text-muted-foreground">Name</label>
                 <GlassInputWrapper>
-                  <input name="name" type="text" placeholder="Enter your name" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
+                  <input name="name" type="text" placeholder="Enter your name" value={formData.name} onChange={handleInputChange} className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" required />
                 </GlassInputWrapper>
               </div>
               
               <div className="animate-element animate-delay-400">
                 <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                 <GlassInputWrapper>
-                  <input name="email" type="email" placeholder="Enter your email address" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
+                  <input name="email" type="email" placeholder="Enter your email address" value={formData.email} onChange={handleInputChange} className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" required />
                 </GlassInputWrapper>
               </div>
 
-              <div className="animate-element animate-delay-500">
-                <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
-                <GlassInputWrapper>
-                  <input name="phone" type="tel" placeholder="Enter your phone number" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
-                </GlassInputWrapper>
-              </div>
               
-              {/* --- ROLE DROPDOWN IS NOW UPDATED --- */}
-              <div className="animate-element animate-delay-600">
+              <div className="animate-element animate-delay-500">
                 <label className="text-sm font-medium text-muted-foreground">Your Role</label>
                 <GlassInputWrapper>
                   <select
                     name="role"
-                    defaultValue=""
+                    value={formData.role}
+                    onChange={handleInputChange}
                     className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none appearance-none"
+                    required
                   >
                     <option value="" disabled>Select your role</option>
-                    <option className="text-background">Researcher / Student</option>
-                    <option className="text-background">Tenant / Community Member</option>
-                    <option className="text-background">Project Admin</option>
+                    <option className="text-background" value="Researcher">Researcher</option>
+                    <option className="text-background" value="Community User">Community User</option>
+                    <option className="text-background" value="Community Admin">Community Admin</option>
+                    <option className="text-background" value="Super Admin">Super Admin</option>
                   </select>
                 </GlassInputWrapper>
               </div>
 
-              <div className="animate-element animate-delay-700">
+              <div className="animate-element animate-delay-600">
                 <label className="text-sm font-medium text-muted-foreground">Password</label>
                 <GlassInputWrapper>
                   <div className="relative">
-                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Create a strong password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
+                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Create a strong password" value={formData.password} onChange={handleInputChange} className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" required />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
                       {showPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground" />}
                     </button>
@@ -79,23 +119,27 @@ export default function SignUpPage() {
                 </GlassInputWrapper>
               </div>
 
-              <div className="animate-element animate-delay-800">
+              <div className="animate-element animate-delay-700">
                 <label className="text-sm font-medium text-muted-foreground">Confirm Password</label>
                 <GlassInputWrapper>
                   <div className="relative">
-                    <input name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm your password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
+                    <input name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleInputChange} className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" required />
                     <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-3 flex items-center">
                       {showConfirmPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground" />}
                     </button>
                   </div>
                 </GlassInputWrapper>
+                {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="animate-element animate-delay-900 w-full rounded-2xl bg-card border border-border py-3 font-medium text-foreground/90 transition-transform !mt-6 active:scale-95"
+                disabled={isLoading || formData.password !== formData.confirmPassword}
+                className="animate-element animate-delay-800 w-full rounded-2xl bg-card border border-border py-3 font-medium text-foreground/90 transition-transform !mt-6 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Account
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 

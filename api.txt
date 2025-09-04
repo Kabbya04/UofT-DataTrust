@@ -1,0 +1,210 @@
+Schemas
+AddUserToCommunityResponseCollapse allobject
+user_idstring
+community_idstring
+added_atstringdate-time
+AuthInfoCollapse allobject
+Schema for authentication information.
+
+is_activeboolean
+email_verifiedboolean
+last_loginCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0stringdate-time
+#1null
+failed_login_attemptsCollapse allinteger
+Default0
+locked_untilCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0stringdate-time
+#1null
+Body_create_shared_file_api_v1_datasets_create_postCollapse allobject
+filestringbinary
+CommunityAddUserRequestCollapse allobject
+community_idstring
+user_idstring
+CommunityCreateCollapse allobject
+namestring
+CommunityJoinRequestCreateCollapse allobject
+community_idstring
+user_idstring
+messageCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0string
+#1null
+CommunityListResponseCollapse allobject
+statusstring
+messagestring
+dataCollapse allarray<object>
+ItemsCollapse allobject
+idstring
+namestring
+logostring
+CommunityResponseCollapse allobject
+idstring
+namestring
+logostring
+CommunityUpdateCollapse allobject
+nameCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0string
+#1null
+DatasetResponseCollapse allobject
+idstring
+HTTPValidationErrorCollapse allobject
+detailCollapse allarray<object>
+ItemsCollapse allobject
+locCollapse allarray<(string | integer)>
+ItemsCollapse all(string | integer)
+Any ofCollapse all(string | integer)
+#0string
+#1integer
+msgstring
+typestring
+LoginResponseCollapse allobject
+access_tokenstring
+refresh_tokenstring
+userCollapse allobject
+Schema for user data response (without sensitive information).
+
+idstring
+namestring
+emailstringemail
+statusboolean
+rolestring
+authCollapse all(object | null)
+Any ofCollapse all(object | null)
+#0 AuthInfoExpand allobject
+#1null
+created_atstringdate-time
+updated_atstringdate-time
+PasswordResetCollapse allobject
+Schema for password reset.
+
+tokenstring
+new_passwordCollapse allstring>= 8 characters
+New password must be at least 8 characters
+
+PasswordResetRequestCollapse allobject
+Schema for password reset request.
+
+emailstringemail
+RefreshTokenRequestCollapse allobject
+Schema for refresh token request.
+
+refresh_tokenstring
+RoleBaseModuleCreateCollapse allobject
+Schema for creating a new role base module.
+
+module_nameCollapse allstring[2, 100] characters
+Name of the module
+
+user_rolesCollapse allarray<string>
+List of user role IDs associated with this module
+
+Itemsstring
+RoleBaseModuleUpdateCollapse allobject
+Schema for updating a role base module.
+
+module_nameCollapse all(string | null)
+Updated name of the module
+
+Any ofCollapse all(string | null)
+#0string[2, 100] characters
+#1null
+user_rolesCollapse all(array<string> | null)
+Updated list of user role IDs associated with this module
+
+Any ofCollapse all(array<string> | null)
+#0Expand allarray<string>
+#1null
+RoleBaseModuleUserRoleOperationCollapse allobject
+Schema for adding or removing user roles from a module.
+
+user_role_idsCollapse allarray<string>>= 1 items
+List of user role IDs to add or remove
+
+Itemsstring
+TokenCollapse allobject
+Schema for authentication tokens.
+
+access_tokenstring
+refresh_tokenstring
+token_typeCollapse allstring
+Default"bearer"
+UserLoginCollapse allobject
+Schema for user login.
+
+emailstringemail
+passwordCollapse allstring>= 8 characters
+Password must be at least 8 characters
+
+UserRoleCreateCollapse allobject
+namestring
+UserRoleResponseCollapse allobject
+namestring
+idstring
+UserSignupCollapse allobject
+Schema for user registration.
+
+nameCollapse allstring[2, 100] characters
+User's full name
+
+emailstringemail
+passwordCollapse allstring>= 8 characters
+Password must be at least 8 characters
+
+roleCollapse allstring
+List of role IDs to assign to the user
+
+UserUpdateCollapse allobject
+nameCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0string
+#1null
+emailCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0stringemail
+#1null
+statusCollapse all(boolean | null)
+Any ofCollapse all(boolean | null)
+#0boolean
+#1null
+roleCollapse all(string | null)
+Any ofCollapse all(string | null)
+#0string
+#1null
+ValidationErrorCollapse allobject
+locCollapse allarray<(string | integer)>
+ItemsCollapse all(string | integer)
+Any ofCollapse all(string | integer)
+#0string
+#1integer
+msgstring
+typestring
+app__schemas__auth__UserResponseCollapse allobject
+Schema for user data response (without sensitive information).
+
+idstring
+namestring
+emailstringemail
+statusboolean
+rolestring
+authCollapse all(object | null)
+Any ofCollapse all(object | null)
+#0 AuthInfoExpand allobject
+#1null
+created_atstringdate-time
+updated_atstringdate-time
+app__schemas__user__UserResponseCollapse allobject
+namestring
+emailstringemail
+statusCollapse allboolean
+Defaulttrue
+rolestring
+idstring
+created_atstringdate-time
+updated_atstringdate-time
+
+
+
