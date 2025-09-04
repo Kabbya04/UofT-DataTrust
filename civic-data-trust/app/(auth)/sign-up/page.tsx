@@ -1,11 +1,12 @@
 // app/(auth)/sign-up/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../components/contexts/auth-context';
+import { authService, UserRole } from '../../services/auth';
 
 const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/50 dark:bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-500/70 focus-within:bg-violet-500/10">
@@ -16,6 +17,8 @@ const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +29,30 @@ export default function SignUpPage() {
   
   const { signup, isLoading, error, clearError } = useAuth();
 
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setRolesLoading(true);
+        const roles = await authService.getUserRoles();
+        // Ensure we always set an array
+        if (Array.isArray(roles)) {
+          setUserRoles(roles);
+        } else {
+          console.error('Roles response is not an array:', roles);
+          setUserRoles([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
+        // Set empty array on error - the auth service should have returned defaults
+        setUserRoles([]);
+      } finally {
+        setRolesLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -33,6 +60,15 @@ export default function SignUpPage() {
       [name]: value
     }));
     if (error) clearError();
+  };
+
+  const validatePassword = (password: string) => {
+    const errors = [];
+    if (password.length < 8) errors.push('at least 8 characters');
+    if (!/\d/.test(password)) errors.push('at least one digit');
+    if (!/[A-Z]/.test(password)) errors.push('at least one uppercase letter');
+    if (!/[a-z]/.test(password)) errors.push('at least one lowercase letter');
+    return errors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +80,12 @@ export default function SignUpPage() {
 
     if (!formData.name || !formData.email || !formData.password || !formData.role) {
       return;
+    }
+
+    // Validate password requirements
+    const passwordErrors = validatePassword(formData.password);
+    if (passwordErrors.length > 0) {
+      // Let the backend validation handle this for consistency
     }
 
     await signup({
@@ -97,12 +139,16 @@ export default function SignUpPage() {
                     onChange={handleInputChange}
                     className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none appearance-none"
                     required
+                    disabled={rolesLoading}
                   >
-                    <option value="" disabled>Select your role</option>
-                    <option className="text-background" value="Researcher">Researcher</option>
-                    <option className="text-background" value="Community User">Community User</option>
-                    <option className="text-background" value="Community Admin">Community Admin</option>
-                    <option className="text-background" value="Super Admin">Super Admin</option>
+                    <option value="" disabled>
+                      {rolesLoading ? 'Loading roles...' : 'Select your role'}
+                    </option>
+                    {Array.isArray(userRoles) && userRoles.map((role) => (
+                      <option key={role.id} className="text-background" value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
                   </select>
                 </GlassInputWrapper>
               </div>
@@ -117,6 +163,9 @@ export default function SignUpPage() {
                     </button>
                   </div>
                 </GlassInputWrapper>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Password must contain at least 8 characters, one digit, one uppercase and one lowercase letter
+                </p>
               </div>
 
               <div className="animate-element animate-delay-700">

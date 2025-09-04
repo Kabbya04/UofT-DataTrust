@@ -41,7 +41,65 @@ export interface LoginResponse {
 
 export interface SignupResponse extends User {}
 
+export interface UserRole {
+  id: string;
+  name: string;
+}
+
 class AuthService {
+  async getUserRoles(): Promise<UserRole[]> {
+    try {
+      const rolesUrl = USE_PROXY ? '/api/user-roles' : `${API_BASE_URL}/user-roles/`;
+      console.log('Fetching user roles from:', rolesUrl);
+      
+      const response = await fetch(rolesUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        ...(USE_PROXY ? {} : { mode: 'cors', credentials: 'omit' }),
+      });
+      
+      if (!response.ok) {
+        console.warn('Failed to fetch user roles, using defaults');
+        // Return default roles if API fails
+        return [
+          { id: 'researcher', name: 'Researcher' },
+          { id: 'community-user', name: 'Community User' },
+          { id: 'community-admin', name: 'Community Admin' },
+          { id: 'super-admin', name: 'Super Admin' },
+        ];
+      }
+      
+      const roles = await response.json();
+      console.log('Fetched user roles:', roles);
+      
+      // Handle if response is wrapped in a data property or if it's already an array
+      if (Array.isArray(roles)) {
+        return roles;
+      } else if (roles.data && Array.isArray(roles.data)) {
+        return roles.data;
+      } else {
+        console.warn('API returned unexpected format for roles:', roles);
+        // Return default roles if response format is unexpected
+        return [
+          { id: 'researcher', name: 'Researcher' },
+          { id: 'community-user', name: 'Community User' },
+          { id: 'community-admin', name: 'Community Admin' },
+          { id: 'super-admin', name: 'Super Admin' },
+        ];
+      }
+    } catch (error) {
+      console.error('Error fetching user roles:', error);
+      // Return default roles if fetch fails
+      return [
+        { id: 'researcher', name: 'Researcher' },
+        { id: 'community-user', name: 'Community User' },
+        { id: 'community-admin', name: 'Community Admin' },
+        { id: 'super-admin', name: 'Super Admin' },
+      ];
+    }
+  }
   private async retryRequest(requestFn: () => Promise<Response>, retries: number = 2): Promise<Response> {
     for (let i = 0; i <= retries; i++) {
       try {
@@ -121,10 +179,30 @@ class AuthService {
         let errorMessage = 'Signup failed';
         try {
           const error = await response.json();
-          errorMessage = error.error || error.detail || error.message || errorMessage;
+          
+          // Handle validation errors from FastAPI/Pydantic
+          if (response.status === 422 && error.detail && Array.isArray(error.detail)) {
+            const validationErrors = error.detail.map((err: any) => {
+              const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
+              return `${field}: ${err.msg}`;
+            }).join(', ');
+            errorMessage = `Validation error: ${validationErrors}`;
+          } else {
+            errorMessage = error.error || error.detail || error.message || errorMessage;
+          }
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
+        
+        // Add more specific error handling for common issues
+        if (response.status === 500) {
+          errorMessage = 'Server error: The backend service may be experiencing issues. Please try again later or contact support.';
+        } else if (response.status === 400) {
+          errorMessage = errorMessage.includes('already') ? errorMessage : 'Invalid signup data provided.';
+        } else if (response.status === 422 && !errorMessage.includes('Validation error:')) {
+          errorMessage = 'Validation error: Please check your input data.';
+        }
+        
         throw new Error(errorMessage);
       }
 
@@ -294,10 +372,32 @@ class AuthService {
         let errorMessage = 'Update failed';
         try {
           const error = await response.json();
-          errorMessage = error.error || error.detail || error.message || errorMessage;
+          
+          // Handle validation errors from FastAPI/Pydantic
+          if (response.status === 422 && error.detail && Array.isArray(error.detail)) {
+            const validationErrors = error.detail.map((err: any) => {
+              const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
+              return `${field}: ${err.msg}`;
+            }).join(', ');
+            errorMessage = `Validation error: ${validationErrors}`;
+          } else {
+            errorMessage = error.error || error.detail || error.message || errorMessage;
+          }
         } catch (e) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
+        
+        // Add more specific error handling
+        if (response.status === 500) {
+          errorMessage = 'Server error: Unable to update user information. Please try again later.';
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication error: Please sign in again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Permission denied: You do not have permission to update this information.';
+        } else if (response.status === 422 && !errorMessage.includes('Validation error:')) {
+          errorMessage = 'Validation error: Please check your input data.';
+        }
+        
         throw new Error(errorMessage);
       }
 

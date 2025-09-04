@@ -1,3 +1,1350 @@
+Civic Data Trust Backend
+ 1.0.0 
+OAS 3.1
+/api/v1/openapi.json
+Civic Data Trust Backend API - A comprehensive platform for managing civic data and user roles
+
+users
+
+
+GET
+/api/v1/users/
+Get Users
+
+Parameters
+Try it out
+Name	Description
+skip
+integer
+(query)
+Default value : 0
+
+0
+limit
+integer
+(query)
+Default value : 100
+
+100
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+[
+  {
+    "name": "string",
+    "email": "user@example.com",
+    "status": true,
+    "role": "string",
+    "id": "string",
+    "created_at": "2025-09-04T18:23:52.084Z",
+    "updated_at": "2025-09-04T18:23:52.084Z"
+  }
+]
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+GET
+/api/v1/users/{user_id}
+Get User
+
+Parameters
+Try it out
+Name	Description
+user_id *
+string
+(path)
+user_id
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "name": "string",
+  "email": "user@example.com",
+  "status": true,
+  "role": "string",
+  "id": "string",
+  "created_at": "2025-09-04T18:23:52.087Z",
+  "updated_at": "2025-09-04T18:23:52.087Z"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+PUT
+/api/v1/users/{user_id}
+Update User
+
+Parameters
+Try it out
+Name	Description
+user_id *
+string
+(path)
+user_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "name": "string",
+  "email": "user@example.com",
+  "status": true,
+  "role": "string"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "name": "string",
+  "email": "user@example.com",
+  "status": true,
+  "role": "string",
+  "id": "string",
+  "created_at": "2025-09-04T18:23:52.090Z",
+  "updated_at": "2025-09-04T18:23:52.090Z"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+DELETE
+/api/v1/users/{user_id}
+Delete User
+
+Parameters
+Try it out
+Name	Description
+user_id *
+string
+(path)
+user_id
+Responses
+Code	Description	Links
+204	
+Successful Response
+
+Example Value
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+POST
+/api/v1/users/add-to-community/{community_id}
+Add User To Community
+
+Parameters
+Try it out
+Name	Description
+community_id *
+string
+(path)
+community_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "user_id": "string",
+  "community_id": "string",
+  "added_at": "2025-09-04T18:23:52.095Z"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "user_id": "string",
+  "community_id": "string",
+  "added_at": "2025-09-04T18:23:52.096Z"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+user-roles
+
+
+GET
+/api/v1/user-roles/
+Get All User Roles
+
+Parameters
+Try it out
+No parameters
+
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+[
+  {
+    "name": "string",
+    "id": "string"
+  }
+]
+No links
+
+POST
+/api/v1/user-roles/
+Create User Role
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "name": "string"
+}
+Responses
+Code	Description	Links
+201	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "name": "string",
+  "id": "string"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+GET
+/api/v1/user-roles/user/{user_id}
+Get User Roles By User
+
+Parameters
+Try it out
+Name	Description
+user_id *
+string
+(path)
+user_id
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+[
+  {
+    "name": "string",
+    "id": "string"
+  }
+]
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+GET
+/api/v1/user-roles/role/{role_id}
+Get User Roles By Role
+
+Parameters
+Try it out
+Name	Description
+role_id *
+string
+(path)
+role_id
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+[
+  {
+    "name": "string",
+    "id": "string"
+  }
+]
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+DELETE
+/api/v1/user-roles/{user_role_id}
+Delete User Role
+
+Parameters
+Try it out
+Name	Description
+user_role_id *
+string
+(path)
+user_role_id
+Responses
+Code	Description	Links
+204	
+Successful Response
+
+Example Value
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+PUT
+/api/v1/user-roles/{user_role_id}
+Update User Role
+
+Parameters
+Try it out
+Name	Description
+user_role_id *
+string
+(path)
+user_role_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "name": "string"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "name": "string",
+  "id": "string"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+DELETE
+/api/v1/user-roles/user/{user_id}/role/{role_id}
+Delete User Role By User And Role
+
+Parameters
+Try it out
+Name	Description
+user_id *
+string
+(path)
+user_id
+role_id *
+string
+(path)
+role_id
+Responses
+Code	Description	Links
+204	
+Successful Response
+
+Example Value
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+authentication
+
+
+POST
+/api/v1/auth/signup
+Signup
+
+Parameters
+Try it out
+Reset
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "name": "string",
+  "email": "user@example.com",
+  "password": "stringstT",
+  "role": "dfsdfsdf"
+}
+Responses
+Curl
+
+curl -X 'POST' \
+  'https://civic-data-trust-backend.onrender.com/api/v1/auth/signup' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "string",
+  "email": "user@example.com",
+  "password": "stringstT",
+  "role": "dfsdfsdf"
+}'
+Request URL
+https://civic-data-trust-backend.onrender.com/api/v1/auth/signup
+Server response
+Code	Details
+422	
+Error: response status is 422
+
+Response body
+Download
+{
+  "detail": [
+    {
+      "type": "value_error",
+      "loc": [
+        "body",
+        "password"
+      ],
+      "msg": "Value error, Password must contain at least one digit",
+      "input": "stringstT",
+      "ctx": {
+        "error": {}
+      },
+      "url": "https://errors.pydantic.dev/2.3/v/value_error"
+    }
+  ]
+}
+Response headers
+ access-control-allow-credentials: true 
+ access-control-allow-origin: * 
+ alt-svc: h3=":443"; ma=86400 
+ cf-cache-status: DYNAMIC 
+ cf-ray: 979f7f71a96ed058-DAC 
+ content-encoding: br 
+ content-length: 156 
+ content-type: application/json 
+ date: Thu,04 Sep 2025 18:19:54 GMT 
+ priority: u=1,i 
+ rndr-id: e2b04fdc-086e-4bfa 
+ server: cloudflare 
+ server-timing: cfExtPri 
+ vary: Accept-Encoding 
+ x-render-origin-server: uvicorn 
+Responses
+Code	Description	Links
+201	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "id": "string",
+  "name": "string",
+  "email": "user@example.com",
+  "status": true,
+  "role": "string",
+  "auth": {
+    "is_active": true,
+    "email_verified": true,
+    "last_login": "2025-09-04T18:23:52.115Z",
+    "failed_login_attempts": 0,
+    "locked_until": "2025-09-04T18:23:52.115Z"
+  },
+  "created_at": "2025-09-04T18:23:52.115Z",
+  "updated_at": "2025-09-04T18:23:52.115Z"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+POST
+/api/v1/auth/login
+Login
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "email": "user@example.com",
+  "password": "stringst"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "access_token": "string",
+  "refresh_token": "string",
+  "user": {
+    "id": "string",
+    "name": "string",
+    "email": "user@example.com",
+    "status": true,
+    "role": "string",
+    "auth": {
+      "is_active": true,
+      "email_verified": true,
+      "last_login": "2025-09-04T18:23:52.118Z",
+      "failed_login_attempts": 0,
+      "locked_until": "2025-09-04T18:23:52.118Z"
+    },
+    "created_at": "2025-09-04T18:23:52.118Z",
+    "updated_at": "2025-09-04T18:23:52.118Z"
+  }
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+POST
+/api/v1/auth/refresh
+Refresh Token
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "refresh_token": "string"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "access_token": "string",
+  "refresh_token": "string",
+  "token_type": "bearer"
+}
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+POST
+/api/v1/auth/logout
+Logout
+
+Parameters
+Try it out
+No parameters
+
+Responses
+Code	Description	Links
+204	
+Successful Response
+
+Example Value
+"string"
+No links
+
+POST
+/api/v1/auth/password-reset-request
+Password Reset Request
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "email": "user@example.com"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+POST
+/api/v1/auth/password-reset
+Password Reset
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "token": "string",
+  "new_password": "stringst"
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+role-base-modules
+
+
+POST
+/api/v1/role-base-modules/
+Create Role Base Module
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "module_name": "string",
+  "user_roles": [
+    "string"
+  ]
+}
+Responses
+Code	Description	Links
+201	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+GET
+/api/v1/role-base-modules/
+List Role Base Modules
+
+Parameters
+Try it out
+Name	Description
+module_name
+string
+(query)
+Filter by module name (partial match)
+
+module_name
+user_role_id
+string
+(query)
+Filter by user role ID
+
+user_role_id
+page
+integer
+(query)
+minimum: 1
+Page number for pagination
+
+Default value : 1
+
+1
+limit
+integer
+(query)
+maximum: 100
+minimum: 1
+Number of items per page
+
+Default value : 10
+
+10
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+GET
+/api/v1/role-base-modules/{module_id}
+Get Role Base Module By Id
+
+Parameters
+Try it out
+Name	Description
+module_id *
+string
+(path)
+ID of the role base module
+
+module_id
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+PUT
+/api/v1/role-base-modules/{module_id}
+Update Role Base Module
+
+Parameters
+Try it out
+Name	Description
+module_id *
+string
+(path)
+ID of the role base module to update
+
+module_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "module_name": "string",
+  "user_roles": [
+    "string"
+  ]
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+PUT
+/api/v1/role-base-modules/{module_id}/add-roles
+Add User Roles To Module
+
+Parameters
+Try it out
+Name	Description
+module_id *
+string
+(path)
+ID of the role base module to update
+
+module_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "user_role_ids": [
+    "string"
+  ]
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+PUT
+/api/v1/role-base-modules/{module_id}/remove-roles
+Remove User Roles From Module
+
+Parameters
+Try it out
+Name	Description
+module_id *
+string
+(path)
+ID of the role base module to update
+
+module_id
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "user_role_ids": [
+    "string"
+  ]
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+No links
+
+
 Schemas
 AddUserToCommunityResponseCollapse allobject
 user_idstring
