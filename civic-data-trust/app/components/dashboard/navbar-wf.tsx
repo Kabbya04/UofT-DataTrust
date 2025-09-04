@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import ThemeToggle from "../theme-toggle";
 import { NotificationButton } from "../dashboard/notification-button"
 import Profile from "./profile-icon-dropdown-menu"
+import { useAuth } from '../contexts/auth-context';
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -30,10 +31,21 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 
 export function NavbarWf() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const isResearcherWf = pathname.startsWith('/researcher-wf');
   const isCommunityMemberWf = pathname.startsWith('/community-member-wf');
   const isProjectAdminWf = pathname.startsWith('/project-admin-wf');
   const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
+  
+  // Get user initials for avatar fallback
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
   
   const getHomeLink = () => {
     if (isResearcherWf) return "/researcher-wf/home";
@@ -73,9 +85,12 @@ export function NavbarWf() {
         <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-2 justify-center cursor-pointer">
-              <Avatar className="h-9 w-9"><AvatarImage src="/profile.jpg" alt="Jhon Doe" /><AvatarFallback>JD</AvatarFallback></Avatar>
+              <Avatar className="h-9 w-9">
+                <AvatarImage src="/profile.jpg" alt={user?.name || 'User'} />
+                <AvatarFallback>{user ? getUserInitials(user.name) : 'U'}</AvatarFallback>
+              </Avatar>
               <div className="hidden sm:block cursor-pointer">
-                <button className="text-sm font-semibold">Jhon Doe</button>
+                <button className="text-sm font-semibold">{user?.name || 'Loading...'}</button>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
