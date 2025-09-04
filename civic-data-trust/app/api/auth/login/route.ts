@@ -48,11 +48,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(responseData, { status: response.status });
   } catch (error) {
     console.error('=== Login Proxy Error ===');
-    console.error('Error type:', error.constructor.name);
-    console.error('Error message:', error.message);
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
     
     return NextResponse.json(
-      { error: `Proxy error: ${error.message}` },
+      { error: `Proxy error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

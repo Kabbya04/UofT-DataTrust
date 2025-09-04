@@ -235,7 +235,7 @@ function AccountSettings() {
         <Button 
           type="submit" 
           variant="default"
-          disabled={isLoading || (formData.newPassword && formData.newPassword !== formData.confirmPassword)}
+          disabled={isLoading || !!(formData.newPassword && formData.newPassword !== formData.confirmPassword)}
         >
           {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
