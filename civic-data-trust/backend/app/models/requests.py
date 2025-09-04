@@ -14,7 +14,7 @@ class ExecutionRequest(BaseModel):
     node_id: str
     library: str = Field(..., description="Library to use: pandas, numpy, or matplotlib")
     function_chain: List[FunctionStep] = Field(..., description="List of functions to execute sequentially")
-    input_data: Optional[Dict[str, Any]] = Field(None, description="Input data for the chain")
+    input_data: Optional[Dict[str, Any]] = Field(None, description="Input data for the chain. Can contain 'dataset_name' for sample data or 'csv_content' for uploaded CSV data")
     
     class Config:
         json_schema_extra = {
@@ -36,6 +36,25 @@ class ExecutionRequest(BaseModel):
                 ],
                 "input_data": {
                     "dataset_name": "users"
+                }
+            },
+            "csv_example": {
+                "node_id": "csv-node-1",
+                "library": "numpy",
+                "function_chain": [
+                    {
+                        "id": "step-1",
+                        "functionName": "mean",
+                        "category": "Mathematical Operations",
+                        "parameters": {
+                            "axis": "None"
+                        },
+                        "description": "Calculate mean of numeric data"
+                    }
+                ],
+                "input_data": {
+                    "csv_content": "id,value1,value2\n1,10,20\n2,15,25\n3,12,22",
+                    "filename": "custom_data.csv"
                 }
             }
         }

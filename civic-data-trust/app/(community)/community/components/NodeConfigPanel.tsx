@@ -7,9 +7,22 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
 // Function to execute the function chain via API
-const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any) => {
+const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any, currentNode: any) => {
   try {
     toast.loading('Executing function chain...');
+    
+    // Determine input data based on node type
+    let input_data: any = {
+      dataset_name: "sample_employees"  // Default fallback
+    };
+    
+    // If this is a CSV node, use the CSV content
+    if (currentNode?.type === 'csv_input' && currentNode?.parameters?.csvContent) {
+      input_data = {
+        csv_content: currentNode.parameters.csvContent,
+        filename: currentNode.parameters.fileName || 'uploaded.csv'
+      };
+    }
     
     const response = await axios.post('http://localhost:8000/api/v1/execute/', {
       node_id: nodeId,
@@ -21,9 +34,7 @@ const executeFunctionChain = async (nodeId: string, library: string | null, func
         parameters: step.parameters,
         description: step.description || ''
       })),
-      input_data: {
-        dataset_name: "sample_employees"
-      }
+      input_data: input_data
     });
     
     toast.dismiss();
@@ -620,7 +631,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         {isDataScienceNode && isChainMode && functionChain.length > 0 && (
           <div className="mb-4">
             <button
-              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch)}
+              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Play className="w-4 h-4" />

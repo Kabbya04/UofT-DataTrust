@@ -51,11 +51,20 @@ class DataScienceExecutor:
         """Initialize data from input or use sample data"""
         if not input_data:
             # Default to first sample dataset if no input provided
-            return list(SAMPLE_DATA.values())[0]
+            return SAMPLE_DATA['users'].copy()
+        
+        # If CSV content is provided directly (from uploaded file)
+        if 'csv_content' in input_data:
+            try:
+                csv_buffer = io.StringIO(input_data['csv_content'])
+                df = pd.read_csv(csv_buffer)
+                return df
+            except Exception as e:
+                raise ValueError(f"Could not parse CSV content: {str(e)}")
         
         # If dataset_name is provided, use the corresponding sample dataset
         if 'dataset_name' in input_data and input_data['dataset_name'] in SAMPLE_DATA:
-            return SAMPLE_DATA[input_data['dataset_name']]
+            return SAMPLE_DATA[input_data['dataset_name']].copy()
         
         # If dataframe is provided directly
         if 'dataframe' in input_data and isinstance(input_data['dataframe'], dict):
@@ -64,15 +73,15 @@ class DataScienceExecutor:
             except Exception as e:
                 raise ValueError(f"Could not convert input data to DataFrame: {str(e)}")
         
-        # Default fallback
-        return list(SAMPLE_DATA.values())[0]
-        if input_data:
-            if 'dataset_name' in input_data and input_data['dataset_name'] in SAMPLE_DATA:
-                return SAMPLE_DATA[input_data['dataset_name']].copy()
-            else:
+        # If raw data is provided, try to convert to DataFrame
+        if isinstance(input_data, dict) and 'dataset_name' not in input_data:
+            try:
                 return pd.DataFrame(input_data)
-        else:
-            return SAMPLE_DATA['users'].copy()
+            except Exception as e:
+                raise ValueError(f"Could not convert input data to DataFrame: {str(e)}")
+        
+        # Default fallback
+        return SAMPLE_DATA['users'].copy()
     
     def update_current_data(self, result: Any) -> Any:
         """Update current data based on function result"""
@@ -289,13 +298,33 @@ class DataScienceExecutor:
         """Execute numpy function with error handling"""
         try:
             # Convert data to numpy array with better type handling
-            if isinstance(data, list):
-                # Check if all items are numeric
-                numeric_data = [x for x in data if isinstance(x, (int, float)) and x is not None]
-                if numeric_data:
-                    arr = np.array(numeric_data, dtype=np.float64)
+            if isinstance(data, pd.DataFrame):
+                # For DataFrames (from uploaded CSV), extract numeric columns
+                numeric_cols = data.select_dtypes(include=[np.number]).columns
+                if len(numeric_cols) > 0:
+                    # Use all numeric data as a flattened array
+                    arr = data[numeric_cols].values.flatten()
+                    arr = arr[~np.isnan(arr)]  # Remove NaN values
                 else:
-                    arr = np.array(data)
+                    raise ValueError("No numeric columns found in the uploaded CSV data")
+            elif isinstance(data, list):
+                # Check if all items are numeric
+                if data and isinstance(data[0], dict):
+                    # List of dictionaries (from pandas operations)
+                    df = pd.DataFrame(data)
+                    numeric_cols = df.select_dtypes(include=[np.number]).columns
+                    if len(numeric_cols) > 0:
+                        arr = df[numeric_cols].values.flatten()
+                        arr = arr[~np.isnan(arr)]  # Remove NaN values
+                    else:
+                        raise ValueError("No numeric data found in the dataset")
+                else:
+                    # Simple list of values
+                    numeric_data = [x for x in data if isinstance(x, (int, float)) and x is not None]
+                    if numeric_data:
+                        arr = np.array(numeric_data, dtype=np.float64)
+                    else:
+                        arr = np.array(data)
             elif isinstance(data, dict):
                 # Extract numeric values from dict
                 numeric_data = []
