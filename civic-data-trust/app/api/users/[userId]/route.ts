@@ -4,11 +4,11 @@ const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const body = await request.json();
-    const { userId } = params;
+    const { userId } = await params;
     
     // Get authorization header from the request
     const authHeader = request.headers.get('authorization');
@@ -64,11 +64,11 @@ export async function PUT(
     return NextResponse.json(responseData, { status: response.status });
   } catch (error) {
     console.error('=== User Update Proxy Error ===');
-    console.error('Error type:', error.constructor.name);
-    console.error('Error message:', error.message);
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
     
     return NextResponse.json(
-      { error: `Proxy error: ${error.message}` },
+      { error: `Proxy error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }
