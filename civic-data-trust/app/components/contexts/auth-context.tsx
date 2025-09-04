@@ -107,30 +107,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       console.log('=== Signup Process ===');
       
+      let shouldAttemptLogin = false;
+      
       try {
         const signupResponse = await authService.signup(data);
         console.log('Signup response:', signupResponse);
+        shouldAttemptLogin = true;
       } catch (signupError) {
         console.log('Signup error:', signupError);
         
         // If email already exists, try to login instead
         if (signupError instanceof Error && signupError.message.includes('already registered')) {
           console.log('Email exists, attempting login instead...');
+          shouldAttemptLogin = true;
         } else {
           throw signupError; // Re-throw if it's a different error
         }
       }
       
-      console.log('=== Auto Login After Signup ===');
-      const loginResponse = await authService.login({
-        email: data.email,
-        password: data.password,
-      });
-      console.log('Login response:', loginResponse);
-      console.log('Login response user:', loginResponse.user);
-      console.log('Login response user role:', loginResponse.user?.role);
-      
-      handleAuthSuccess(loginResponse);
+      if (shouldAttemptLogin) {
+        console.log('=== Auto Login After Signup ===');
+        const loginResponse = await authService.login({
+          email: data.email,
+          password: data.password,
+        });
+        console.log('Login response:', loginResponse);
+        console.log('Login response user:', loginResponse.user);
+        console.log('Login response user role:', loginResponse.user?.role);
+        
+        handleAuthSuccess(loginResponse);
+      }
     } catch (err) {
       console.error('Signup process error:', err);
       setError(err instanceof Error ? err.message : 'Signup failed');

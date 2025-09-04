@@ -103,7 +103,9 @@ function AccountSettings() {
       // Update user name if changed
       const fullName = `${formData.firstName} ${formData.lastName}`.trim();
       if (fullName && fullName !== user?.name) {
-        console.log('Updating user name to:', fullName);
+        console.log('Updating user name from:', user?.name, 'to:', fullName);
+        console.log('User ID:', user?.id);
+        console.log('Update data being sent:', { name: fullName });
         await updateUser({ name: fullName });
       }
 
