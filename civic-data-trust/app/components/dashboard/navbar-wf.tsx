@@ -66,7 +66,7 @@ export function NavbarWf() {
         {isResearcherWf && (<>
           <NavLink href="/researcher-wf/my-communities">My Communities</NavLink>
           <NavLink href="/researcher-wf/statistics">Statistics</NavLink>
-          <NavLink href="/researcher-wf/overview">Research</NavLink>
+          <NavLink href="/researcher-wf/research/get-started">Research</NavLink>
         </>)}
         
         {isCommunityMemberWf && (<>
