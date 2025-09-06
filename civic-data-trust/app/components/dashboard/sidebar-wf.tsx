@@ -250,6 +250,7 @@ const ProjectAdminTextLink = ({ href, children }: { href: string, children: Reac
   const pathname = usePathname();
   const isActive = pathname === href;
   return (
+
     <Link
       href={href}
       className={cn(
@@ -261,6 +262,52 @@ const ProjectAdminTextLink = ({ href, children }: { href: string, children: Reac
     </Link>
   )
 }
+
+const SuperAdminNav = ({ rolePrefix }: { rolePrefix: string }) => {
+  return <>
+    {/* Dashboard Section */}
+    <div className="space-y-1 mb-4">
+      <TextLink href={`/${rolePrefix}/dashboard`}>
+        <div className="flex items-center space-x-2">
+          <LayoutDashboard className="h-4 w-4" />
+          <span>Dashboard</span>
+        </div>
+      </TextLink>
+    </div>
+
+    {/* Management Section */}
+    <div className="space-y-1 mb-4">
+      <TextLink href={`/${rolePrefix}/user-management`}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>User Management</span>
+          </div>
+        </div>
+      </TextLink>
+      <TextLink href={`/${rolePrefix}/content-moderation`}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2">
+            <MessageSquareWarning className="h-4 w-4" />
+            <span>Content Moderation</span>
+          </div>
+        </div>
+      </TextLink>
+      <TextLink href={`/${rolePrefix}/analytics-reports`}>
+        <div className="flex items-center space-x-2">
+          <FileClock className="h-4 w-4" />
+          <span>Analytics Reports</span>
+        </div>
+      </TextLink>
+      <TextLink href={`/${rolePrefix}/performance-monitoring`}>
+        <div className="flex items-center space-x-2">
+          <BarChart3 className="h-4 w-4" />
+          <span>Performance Monitoring</span>
+        </div>
+      </TextLink>
+    </div>
+  </>;
+};
 
 export function SidebarWf() {
   const pathname = usePathname();
@@ -404,7 +451,7 @@ export function SidebarWf() {
       <>
         {/* Dashboard Section */}
         <div className="space-y-1 mb-4">
-          <ProjectAdminTextLink href={`${rolePrefix}/dashboard`}>
+          <ProjectAdminTextLink href={`/${rolePrefix}/dashboard`}>
             <div className="flex items-center space-x-2">
               <LayoutDashboard className="h-4 w-4" />
               <span>Dashboard</span>
@@ -414,7 +461,7 @@ export function SidebarWf() {
 
         {/* Management Section */}
         <div className="space-y-1 mb-4">
-          <ProjectAdminTextLink href={`${rolePrefix}/membership-requests`}>
+          <ProjectAdminTextLink href={`/${rolePrefix}/membership-requests`}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-2">
                 <Users className="h-4 w-4" />
@@ -423,7 +470,7 @@ export function SidebarWf() {
               <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">240</span>
             </div>
           </ProjectAdminTextLink>
-          <ProjectAdminTextLink href={`${rolePrefix}/post-review`}>
+          <ProjectAdminTextLink href={`/${rolePrefix}/post-review`}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-2">
                 <MessageSquareWarning className="h-4 w-4" />
@@ -432,13 +479,13 @@ export function SidebarWf() {
               <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">320</span>
             </div>
           </ProjectAdminTextLink>
-          <ProjectAdminTextLink href={`${rolePrefix}/community-audit-logs`}>
+          <ProjectAdminTextLink href={`/${rolePrefix}/community-audit-logs`}>
             <div className="flex items-center space-x-2">
               <FileClock className="h-4 w-4" />
               <span>Community Audit Logs</span>
             </div>
           </ProjectAdminTextLink>
-          <ProjectAdminTextLink href={`${rolePrefix}/community-analytics`}>
+          <ProjectAdminTextLink href={`/${rolePrefix}/community-analytics`}>
             <div className="flex items-center space-x-2">
               <BarChart3 className="h-4 w-4" />
               <span>Community Analytics</span>
@@ -450,7 +497,7 @@ export function SidebarWf() {
   };
 
 
-  const SuperAdminNav = () => {/* ... same as before ... */return <div /> };
+
 
 
   return (
@@ -462,7 +509,7 @@ export function SidebarWf() {
         {isResearcherWf && !isResearcherResearchSection && <GeneralNav rolePrefix="researcher-wf" />}
         {isCommunityMemberWf && <GeneralNav rolePrefix="community-member-wf" />}
         {isProjectAdminWf && <ProjectAdminNav rolePrefix="project-admin-wf" />}
-        {isSuperAdminWf && <SuperAdminNav />}
+        {isSuperAdminWf && <SuperAdminNav rolePrefix="super-admin-wf" />}
       </div>
 
       <div className="p-4 border-t border-border">
