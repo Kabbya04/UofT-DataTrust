@@ -17,22 +17,22 @@ export function CommunityDiscoveryPortal() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   // Added loading states for better UX
-  const [loadingCommunityId, setLoadingCommunityId] = useState<number | null>(null)
+  const [loadingCommunityId, setLoadingCommunityId] = useState<string | null>(null)
   const { communities, toggleJoinStatus } = useCommunity()
   const router = useRouter()
 
   const filteredCommunities = communities.filter((community) => {
     const matchesSearch =
       community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      community.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      community.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      community.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      community.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())) || false
 
-    const matchesCategory = selectedCategory === "All" || community.category === selectedCategory
+    const matchesCategory = selectedCategory === "All" || community.community_category?.name === selectedCategory
 
     return matchesSearch && matchesCategory
   })
 
-  const handleCommunityAction = async (communityId: number, isJoined: boolean) => {
+  const handleCommunityAction = async (communityId: string, isJoined: boolean) => {
     setLoadingCommunityId(communityId)
 
     // Added artificial delay to show loading state
@@ -127,7 +127,7 @@ export function CommunityDiscoveryPortal() {
                       {community.name}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">
-                      {community.category}
+                      {community.community_category?.name || 'General'}
                     </Badge>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export function CommunityDiscoveryPortal() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1">
-                  {community.tags.slice(0, 3).map((tag) => (
+                  {community.tags?.slice(0, 3).map((tag) => (
                     <Badge
                       key={tag}
                       variant="outline"
@@ -150,9 +150,9 @@ export function CommunityDiscoveryPortal() {
                       {tag}
                     </Badge>
                   ))}
-                  {community.tags.length > 3 && (
+                  {community.tags && community.tags.length > 3 && (
                     <Badge variant="outline" className="text-xs">
-                      +{community.tags.length - 3}
+                      +{community.tags?.length ? community.tags.length - 3 : 0}
                     </Badge>
                   )}
                 </div>
@@ -162,7 +162,7 @@ export function CommunityDiscoveryPortal() {
                   <div className="flex flex-col items-center text-sm wrap-anywhere text-muted-foreground cursor-default">
                     <div className="flex">
                       <Users className="h-4 w-4 mr-1" />
-                      <p className="font-medium">{community.memberCount.toLocaleString()}</p>
+                      <p className="font-medium">{community.memberCount?.toLocaleString() || '0'}</p>
                     </div>
                     <p className="hidden sm:inline ml-1">members</p>
                   </div>
@@ -170,7 +170,7 @@ export function CommunityDiscoveryPortal() {
                   <Button
                     size="sm"
                     variant={community.isJoined ? "outline" : "default"}
-                    onClick={() => handleCommunityAction(community.id, community.isJoined)}
+                    onClick={() => handleCommunityAction(community.id, community.isJoined || false)}
                     disabled={loadingCommunityId === community.id}
                     className="min-w-[70px] transition-all  cursor-pointer border border-primary duration-200 hover:scale-105 hover:bg-primary/20 hover:text-primary hover:border-primary/70 text-sm font-medium flex items-center justify-center"
                   >

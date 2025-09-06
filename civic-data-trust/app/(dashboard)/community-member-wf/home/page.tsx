@@ -8,7 +8,7 @@ import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 export default function CommunityMemberHomePage() {
   const router = useRouter();
-  const { communities } = useCommunity();
+  const { communities, loading, error } = useCommunity();
 
   const posts = [
     {
@@ -45,14 +45,11 @@ export default function CommunityMemberHomePage() {
     { title: "How to Join a Project", type: "video" },
   ];
 
-  const latestItems = [
-    { title: "Revolutionary Data Sharing Protocol Implementation" },
-    { title: "New Healthcare Analytics Framework Released" },
-    { title: "Community Data Privacy Guidelines Update" },
-    { title: "Machine Learning in Pediatric Diagnosis" },
-  ];
 
-  const popularCommunities = communities.filter(c => c.category === "Technology" || c.category === "Medicine").slice(0, 3);
+  // Sort communities by member count (descending) and take top 3
+  const popularCommunities = communities
+    .sort((a, b) => (b.memberCount || 0) - (a.memberCount || 0))
+    .slice(0, 3);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -99,24 +96,41 @@ export default function CommunityMemberHomePage() {
       {/* Right Sidebar */}
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Popular Communities</h2>
-        <div className="space-y-4">
-          {popularCommunities.map((community, i) => (
-            <Card key={i}>
+        {loading && (
+          <div className="flex items-center justify-center py-4">
+            <div className="text-muted-foreground text-sm">Loading communities...</div>
+          </div>
+        )}
+        {error && (
+          <div className="flex items-center justify-center py-4">
+            <div className="text-red-500 text-sm">Error: {error}</div>
+          </div>
+        )}
+        {!loading && !error && popularCommunities.length === 0 && (
+          <div className="flex items-center justify-center py-4">
+            <div className="text-muted-foreground text-sm">No communities found.</div>
+          </div>
+        )}
+        {!loading && !error && popularCommunities.length > 0 && (
+          <div className="space-y-4">
+            {popularCommunities.map((community, i) => (
+              <Card key={i}>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-lg mb-2">{community.name}</h3>
                 <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1 mb-4">
-                  <li>{community.memberCount} members</li>
+                  <li>{community.memberCount || 0} members</li>
                   <li>{Math.floor(Math.random() * 20) + 5} datasets</li>
-                  <li>{community.category} data & research</li>
+                  <li>{community.community_category?.name || 'General'} data & research</li>
                 </ul>
                 <div className="flex items-center gap-1 ">
                   <Button variant="outline" className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/community-details/${community.id}`)}>View Details</Button>
                   <Button className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/join-community?communityId=${community.id}`)}>Join Community</Button>
                 </div>
               </CardContent>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

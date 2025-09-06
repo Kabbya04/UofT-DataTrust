@@ -11,11 +11,16 @@ const categoryTabs = ['All', 'Internet', 'Games', 'Technology', 'Movies', 'Telev
 
 interface CommunityCardProps {
   community: {
-    id: number; name: string; memberCount: number; datasets: number;
-    description: string; category: string; isJoined: boolean;
+    id: string
+    name: string
+    memberCount?: number
+    datasets: number
+    description: string | null
+    category: string
+    isJoined?: boolean
   }
-  onJoin: (communityId: number) => void
-  onViewDetails: (communityId: number) => void
+  onJoin: (communityId: string) => void
+  onViewDetails: (communityId: string) => void
 }
 
 function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps) {
@@ -30,9 +35,9 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
             {community.name}
           </h4>
           <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {community.memberCount.toLocaleString()} members</div>
+            <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
             <div>• {community.datasets} datasets</div>
-            <div>• {community.description}</div>
+            <div>• {community.description || 'No description available'}</div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className="text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
@@ -48,18 +53,20 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
 
 export default function DiscoverCommunityPage() {
   const [activeTab, setActiveTab] = useState('All')
-  const { communities, toggleJoinStatus } = useCommunity()
+  const { communities, loading, error, toggleJoinStatus } = useCommunity()
   const router = useRouter()
 
-  const extendedCommunities = [
-    ...communities.map(c => ({ ...c, datasets: Math.floor(Math.random() * 20) + 5 })),
-    { id: 7, name: "Toronto Health Community", memberCount: 1524, datasets: 16, description: "Healthcare data & research", category: "Medicine", isJoined: false },
-    { id: 8, name: "Medical AI Research Hub", memberCount: 892, datasets: 23, description: "AI applications in healthcare", category: "Medicine", isJoined: false },
-  ];
+  // Transform API communities to match the expected format
+  const extendedCommunities = communities.map(c => ({
+    ...c,
+    datasets: Math.floor(Math.random() * 20) + 5,
+    category: c.community_category?.name || 'General',
+    memberCount: c.memberCount || Math.floor(Math.random() * 2000) + 100
+  }));
 
   const filteredCommunities = extendedCommunities.filter(community => activeTab === 'All' || community.category === activeTab);
 
-  const handleJoinCommunity = (communityId: number) => {
+  const handleJoinCommunity = (communityId: string) => {
     const community = communities.find(c => c.id === communityId)
     if (community && community.isJoined) {
       toggleJoinStatus(communityId)
@@ -68,7 +75,7 @@ export default function DiscoverCommunityPage() {
     }
   }
 
-  const handleViewDetails = (communityId: number) => {
+  const handleViewDetails = (communityId: string) => {
     router.push(`/community-member-wf/community-details/${communityId}`)
   }
   
@@ -79,11 +86,31 @@ export default function DiscoverCommunityPage() {
   return (
     <div className="flex-1 p-6">
       <div className="mb-6"><h1 className="text-2xl font-bold text-foreground mb-4">Discover Your Communities</h1><div className="flex gap-2 overflow-x-auto pb-2">{categoryTabs.map((tab) => (<Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" className="whitespace-nowrap" onClick={() => setActiveTab(tab)}>{tab}</Button>))}</div></div>
-      <div className="space-y-8">
-        <div><h2 className="text-lg font-semibold text-foreground mb-4">Recommended for You</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{recommendedCommunities.map((community) => (<CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}</div></div>
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading communities...</div>
+        </div>
+      )}
+      
+      {error && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-red-500">Error: {error}</div>
+        </div>
+      )}
+      
+      {!loading && !error && extendedCommunities.length === 0 && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">No communities found.</div>
+        </div>
+      )}
+      
+      {!loading && !error && extendedCommunities.length > 0 && (
+        <div className="space-y-8">
+          <div><h2 className="text-lg font-semibold text-foreground mb-4">Recommended for You</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{recommendedCommunities.map((community) => (<CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}</div></div>
         <div><h2 className="text-lg font-semibold text-foreground mb-4">Internet</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{internetCommunities.map((community) => (<CommunityCard key={`internet-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}</div></div>
-        <div><h2 className="text-lg font-semibold text-foreground mb-4">Games</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{gamesCommunities.map((community) => (<CommunityCard key={`games-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}</div></div>
-      </div>
+          <div><h2 className="text-lg font-semibold text-foreground mb-4">Games</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{gamesCommunities.map((community) => (<CommunityCard key={`games-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}</div></div>
+        </div>
+      )}
     </div>
   )
 }

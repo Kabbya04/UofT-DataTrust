@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Image as ImageIcon } from "lucide-react"
-import { Card, CardContent } from "@/app/components/ui/card"
+import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { useCommunity } from "@/app/components/contexts/community-context"
 
@@ -11,16 +11,16 @@ const categoryTabs = ['All', 'Internet', 'Games', 'Technology', 'Movies', 'Telev
 
 interface CommunityCardProps {
   community: {
-    id: number
+    id: string
     name: string
-    memberCount: number
+    memberCount?: number
     datasets: number
-    description: string
+    description: string | null
     category: string
-    isJoined: boolean
+    isJoined?: boolean
   }
-  onJoin: (communityId: number) => void
-  onViewDetails: (communityId: number) => void
+  onJoin: (communityId: string) => void
+  onViewDetails: (communityId: string) => void
 }
 
 function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps) {
@@ -35,9 +35,9 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
             {community.name}
           </h4>
           <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {community.memberCount.toLocaleString()} members</div>
+            <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
             <div>• {community.datasets} datasets</div>
-            <div>• {community.description}</div>
+            <div>• {community.description || 'No description available'}</div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className=" text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
@@ -53,25 +53,22 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
 
 export default function DiscoverCommunityPage() {
   const [activeTab, setActiveTab] = useState('All')
-  const { communities, toggleJoinStatus } = useCommunity()
+  const { communities, loading, error, toggleJoinStatus } = useCommunity()
   const router = useRouter()
 
-  const extendedCommunities = [
-    ...communities.map(c => ({ ...c, datasets: Math.floor(Math.random() * 20) + 5 })),
-    { id: 7, name: "Toronto Health Community", memberCount: 1524, datasets: 16, description: "Healthcare data & research", category: "Medicine", isJoined: false },
-    { id: 8, name: "Medical AI Research Hub", memberCount: 892, datasets: 23, description: "AI applications in healthcare", category: "Medicine", isJoined: false },
-    { id: 19, name: "Gaming Analytics Pro", memberCount: 4567, datasets: 67, description: "Game performance metrics", category: "Games", isJoined: false },
-    { id: 24, name: "Film Industry Analytics", memberCount: 2345, datasets: 37, description: "Movie box office and trends", category: "Movies", isJoined: false },
-    { id: 28, name: "TV Ratings Central", memberCount: 2768, datasets: 39, description: "Television viewership data", category: "Television", isJoined: false },
-    { id: 32, name: "Travel Patterns Global", memberCount: 4321, datasets: 61, description: "Global travel and tourism data", category: "Travel", isJoined: false },
-    { id: 38, name: "Financial Analytics Pro", memberCount: 4123, datasets: 58, description: "Financial market data", category: "Business", isJoined: false },
-  ]
+  // Transform API communities to match the expected format
+  const extendedCommunities = communities.map(c => ({
+    ...c,
+    datasets: Math.floor(Math.random() * 20) + 5,
+    category: c.community_category?.name || 'General',
+    memberCount: c.memberCount || Math.floor(Math.random() * 2000) + 100
+  }))
 
   const filteredCommunities = extendedCommunities.filter(community => {
     return activeTab === 'All' || community.category === activeTab
   })
 
-  const handleJoinCommunity = (communityId: number) => {
+  const handleJoinCommunity = (communityId: string) => {
     const community = communities.find(c => c.id === communityId)
     if (community && community.isJoined) {
       toggleJoinStatus(communityId)
@@ -80,7 +77,7 @@ export default function DiscoverCommunityPage() {
     }
   }
 
-  const handleViewDetails = (communityId: number) => {
+  const handleViewDetails = (communityId: string) => {
     router.push(`/community-member-wf/community-details/${communityId}`)
   }
 
@@ -101,13 +98,32 @@ export default function DiscoverCommunityPage() {
         </div>
       </div>
 
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Recommended for You</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recommendedCommunities.map((community) => (<CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}
-          </div>
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading communities...</div>
         </div>
+      )}
+      
+      {error && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-red-500">Error: {error}</div>
+        </div>
+      )}
+      
+      {!loading && !error && extendedCommunities.length === 0 && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">No communities found.</div>
+        </div>
+      )}
+      
+      {!loading && !error && extendedCommunities.length > 0 && (
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Recommended for You</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recommendedCommunities.map((community) => (<CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}
+            </div>
+          </div>
         <div>
           <h2 className="text-lg font-semibold text-foreground mb-4">Internet</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -119,8 +135,9 @@ export default function DiscoverCommunityPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {gamesCommunities.map((community) => (<CommunityCard key={`games-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />))}
           </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

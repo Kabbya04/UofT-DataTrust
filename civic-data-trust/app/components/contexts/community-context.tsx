@@ -1,94 +1,75 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { api } from "@/app/lib/api"
 
 interface Community {
-  id: number
+  id: string
   name: string
-  description: string
-  category: string
-  tags: string[]
-  memberCount: number
-  coverImage: string
-  isJoined: boolean
+  description: string | null
+  logo: string | null
+  community_category: {
+    id: string
+    name: string
+  }
+  admins?: Array<{
+    id: string
+    name: string
+    email: string
+  }>
+  users?: Array<any>
+  isJoined?: boolean
+  memberCount?: number
+  tags?: string[]
+  coverImage?: string
 }
 
 interface CommunityContextType {
   communities: Community[]
-  toggleJoinStatus: (communityId: number) => void
-  getCommunity: (communityId: number) => Community | undefined
-  submitJoinRequest: (communityId: number, message: string) => void
+  loading: boolean
+  error: string | null
+  toggleJoinStatus: (communityId: string) => void
+  getCommunity: (communityId: string) => Community | undefined
+  submitJoinRequest: (communityId: string, message: string) => void
+  fetchCommunities: () => Promise<void>
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined)
 
-const initialCommunities: Community[] = [
-  {
-    id: 1,
-    name: "Data Science Enthusiasts",
-    description: "A community for data scientists to share insights, datasets, and collaborate on projects.",
-    category: "Technology",
-    tags: ["Data Science", "Machine Learning", "Python"],
-    memberCount: 1247,
-    coverImage: "/placeholder-np7tk.png",
-    isJoined: true,
-  },
-  {
-    id: 2,
-    name: "Sustainable Living",
-    description: "Join us in creating a more sustainable future through shared knowledge and eco-friendly practices.",
-    category: "Environment",
-    tags: ["Sustainability", "Environment", "Green Living"],
-    memberCount: 892,
-    coverImage: "/sustainable-living-community.png",
-    isJoined: true,
-  },
-  {
-    id: 3,
-    name: "Local Entrepreneurs",
-    description: "Connect with fellow entrepreneurs in your area to share resources and build networks.",
-    category: "Business",
-    tags: ["Entrepreneurship", "Networking", "Startups"],
-    memberCount: 634,
-    coverImage: "/placeholder-yi11m.png",
-    isJoined: false,
-  },
-  {
-    id: 4,
-    name: "Creative Writers Hub",
-    description: "A space for writers to share their work, get feedback, and collaborate on creative projects.",
-    category: "Arts",
-    tags: ["Writing", "Literature", "Creative"],
-    memberCount: 1089,
-    coverImage: "/creative-writers-community.png",
-    isJoined: false,
-  },
-  {
-    id: 5,
-    name: "Urban Gardening",
-    description: "Learn and share urban gardening techniques, from balcony gardens to community plots.",
-    category: "Lifestyle",
-    tags: ["Gardening", "Urban", "Plants"],
-    memberCount: 756,
-    coverImage: "/urban-gardening-community.png",
-    isJoined: true,
-  },
-  {
-    id: 6,
-    name: "Blockchain Developers",
-    description: "Technical community for blockchain developers to share code, discuss protocols, and collaborate.",
-    category: "Technology",
-    tags: ["Blockchain", "Cryptocurrency", "Development"],
-    memberCount: 2103,
-    coverImage: "/blockchain-developers-community.png",
-    isJoined: false,
-  },
-]
 
 export function CommunityProvider({ children }: { children: ReactNode }) {
-  const [communities, setCommunities] = useState<Community[]>(initialCommunities)
+  const [communities, setCommunities] = useState<Community[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const toggleJoinStatus = (communityId: number) => {
+  const fetchCommunities = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await api.communities.getAll(1, 50)
+      
+      const transformedCommunities: Community[] = response.data.map(community => ({
+        ...community,
+        isJoined: false, // Default to not joined, this could be determined by checking user membership
+        memberCount: (community.users?.length || 0) + (community.admins?.length || 0), // Real member count
+        tags: [community.community_category.name], // Use category as tag
+        coverImage: community.logo || '/placeholder-np7tk.png'
+      }))
+      
+      setCommunities(transformedCommunities)
+    } catch (err) {
+      console.error('Failed to fetch communities:', err)
+      setError('Failed to load communities')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
+
+  const toggleJoinStatus = (communityId: string) => {
     setCommunities((prev) =>
       prev.map((community) =>
         community.id === communityId ? { ...community, isJoined: !community.isJoined } : community,
@@ -96,20 +77,24 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     )
   }
 
-  const getCommunity = (communityId: number) => {
+  const getCommunity = (communityId: string) => {
     return communities.find((community) => community.id === communityId)
   }
 
-  const submitJoinRequest = (communityId: number, message: string) => {
-    // In a real app, this would make an API call to submit the join request
+  const submitJoinRequest = (communityId: string, message: string) => {
     console.log(`Join request submitted for community ${communityId}:`, message)
-    
-    // For demo purposes, we could set the community as "pending" or similar
-    // This could be extended to have a pending status in the community interface
   }
 
   return (
-    <CommunityContext.Provider value={{ communities, toggleJoinStatus, getCommunity, submitJoinRequest }}>
+    <CommunityContext.Provider value={{ 
+      communities, 
+      loading, 
+      error, 
+      toggleJoinStatus, 
+      getCommunity, 
+      submitJoinRequest, 
+      fetchCommunities 
+    }}>
       {children}
     </CommunityContext.Provider>
   )
