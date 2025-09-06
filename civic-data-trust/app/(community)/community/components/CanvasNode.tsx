@@ -6,8 +6,9 @@ import { KonvaEventObject } from 'konva/lib/Node';
 interface CanvasNodeProps {
   node: NodeData;
   isSelected: boolean;
-  onDragStart?: () => void;  // Added onDragStart
+  onDragStart?: () => void;
   onDrag: (nodeId: string, e: KonvaEventObject<DragEvent>) => void;
+  onDragEnd: (nodeId: string, e: KonvaEventObject<DragEvent>) => void;
   onPortClick: (nodeId: string, portId: string, portType: 'input' | 'output') => void;
   onSelect: () => void;
   onConfig: () => void;
@@ -16,8 +17,9 @@ interface CanvasNodeProps {
 export default function CanvasNode({ 
   node, 
   isSelected, 
-  onDragStart,  // Added to props
-  onDrag, 
+  onDragStart,
+  onDrag,
+  onDragEnd, 
   onPortClick, 
   onSelect,
   onConfig 
@@ -47,9 +49,13 @@ export default function CanvasNode({
         e.cancelBubble = true;  // Prevent event from bubbling to stage
         if (onDragStart) onDragStart();
       }}
+      onDragMove={(e) => {
+        e.cancelBubble = true;  // Prevent event from bubbling to stage
+        onDrag(node.id, e);  // Real-time updates during dragging
+      }}
       onDragEnd={(e) => {
         e.cancelBubble = true;  // Prevent event from bubbling to stage
-        onDrag(node.id, e);
+        onDragEnd(node.id, e);  // Final position update
       }}
       onClick={(e) => {
         e.cancelBubble = true;  // Prevent event from bubbling to stage
@@ -60,29 +66,42 @@ export default function CanvasNode({
         onConfig();
       }}
     >
-      {/* Main node rectangle */}
+      {/* Main node rectangle with enhanced styling */}
       <Rect
         width={node.width}
         height={node.height}
         fill={node.color || '#FF6B35'}
         stroke={isSelected ? '#3B82F6' : '#374151'}
         strokeWidth={isSelected ? 3 : 2}
-        cornerRadius={8}
-        shadowBlur={5}
-        shadowOpacity={0.1}
+        cornerRadius={10}
+        shadowColor="rgba(0, 0, 0, 0.15)"
+        shadowBlur={8}
+        shadowOffset={{ x: 2, y: 4 }}
+        shadowOpacity={0.3}
+        perfectDrawEnabled={false}
+        strokeScaleEnabled={false}
       />
       
-      {/* Node name */}
+      {/* Node name with enhanced typography */}
       <Text
-        x={10}
-        y={node.height / 2 - 8}
+        x={12}
+        y={node.height / 2 - 10}
         text={node.name}
-        fontSize={14}
-        fontFamily="Arial"
+        fontSize={15}
+        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
         fill="#FFFFFF"
-        fontStyle="bold"
-        width={node.width - 20}
+        fontStyle="600"
+        width={node.width - 24}
         ellipsis={true}
+        wrap="none"
+        align="left"
+        verticalAlign="middle"
+        letterSpacing={0.3}
+        shadowColor="rgba(0, 0, 0, 0.3)"
+        shadowBlur={1}
+        shadowOffset={{ x: 0, y: 1 }}
+        shadowOpacity={0.8}
+        perfectDrawEnabled={false}
       />
       
       {/* Input ports */}

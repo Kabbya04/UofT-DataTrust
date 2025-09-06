@@ -39,6 +39,7 @@ export interface WorkflowState {
   viewport: { x: number; y: number };
   isConnecting: boolean;
   connectingFrom: { nodeId: string; portId: string } | null;
+  connectionLineStyle: 'solid' | 'dotted';
 }
 
 const initialState: WorkflowState = {
@@ -49,6 +50,7 @@ const initialState: WorkflowState = {
   viewport: { x: 0, y: 0 },
   isConnecting: false,
   connectingFrom: null,
+  connectionLineStyle: 'solid',
 };
 
 const workflowSlice = createSlice({
@@ -138,6 +140,9 @@ const workflowSlice = createSlice({
       state.isConnecting = false;
       state.connectingFrom = null;
     },
+    setConnectionLineStyle: (state, action: PayloadAction<'solid' | 'dotted'>) => {
+      state.connectionLineStyle = action.payload;
+    },
   },
 });
 
@@ -152,6 +157,7 @@ export const {
   setViewport,
   startConnecting,
   endConnecting,
+  setConnectionLineStyle,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

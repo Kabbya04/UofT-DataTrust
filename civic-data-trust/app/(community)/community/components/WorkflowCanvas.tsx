@@ -130,6 +130,18 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     }
   }, []);
 
+  // Handle node drag (real-time updates during dragging)
+  const handleNodeDrag = useCallback((nodeId: string, e: KonvaEventObject<DragEvent>) => {
+    const node = e.target;
+    dispatch(updateNode({
+      id: nodeId,
+      updates: {
+        x: node.x(),
+        y: node.y()
+      }
+    }));
+  }, [dispatch]);
+
   // Handle node drag end
   const handleNodeDragEnd = useCallback((nodeId: string, e: KonvaEventObject<DragEvent>) => {
     setIsNodeDragging(false);
@@ -408,7 +420,8 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
               node={node}
               isSelected={selectedNodeIds.includes(node.id)}
               onDragStart={handleNodeDragStart}
-              onDrag={(nodeId, e) => handleNodeDragEnd(nodeId, e)}
+              onDrag={handleNodeDrag}
+              onDragEnd={(nodeId, e) => handleNodeDragEnd(nodeId, e)}
               onPortClick={handlePortClick}
               onSelect={() => dispatch(setSelectedNodes([node.id]))}
               onConfig={() => setConfigPanelNode(node.id)}

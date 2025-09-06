@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play } from 'lucide-react';
+import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play, Image } from 'lucide-react';
 import { updateNode } from '@/app/store/workflowSlice';
 import { RootState } from '@/app/store';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
 // Function to execute the function chain via API
-const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any, currentNode: any) => {
+const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any, currentNode: any, setPlotData: (data: any) => void) => {
   try {
     toast.loading('Executing function chain...');
     
@@ -53,6 +53,12 @@ const executeFunctionChain = async (nodeId: string, library: string | null, func
           }
         }
       }));
+      
+      // Check for plot results and store them
+      const plotResults = response.data.results.filter((result: any) => result.output_type === 'plot' && result.success);
+      if (plotResults.length > 0) {
+        setPlotData(plotResults);
+      }
       
       return response.data;
     } else {
@@ -446,9 +452,9 @@ const FunctionStepComponent: React.FC<{
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     {param.name}
                     {param.description && (
-                      <span className="text-gray-500 font-normal ml-1">- {param.description}</span>
-                    )}
-                  </label>
+                       <span className="text-gray-500 font-normal ml-1">- {param.description}</span>
+                     )}
+                   </label>
                   <DynamicFormField
                     param={param}
                     value={step.parameters[param.name]}
@@ -476,14 +482,15 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   
   const [parameters, setParameters] = useState(node?.parameters || {});
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-  const [isChainMode, setIsChainMode] = useState(false);
   const [functionChain, setFunctionChain] = useState<FunctionStep[]>([]);
   const [showAddFunction, setShowAddFunction] = useState(false);
+  const [showVisualization, setShowVisualization] = useState(false);
+  const [plotData, setPlotData] = useState<any>(null);
   
   useEffect(() => {
     setParameters(node?.parameters || {});
-    if (node?.parameters?.isChainMode) {
-      setIsChainMode(true);
+    // Always use function chain mode
+    if (node?.parameters?.functionChain) {
       setFunctionChain(node.parameters.functionChain || []);
     } else if (node?.parameters?.selectedFunction) {
       // Convert single function to chain format for backward compatibility
@@ -507,19 +514,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
     }));
   };
 
-  const handleChainModeToggle = (enabled: boolean) => {
-    setIsChainMode(enabled);
-    const newParameters = {
-      ...parameters,
-      isChainMode: enabled,
-      functionChain: enabled ? functionChain : undefined
-    };
-    setParameters(newParameters);
-    dispatch(updateNode({
-      id: nodeId,
-      updates: { parameters: newParameters }
-    }));
-  };
+  // Chain mode is now always enabled - no toggle needed
 
   const addFunctionToChain = (functionName: string, category: string, library: string) => {
     const libraryConfig = libraryFunctions[library];
@@ -628,15 +623,26 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
       
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {/* Execute Function Chain Button */}
-        {isDataScienceNode && isChainMode && functionChain.length > 0 && (
-          <div className="mb-4">
+        {isDataScienceNode && functionChain.length > 0 && (
+          <div className="mb-4 space-y-2">
             <button
-              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node)}
+              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Play className="w-4 h-4" />
               Execute Function Chain
             </button>
+            
+            {/* Visualization Button for Matplotlib */}
+            {currentLibrary === 'matplotlib' && plotData && plotData.length > 0 && (
+              <button
+                onClick={() => setShowVisualization(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                <Image className="w-4 h-4" />
+                View Visualizations ({plotData.length})
+              </button>
+            )}
           </div>
         )}
         
@@ -648,44 +654,13 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                 {currentLibrary.charAt(0).toUpperCase() + currentLibrary.slice(1)} Functions
               </h3>
               
-              {/* Chain Mode Toggle */}
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-sm text-blue-700">Mode:</span>
-                <div className="flex bg-white rounded-lg p-1">
-                  <button
-                    onClick={() => handleChainModeToggle(false)}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                      !isChainMode
-                        ? 'bg-blue-100 text-blue-700 font-medium'
-                        : 'text-blue-600 hover:bg-blue-50'
-                    }`}
-                  >
-                    Single Function
-                  </button>
-                  <button
-                    onClick={() => handleChainModeToggle(true)}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                      isChainMode
-                        ? 'bg-blue-100 text-blue-700 font-medium'
-                        : 'text-blue-600 hover:bg-blue-50'
-                    }`}
-                  >
-                    Function Chain
-                  </button>
-                </div>
-              </div>
-              
               <p className="text-sm text-blue-600">
-                {isChainMode 
-                  ? 'Chain multiple functions to execute sequentially'
-                  : 'Configure a single function for this node'
-                }
+                Chain multiple functions to execute sequentially
               </p>
             </div>
 
             {/* Function Chain Interface */}
-            {isChainMode && (
-              <div className="space-y-3">
+            <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-gray-900">Function Chain ({functionChain.length} steps)</h4>
                   <button
@@ -732,7 +707,6 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                   </div>
                 )}
               </div>
-            )}
 
             {/* Add Function Modal/Dropdown */}
             {showAddFunction && (
@@ -778,47 +752,6 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Single Function Mode - Original Interface */}
-            {!isChainMode && (
-              <div className="space-y-2">
-                {Object.entries(currentFunctions).map(([categoryName, functions]) => (
-                  <div key={categoryName} className="border border-gray-200 rounded-lg">
-                    <button
-                      onClick={() => toggleCategory(categoryName)}
-                      className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <span className="font-medium text-gray-900">{categoryName}</span>
-                      {expandedCategories[categoryName] ? 
-                        <ChevronDown className="w-4 h-4 text-gray-500" /> : 
-                        <ChevronRight className="w-4 h-4 text-gray-500" />
-                      }
-                    </button>
-                    
-                    {expandedCategories[categoryName] && (
-                      <div className="border-t border-gray-200 p-2">
-                        {Object.entries(functions as any).map(([functionName, functionDef]: [string, any]) => (
-                          <button
-                            key={functionName}
-                            onClick={() => {
-                              handleParameterChange('selectedFunction', functionName);
-                              handleParameterChange('selectedCategory', categoryName);
-                              handleParameterChange('selectedLibrary', currentLibrary);
-                            }}
-                            className={`w-full text-left p-2 rounded hover:bg-blue-50 transition-colors mb-1 ${
-                              parameters.selectedFunction === functionName ? 'bg-blue-100 border border-blue-300' : ''
-                            }`}
-                          >
-                            <div className="font-medium text-sm text-gray-900">{functionName}</div>
-                            <div className="text-xs text-gray-600">{functionDef.description}</div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
               </div>
             )}
           </div>
@@ -867,7 +800,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         </div>
 
         {/* Chain Summary for Data Science Nodes */}
-        {isDataScienceNode && isChainMode && functionChain.length > 0 && (
+        {isDataScienceNode && functionChain.length > 0 && (
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Chain Configuration Summary</h3>
             <div className="bg-gray-50 rounded-lg p-3">
@@ -896,33 +829,6 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
           </div>
         )}
 
-        {/* Single Function Summary */}
-        {isDataScienceNode && !isChainMode && parameters.selectedFunction && (
-          <div className="pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Configuration Summary</h3>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-sm">
-                <div className="font-medium text-gray-900 mb-1">
-                  Function: {currentLibrary}.{parameters.selectedFunction}()
-                </div>
-                <div className="text-gray-600 mb-2">
-                  {parameters.selectedCategory}
-                </div>
-                {parameters.functionParams && Object.keys(parameters.functionParams).length > 0 && (
-                  <div className="text-xs text-gray-500">
-                    <div className="font-medium mb-1">Parameters:</div>
-                    {Object.entries(parameters.functionParams).map(([key, value]) => (
-                      <div key={key} className="ml-2">
-                        {key}: {JSON.stringify(value)}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Execution Results Display */}
         {parameters.executionResults && (
           <div className="pt-4 border-t border-gray-200">
@@ -943,7 +849,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         )}
 
         {/* Performance & Compatibility Warnings */}
-        {isDataScienceNode && isChainMode && functionChain.length > 0 && (
+        {isDataScienceNode && functionChain.length > 0 && (
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Chain Analysis</h3>
             <div className="space-y-2">
@@ -997,6 +903,64 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
           </div>
         )}
       </div>
+      
+      {/* Plot Visualization Modal */}
+      {showVisualization && plotData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] w-full mx-4 flex flex-col">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Matplotlib Visualizations</h3>
+              <button
+                onClick={() => setShowVisualization(false)}
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex-1 p-4 overflow-y-auto">
+              <div className="space-y-6">
+                {plotData.map((plot: any, index: number) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                    <div className="mb-3">
+                      <h4 className="font-medium text-gray-900 mb-1">
+                        {plot.function_name} - {plot.result.plot_type}
+                      </h4>
+                      <div className="text-sm text-gray-600">
+                        Parameters: {JSON.stringify(plot.result.parameters)}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Execution time: {plot.execution_time_ms.toFixed(2)}ms
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-2 flex justify-center">
+                      <img
+                        src={`data:image/png;base64,${plot.result.image_base64}`}
+                        alt={`${plot.function_name} visualization`}
+                        className="max-w-full h-auto rounded shadow-sm"
+                        style={{ maxHeight: '400px' }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-4 border-t bg-gray-50">
+              <div className="flex justify-between items-center text-sm text-gray-600">
+                <span>Total visualizations: {plotData.length}</span>
+                <button
+                  onClick={() => setShowVisualization(false)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
