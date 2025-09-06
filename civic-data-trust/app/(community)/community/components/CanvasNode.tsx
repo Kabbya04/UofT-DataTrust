@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Group, Rect, Text, Circle } from 'react-konva';
 import { NodeData } from '@/app/store/workflowSlice';
 import { KonvaEventObject } from 'konva/lib/Node';
@@ -14,7 +14,7 @@ interface CanvasNodeProps {
   onConfig: () => void;
 }
 
-export default function CanvasNode({ 
+export default React.memo(function CanvasNode({ 
   node, 
   isSelected, 
   onDragStart,
@@ -27,18 +27,19 @@ export default function CanvasNode({
   const portRadius = 6;
   const portSpacing = 25;
   
-  // Calculate port positions
-  const getInputPortY = (index: number, total: number) => {
-    if (total === 1) return node.height / 2;
-    const startY = (node.height - (total - 1) * portSpacing) / 2;
-    return startY + index * portSpacing;
-  };
-  
-  const getOutputPortY = (index: number, total: number) => {
-    if (total === 1) return node.height / 2;
-    const startY = (node.height - (total - 1) * portSpacing) / 2;
-    return startY + index * portSpacing;
-  };
+  // Memoized port position calculations
+  const portPositions = useMemo(() => {
+    const getPortY = (index: number, total: number) => {
+      if (total === 1) return node.height / 2;
+      const startY = (node.height - (total - 1) * portSpacing) / 2;
+      return startY + index * portSpacing;
+    };
+    
+    return {
+      getInputPortY: (index: number, total: number) => getPortY(index, total),
+      getOutputPortY: (index: number, total: number) => getPortY(index, total)
+    };
+  }, [node.height, portSpacing]);
 
   return (
     <Group
@@ -109,7 +110,7 @@ export default function CanvasNode({
         <Circle
           key={`input-${input.id}`}
           x={0}
-          y={getInputPortY(index, node.inputs!.length)}
+          y={portPositions.getInputPortY(index, node.inputs!.length)}
           radius={portRadius}
           fill={input.connected ? '#10B981' : '#6B7280'}
           stroke="#FFFFFF"
@@ -134,7 +135,7 @@ export default function CanvasNode({
         <Circle
           key={`output-${output.id}`}
           x={node.width}
-          y={getOutputPortY(index, node.outputs!.length)}
+          y={portPositions.getOutputPortY(index, node.outputs!.length)}
           radius={portRadius}
           fill={output.connected ? '#10B981' : '#6B7280'}
           stroke="#FFFFFF"
@@ -169,4 +170,4 @@ export default function CanvasNode({
       )}
     </Group>
   );
-}
+});

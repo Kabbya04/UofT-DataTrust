@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play, Image } from 'lucide-react';
 import { updateNode } from '@/app/store/workflowSlice';
@@ -114,8 +114,8 @@ interface LibraryFunctions {
   [libraryName: string]: LibraryCategories;
 }
 
-// Library function definitions with proper typing
-const libraryFunctions: LibraryFunctions = {
+// Library function definitions with proper typing - moved outside component for better performance
+const LIBRARY_FUNCTIONS: LibraryFunctions = {
   pandas: {
     'Data Inspection': {
       'head': {
@@ -365,7 +365,7 @@ const DynamicFormField: React.FC<{
   }
 };
 
-// Function Step Component
+// Memoized Function Step Component
 const FunctionStepComponent: React.FC<{
   step: FunctionStep;
   stepIndex: number;
@@ -375,10 +375,10 @@ const FunctionStepComponent: React.FC<{
   canMoveUp: boolean;
   canMoveDown: boolean;
   onMoveStep: (stepIndex: number, direction: 'up' | 'down') => void;
-}> = ({ step, stepIndex, library, onUpdateStep, onRemoveStep, canMoveUp, canMoveDown, onMoveStep }) => {
+}> = React.memo(({ step, stepIndex, library, onUpdateStep, onRemoveStep, canMoveUp, canMoveDown, onMoveStep }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   
-  const libraryConfig = libraryFunctions[library];
+  const libraryConfig = LIBRARY_FUNCTIONS[library];
   const categoryConfig = libraryConfig?.[step.category];
   const functionDef = categoryConfig?.[step.functionName];
   
@@ -472,7 +472,7 @@ const FunctionStepComponent: React.FC<{
       )}
     </div>
   );
-};
+});
 
 export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProps) {
   const dispatch = useDispatch();
@@ -505,19 +505,19 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
     }
   }, [node]);
   
-  const handleParameterChange = (key: string, value: any) => {
+  const handleParameterChange = useCallback((key: string, value: any) => {
     const newParameters = { ...parameters, [key]: value };
     setParameters(newParameters);
     dispatch(updateNode({
       id: nodeId,
       updates: { parameters: newParameters }
     }));
-  };
+  }, [parameters, nodeId, dispatch]);
 
   // Chain mode is now always enabled - no toggle needed
 
-  const addFunctionToChain = (functionName: string, category: string, library: string) => {
-    const libraryConfig = libraryFunctions[library];
+  const addFunctionToChain = useCallback((functionName: string, category: string, library: string) => {
+    const libraryConfig = LIBRARY_FUNCTIONS[library];
     const categoryConfig = libraryConfig?.[category];
     const functionDef = categoryConfig?.[functionName];
     
@@ -543,9 +543,9 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
     }));
     
     setShowAddFunction(false);
-  };
+  }, [functionChain, parameters, nodeId, dispatch]);
 
-  const updateFunctionStep = (stepIndex: number, updatedStep: FunctionStep) => {
+  const updateFunctionStep = useCallback((stepIndex: number, updatedStep: FunctionStep) => {
     const updatedChain = [...functionChain];
     updatedChain[stepIndex] = updatedStep;
     setFunctionChain(updatedChain);
@@ -559,7 +559,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
       id: nodeId,
       updates: { parameters: newParameters }
     }));
-  };
+  }, [functionChain, parameters, nodeId, dispatch]);
 
   const removeFunctionStep = (stepIndex: number) => {
     const updatedChain = functionChain.filter((_, index) => index !== stepIndex);
@@ -607,7 +607,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
 
   const isDataScienceNode = ['pandas', 'numpy', 'matplotlib'].includes(node.type);
   const currentLibrary = isDataScienceNode ? node.type : null;
-  const currentFunctions = currentLibrary ? libraryFunctions[currentLibrary] : null;
+  const currentFunctions = currentLibrary ? LIBRARY_FUNCTIONS[currentLibrary] : null;
 
   return (
     <div className="absolute top-0 right-0 w-96 h-full bg-white shadow-xl z-50 flex flex-col">
@@ -869,7 +869,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
               {/* Data Flow Validation */}
               {currentLibrary && functionChain.some((step, index) => {
                 if (index === 0) return false;
-                const libraryConfig = libraryFunctions[currentLibrary];
+                const libraryConfig = LIBRARY_FUNCTIONS[currentLibrary];
                 const currentCategoryConfig = libraryConfig?.[step.category];
                 const currentFunc = currentCategoryConfig?.[step.functionName];
                 const prevCategoryConfig = libraryConfig?.[functionChain[index-1].category];

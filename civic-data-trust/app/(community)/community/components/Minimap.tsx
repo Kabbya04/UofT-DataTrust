@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { NodeData } from '@/app/store/workflowSlice';
 
 interface MinimapProps {
@@ -8,32 +8,36 @@ interface MinimapProps {
   canvasSize: { width: number; height: number };
 }
 
-export default function Minimap({ nodes, viewport, zoom, canvasSize }: MinimapProps) {
+export default React.memo(function Minimap({ nodes, viewport, zoom, canvasSize }: MinimapProps) {
   const minimapWidth = 200;
   const minimapHeight = 120;
   
   if (nodes.length === 0) return null;
   
-  // Calculate bounds
-  const bounds = nodes.reduce((acc, node) => ({
-    minX: Math.min(acc.minX, node.x),
-    minY: Math.min(acc.minY, node.y),
-    maxX: Math.max(acc.maxX, node.x + node.width),
-    maxY: Math.max(acc.maxY, node.y + node.height)
-  }), {
-    minX: Infinity,
-    minY: Infinity,
-    maxX: -Infinity,
-    maxY: -Infinity
-  });
-  
-  const workflowWidth = bounds.maxX - bounds.minX + 100;
-  const workflowHeight = bounds.maxY - bounds.minY + 100;
-  const scale = Math.min(
-    (minimapWidth - 20) / workflowWidth,
-    (minimapHeight - 20) / workflowHeight,
-    0.2
-  );
+  // Memoized bounds and scale calculation
+  const { bounds, scale } = useMemo(() => {
+    const calculatedBounds = nodes.reduce((acc, node) => ({
+      minX: Math.min(acc.minX, node.x),
+      minY: Math.min(acc.minY, node.y),
+      maxX: Math.max(acc.maxX, node.x + node.width),
+      maxY: Math.max(acc.maxY, node.y + node.height)
+    }), {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity
+    });
+    
+    const workflowWidth = calculatedBounds.maxX - calculatedBounds.minX + 100;
+    const workflowHeight = calculatedBounds.maxY - calculatedBounds.minY + 100;
+    const calculatedScale = Math.min(
+      (minimapWidth - 20) / workflowWidth,
+      (minimapHeight - 20) / workflowHeight,
+      0.2
+    );
+    
+    return { bounds: calculatedBounds, scale: calculatedScale };
+  }, [nodes, minimapWidth, minimapHeight]);
   
   return (
     <div 
@@ -77,4 +81,4 @@ export default function Minimap({ nodes, viewport, zoom, canvasSize }: MinimapPr
       </svg>
     </div>
   );
-}
+});

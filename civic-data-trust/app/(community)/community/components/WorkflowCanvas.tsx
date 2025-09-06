@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { Stage, Layer, Line, Circle, Group } from 'react-konva';
 import { useDispatch, useSelector } from 'react-redux';
 import { KonvaEventObject } from 'konva/lib/Node';
@@ -27,46 +27,57 @@ interface WorkflowCanvasProps {
   draggedPlugin: any;
 }
 
-// Dotted background component
-const DottedBackground = ({ width, height, viewport, zoom }: { 
+// Optimized dotted background component with memoization
+const DottedBackground = React.memo(({ width, height, viewport, zoom }: { 
   width: number; 
   height: number; 
   viewport: { x: number; y: number };
   zoom: number;
 }) => {
-  const dotSize = 1.5;
-  const dotSpacing = 20;
-  const dots = [];
-  
-  // Calculate the visible area in canvas coordinates
-  const startX = Math.floor((-viewport.x / zoom) / dotSpacing) * dotSpacing - dotSpacing;
-  const startY = Math.floor((-viewport.y / zoom) / dotSpacing) * dotSpacing - dotSpacing;
-  const endX = startX + (width / zoom) + dotSpacing * 2;
-  const endY = startY + (height / zoom) + dotSpacing * 2;
-  
-  // Generate dots only for the visible area plus a buffer
-  for (let x = startX; x < endX; x += dotSpacing) {
-    for (let y = startY; y < endY; y += dotSpacing) {
-      dots.push(
-        <Circle
-          key={`dot-${x}-${y}`}
-          x={x}
-          y={y}
-          radius={dotSize}
-          fill="#D1D5DB"
-          opacity={0.4}
-        />
-      );
+  const dots = useMemo(() => {
+    const dotSize = 1.5;
+    const dotSpacing = 20;
+    const dotsArray = [];
+    
+    // Calculate the visible area in canvas coordinates
+    const startX = Math.floor((-viewport.x / zoom) / dotSpacing) * dotSpacing - dotSpacing;
+    const startY = Math.floor((-viewport.y / zoom) / dotSpacing) * dotSpacing - dotSpacing;
+    const endX = startX + (width / zoom) + dotSpacing * 2;
+    const endY = startY + (height / zoom) + dotSpacing * 2;
+    
+    // Generate dots only for the visible area plus a buffer
+    for (let x = startX; x < endX; x += dotSpacing) {
+      for (let y = startY; y < endY; y += dotSpacing) {
+        dotsArray.push(
+          <Circle
+            key={`dot-${x}-${y}`}
+            x={x}
+            y={y}
+            radius={dotSize}
+            fill="#D1D5DB"
+            opacity={0.4}
+          />
+        );
+      }
     }
-  }
+    
+    return dotsArray;
+  }, [width, height, viewport.x, viewport.y, zoom]);
   
   return <Group>{dots}</Group>;
-};
+});
 
 export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: WorkflowCanvasProps) {
   const dispatch = useDispatch();
-  const { nodes, connections, zoom, viewport, isConnecting, connectingFrom, selectedNodeIds } = 
-    useSelector((state: RootState) => state.workflow);
+  
+  // Memoized selectors to prevent unnecessary re-renders
+  const nodes = useSelector((state: RootState) => state.workflow.nodes);
+  const connections = useSelector((state: RootState) => state.workflow.connections);
+  const zoom = useSelector((state: RootState) => state.workflow.zoom);
+  const viewport = useSelector((state: RootState) => state.workflow.viewport);
+  const isConnecting = useSelector((state: RootState) => state.workflow.isConnecting);
+  const connectingFrom = useSelector((state: RootState) => state.workflow.connectingFrom);
+  const selectedNodeIds = useSelector((state: RootState) => state.workflow.selectedNodeIds);
   
   const stageRef = useRef<any>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
@@ -160,6 +171,17 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
     }
   }, [dispatch, isDraggable]);
 
+  // Memoized port position calculation
+  const getPortPosition = useCallback((node: any, portId: string, isOutput: boolean) => {
+    const ports = isOutput ? node.outputs : node.inputs;
+    const portIndex = ports?.findIndex((p: any) => p.id === portId) || 0;
+    const portY = node.height / 2 + (portIndex * 25) - ((ports?.length || 1) - 1) * 12.5;
+    return {
+      x: node.x + (isOutput ? node.width : 0),
+      y: node.y + portY
+    };
+  }, []);
+
   // Handle port click for connections
   const handlePortClick = useCallback((nodeId: string, portId: string, portType: 'input' | 'output') => {
     if (!isConnecting) {
@@ -168,13 +190,12 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
         dispatch(startConnecting({ nodeId, portId }));
         const node = nodes.find(n => n.id === nodeId);
         if (node) {
-          const portIndex = node.outputs?.findIndex(p => p.id === portId) || 0;
-          const portY = node.height / 2 + (portIndex * 25) - ((node.outputs?.length || 1) - 1) * 12.5;
+          const portPos = getPortPosition(node, portId, true);
           setTempConnection({
-            x1: node.x + node.width,
-            y1: node.y + portY,
-            x2: node.x + node.width,
-            y2: node.y + portY
+            x1: portPos.x,
+            y1: portPos.y,
+            x2: portPos.x,
+            y2: portPos.y
           });
         }
       }
@@ -192,7 +213,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
       dispatch(endConnecting());
       setTempConnection(null);
     }
-  }, [isConnecting, connectingFrom, nodes, dispatch]);
+  }, [isConnecting, connectingFrom, nodes, dispatch, getPortPosition]);
 
   // Handle mouse move for temp connection
   const handleMouseMove = useCallback((e: KonvaEventObject<MouseEvent>) => {
@@ -388,8 +409,8 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
             zoom={zoom}
           />
           
-          {/* Render connections */}
-          {connections.map(conn => {
+          {/* Render connections with memoization */}
+          {useMemo(() => connections.map(conn => {
             const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
             const targetNode = nodes.find(n => n.id === conn.targetNodeId);
             
@@ -401,7 +422,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
                 targetNode={targetNode}
               />
             );
-          })}
+          }), [connections, nodes])}
           
           {/* Render temp connection while connecting */}
           {tempConnection && (
@@ -413,8 +434,8 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
             />
           )}
           
-          {/* Render nodes with drag callbacks */}
-          {nodes.map(node => (
+          {/* Render nodes with drag callbacks and memoization */}
+          {useMemo(() => nodes.map(node => (
             <CanvasNode
               key={node.id}
               node={node}
@@ -426,7 +447,7 @@ export default function WorkflowCanvas({ canvasNodes, onDrop, draggedPlugin }: W
               onSelect={() => dispatch(setSelectedNodes([node.id]))}
               onConfig={() => setConfigPanelNode(node.id)}
             />
-          ))}
+          )), [nodes, selectedNodeIds, handleNodeDragStart, handleNodeDrag, handleNodeDragEnd, handlePortClick, dispatch])}
         </Layer>
       </Stage>
       
