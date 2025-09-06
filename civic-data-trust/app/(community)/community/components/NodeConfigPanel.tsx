@@ -11,17 +11,37 @@ const executeFunctionChain = async (nodeId: string, library: string | null, func
   try {
     toast.loading('Executing function chain...');
     
-    // Determine input data based on node type
+    // Determine input data based on node type and available CSV data
     let input_data: any = {
       dataset_name: "sample_employees"  // Default fallback
     };
     
-    // If this is a CSV node, use the CSV content
-    if (currentNode?.type === 'csv_input' && currentNode?.parameters?.csvContent) {
+    // Check for CSV content in current node or any connected nodes
+    if (currentNode?.parameters?.csvContent) {
       input_data = {
         csv_content: currentNode.parameters.csvContent,
         filename: currentNode.parameters.fileName || 'uploaded.csv'
       };
+    } else if (currentNode?.type === 'csv_input' && currentNode?.parameters?.csvContent) {
+      input_data = {
+        csv_content: currentNode.parameters.csvContent,
+        filename: currentNode.parameters.fileName || 'uploaded.csv'
+      };
+    } else {
+      // Try to find CSV data from the global state or recent uploads
+      // For now, we'll check if there's any uploaded CSV data available
+      const uploadedData = localStorage.getItem('lastUploadedCSV');
+      if (uploadedData) {
+        try {
+          const parsedData = JSON.parse(uploadedData);
+          input_data = {
+            csv_content: parsedData.content,
+            filename: parsedData.filename || 'uploaded.csv'
+          };
+        } catch (e) {
+          console.warn('Failed to parse stored CSV data:', e);
+        }
+      }
     }
     
     const response = await axios.post('http://localhost:8000/api/v1/execute/', {
@@ -298,7 +318,53 @@ const LIBRARY_FUNCTIONS: LibraryFunctions = {
         description: 'Create histogram',
         params: [
           { name: 'column', type: 'text', default: '', description: 'Column name for histogram' },
-          { name: 'bins', type: 'number', default: 30, description: 'Number of bins' }
+          { name: 'bins', type: 'number', default: 30, description: 'Number of bins' },
+          { name: 'color', type: 'text', default: 'skyblue', description: 'Histogram color' }
+        ],
+        returnsData: false
+      },
+      'bar_plot': {
+        description: 'Create bar plot',
+        params: [
+          { name: 'x_column', type: 'text', default: '', description: 'X-axis column name' },
+          { name: 'y_column', type: 'text', default: '', description: 'Y-axis column name' },
+          { name: 'title', type: 'text', default: 'Bar Plot', description: 'Plot title' },
+          { name: 'color', type: 'text', default: 'steelblue', description: 'Bar color' }
+        ],
+        returnsData: false
+      }
+    },
+    'Statistical Plots': {
+      'box_plot': {
+        description: 'Create box plot for distribution analysis',
+        params: [
+          { name: 'columns', type: 'text', default: '', description: 'Comma-separated numeric column names' },
+          { name: 'title', type: 'text', default: 'Box Plot', description: 'Plot title' }
+        ],
+        returnsData: false
+      },
+      'violin_plot': {
+        description: 'Create violin plot for distribution visualization',
+        params: [
+          { name: 'y_column', type: 'text', default: '', description: 'Y-axis column name' },
+          { name: 'x_column', type: 'text', default: '', description: 'X-axis grouping column (optional)' },
+          { name: 'title', type: 'text', default: 'Violin Plot', description: 'Plot title' }
+        ],
+        returnsData: false
+      },
+      'heatmap': {
+        description: 'Create correlation heatmap',
+        params: [
+          { name: 'title', type: 'text', default: 'Correlation Heatmap', description: 'Plot title' },
+          { name: 'colormap', type: 'select', options: ['coolwarm', 'viridis', 'plasma', 'RdYlBu'], default: 'coolwarm', description: 'Color scheme' }
+        ],
+        returnsData: false
+      },
+      'pair_plot': {
+        description: 'Create pairwise relationship plots',
+        params: [
+          { name: 'title', type: 'text', default: 'Pair Plot', description: 'Plot title' },
+          { name: 'hue_column', type: 'text', default: '', description: 'Column for color grouping (optional)' }
         ],
         returnsData: false
       }

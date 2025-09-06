@@ -302,6 +302,17 @@ function CommunityPageContent() {
             store.dispatch(addNode(csvNode));
             setSelectedDataSources([...selectedDataSources, 'csv']);
             
+            // Store CSV data in localStorage for matplotlib functions to access
+            localStorage.setItem('lastUploadedCSV', JSON.stringify({
+              content: csvContent,
+              filename: file.name,
+              timestamp: new Date().toISOString(),
+              columns: csvInfo.columns,
+              shape: csvInfo.shape
+            }));
+            
+            console.log('CSV data stored in localStorage for matplotlib access');
+            
           } catch (error) {
             console.error('Error processing CSV:', error);
             alert(`Error processing CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`);

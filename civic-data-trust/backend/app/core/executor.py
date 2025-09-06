@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.style as mplstyle
+import seaborn as sns
 import io
 import base64
 import warnings
@@ -11,9 +13,38 @@ from functools import lru_cache
 from contextlib import contextmanager
 
 from app.data.sample_data import SAMPLE_DATA
+from app.core.data_validator import DataValidator, validate_dataframe_for_research
 
 # Use non-interactive backend for matplotlib
 matplotlib.use('Agg')
+
+# Research-grade matplotlib configuration
+plt.rcParams.update({
+    'figure.figsize': (12, 8),
+    'figure.dpi': 300,
+    'savefig.dpi': 300,
+    'savefig.bbox': 'tight',
+    'savefig.pad_inches': 0.1,
+    'font.size': 12,
+    'axes.titlesize': 16,
+    'axes.labelsize': 14,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'legend.fontsize': 12,
+    'axes.grid': True,
+    'grid.alpha': 0.3,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'axes.linewidth': 1.2,
+    'lines.linewidth': 2.5,
+    'patch.linewidth': 0.5,
+    'text.usetex': False,
+    'mathtext.fontset': 'stix',
+    'font.family': ['DejaVu Sans', 'Arial', 'sans-serif']
+})
+
+# Set seaborn style for better aesthetics
+sns.set_palette("husl")
 
 # Python 3.12+ optimizations
 if sys.version_info >= (3, 12):
@@ -48,7 +79,7 @@ class DataScienceExecutor:
         return {col: "cached_info" for col in columns}
     
     def initialize_data(self, input_data: Optional[Dict[str, Any]]) -> Any:
-        """Initialize data from input or use sample data"""
+        """Initialize data from input or use sample data with validation"""
         if not input_data:
             # Default to first sample dataset if no input provided
             return SAMPLE_DATA['users'].copy()
@@ -58,6 +89,13 @@ class DataScienceExecutor:
             try:
                 csv_buffer = io.StringIO(input_data['csv_content'])
                 df = pd.read_csv(csv_buffer)
+                
+                # Validate data quality for research-grade analysis
+                validation_result = validate_dataframe_for_research(df)
+                if not validation_result['validation_passed']:
+                    # Log validation issues but continue processing
+                    print(f"Data validation warnings: {validation_result['warnings']} warnings, {validation_result['errors']} errors")
+                
                 return df
             except Exception as e:
                 raise ValueError(f"Could not parse CSV content: {str(e)}")
@@ -69,14 +107,24 @@ class DataScienceExecutor:
         # If dataframe is provided directly
         if 'dataframe' in input_data and isinstance(input_data['dataframe'], dict):
             try:
-                return pd.DataFrame(input_data['dataframe'])
+                df = pd.DataFrame(input_data['dataframe'])
+                # Validate converted DataFrame
+                validation_result = validate_dataframe_for_research(df)
+                if not validation_result['validation_passed']:
+                    print(f"Data validation warnings: {validation_result['warnings']} warnings, {validation_result['errors']} errors")
+                return df
             except Exception as e:
                 raise ValueError(f"Could not convert input data to DataFrame: {str(e)}")
         
         # If raw data is provided, try to convert to DataFrame
         if isinstance(input_data, dict) and 'dataset_name' not in input_data:
             try:
-                return pd.DataFrame(input_data)
+                df = pd.DataFrame(input_data)
+                # Validate converted DataFrame
+                validation_result = validate_dataframe_for_research(df)
+                if not validation_result['validation_passed']:
+                    print(f"Data validation warnings: {validation_result['warnings']} warnings, {validation_result['errors']} errors")
+                return df
             except Exception as e:
                 raise ValueError(f"Could not convert input data to DataFrame: {str(e)}")
         
@@ -395,63 +443,199 @@ class DataScienceExecutor:
                                   parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
         """Execute matplotlib function with error handling"""
         try:
-            # Convert data to DataFrame with better error handling
-            if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
-                df = pd.DataFrame(data)
+            # Convert data to DataFrame with robust error handling
+            if isinstance(data, pd.DataFrame):
+                df = data
+            elif isinstance(data, list) and len(data) > 0:
+                if isinstance(data[0], dict):
+                    df = pd.DataFrame(data)
+                else:
+                    # Handle list of values
+                    df = pd.DataFrame({'values': data})
             elif isinstance(data, dict):
-                df = pd.DataFrame([data])
+                # Handle single dictionary or nested dictionary
+                if all(isinstance(v, (list, tuple)) for v in data.values()):
+                    df = pd.DataFrame(data)
+                else:
+                    df = pd.DataFrame([data])
+            elif isinstance(data, (tuple, list)) and len(data) == 0:
+                raise ValueError("Empty data provided - cannot create plot")
             else:
-                raise ValueError("Data must be in a format that can be converted to DataFrame for plotting")
+                # Try to convert to DataFrame as last resort
+                try:
+                    df = pd.DataFrame(data)
+                except Exception as e:
+                    raise ValueError(f"Data format not supported for plotting. Expected DataFrame, list of dicts, or dict. Got {type(data)}. Error: {str(e)}")
             
-            # Create figure with optimized settings
-            plt.figure(figsize=(10, 6))
-            plt.style.use('default')
+            # Create figure with research-grade settings
+            figsize = parameters.get('figsize', (12, 8))
+            if isinstance(figsize, str):
+                # Parse figsize string like "12,8"
+                figsize = tuple(map(float, figsize.split(',')))
+            
+            plt.figure(figsize=figsize)
+            
+            # Apply style theme
+            style_theme = parameters.get('style', 'default')
+            if style_theme in ['seaborn', 'ggplot', 'bmh', 'fivethirtyeight']:
+                plt.style.use(style_theme)
+            else:
+                plt.style.use('default')
             
             # Plot functions
             if function_name == 'line_plot':
                 x_column = parameters.get('x_column', '')
                 y_column = parameters.get('y_column', '')
                 title = parameters.get('title', 'Line Plot')
+                color = parameters.get('color', 'blue')
+                linewidth = parameters.get('linewidth', 2.5)
+                linestyle = parameters.get('linestyle', '-')
+                marker = parameters.get('marker', '')
                 
                 if not x_column or x_column not in df.columns:
                     raise ValueError(f"X column '{x_column}' not found. Available: {list(df.columns)}")
                 if not y_column or y_column not in df.columns:
                     raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
                 
-                plt.plot(df[x_column], df[y_column], linewidth=2)
-                plt.xlabel(x_column, fontsize=12)
-                plt.ylabel(y_column, fontsize=12)
-                plt.title(title, fontsize=14, fontweight='bold')
+                plt.plot(df[x_column], df[y_column], 
+                        color=color, linewidth=linewidth, linestyle=linestyle, marker=marker)
+                plt.xlabel(x_column, fontsize=14)
+                plt.ylabel(y_column, fontsize=14)
+                plt.title(title, fontsize=16, fontweight='bold', pad=20)
                 plt.grid(True, alpha=0.3)
+                plt.tight_layout()
             
             elif function_name == 'scatter_plot':
                 x_column = parameters.get('x_column', '')
                 y_column = parameters.get('y_column', '')
                 title = parameters.get('title', 'Scatter Plot')
+                color = parameters.get('color', 'blue')
+                size = parameters.get('size', 60)
+                alpha = parameters.get('alpha', 0.7)
+                marker = parameters.get('marker', 'o')
                 
                 if not x_column or x_column not in df.columns:
                     raise ValueError(f"X column '{x_column}' not found. Available: {list(df.columns)}")
                 if not y_column or y_column not in df.columns:
                     raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
                 
-                plt.scatter(df[x_column], df[y_column], alpha=0.7, s=50)
-                plt.xlabel(x_column, fontsize=12)
-                plt.ylabel(y_column, fontsize=12)
-                plt.title(title, fontsize=14, fontweight='bold')
+                plt.scatter(df[x_column], df[y_column], 
+                           c=color, s=size, alpha=alpha, marker=marker, edgecolors='black', linewidth=0.5)
+                plt.xlabel(x_column, fontsize=14)
+                plt.ylabel(y_column, fontsize=14)
+                plt.title(title, fontsize=16, fontweight='bold', pad=20)
                 plt.grid(True, alpha=0.3)
+                plt.tight_layout()
             
             elif function_name == 'histogram':
                 column = parameters.get('column', '')
                 bins = parameters.get('bins', 30)
+                color = parameters.get('color', 'skyblue')
                 
                 if not column or column not in df.columns:
                     raise ValueError(f"Column '{column}' not found. Available: {list(df.columns)}")
                 
-                plt.hist(df[column], bins=bins, alpha=0.7, edgecolor='black')
+                plt.hist(df[column], bins=bins, alpha=0.7, edgecolor='black', color=color)
                 plt.xlabel(column, fontsize=12)
                 plt.ylabel('Frequency', fontsize=12)
                 plt.title(f'Histogram of {column}', fontsize=14, fontweight='bold')
                 plt.grid(True, alpha=0.3)
+            
+            elif function_name == 'bar_plot':
+                x_column = parameters.get('x_column', '')
+                y_column = parameters.get('y_column', '')
+                title = parameters.get('title', 'Bar Plot')
+                color = parameters.get('color', 'steelblue')
+                
+                if not x_column or x_column not in df.columns:
+                    raise ValueError(f"X column '{x_column}' not found. Available: {list(df.columns)}")
+                if not y_column or y_column not in df.columns:
+                    raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
+                
+                plt.bar(df[x_column], df[y_column], color=color, alpha=0.8, edgecolor='black')
+                plt.xlabel(x_column, fontsize=12)
+                plt.ylabel(y_column, fontsize=12)
+                plt.title(title, fontsize=14, fontweight='bold')
+                plt.xticks(rotation=45)
+                plt.grid(True, alpha=0.3, axis='y')
+            
+            elif function_name == 'box_plot':
+                columns = parameters.get('columns', '')
+                title = parameters.get('title', 'Box Plot')
+                
+                if isinstance(columns, str):
+                    columns = [col.strip() for col in columns.split(',')]
+                
+                # Filter to numeric columns only using pandas numeric detection
+                numeric_cols = [col for col in columns if col in df.columns and pd.api.types.is_numeric_dtype(df[col])]
+                if not numeric_cols:
+                    available_numeric = list(df.select_dtypes(include=[np.number]).columns)
+                    raise ValueError(f"No valid numeric columns found in specified columns: {columns}. Available numeric columns: {available_numeric}")
+                
+                plt.boxplot([df[col].dropna() for col in numeric_cols], labels=numeric_cols)
+                plt.ylabel('Values', fontsize=14)
+                plt.title(title, fontsize=16, fontweight='bold', pad=20)
+                plt.xticks(rotation=45)
+                plt.grid(True, alpha=0.3, axis='y')
+                plt.tight_layout()
+            
+            elif function_name == 'heatmap':
+                title = parameters.get('title', 'Correlation Heatmap')
+                cmap = parameters.get('colormap', 'coolwarm')
+                
+                # Calculate correlation matrix for numeric columns
+                numeric_df = df.select_dtypes(include=[np.number])
+                if numeric_df.empty:
+                    raise ValueError("No numeric columns found for correlation heatmap")
+                
+                correlation_matrix = numeric_df.corr()
+                
+                # Create heatmap using seaborn for better aesthetics
+                sns.heatmap(correlation_matrix, annot=True, cmap=cmap, center=0,
+                           square=True, fmt='.2f', cbar_kws={'shrink': 0.8})
+                plt.title(title, fontsize=14, fontweight='bold')
+                plt.tight_layout()
+            
+            elif function_name == 'violin_plot':
+                x_column = parameters.get('x_column', '')
+                y_column = parameters.get('y_column', '')
+                title = parameters.get('title', 'Violin Plot')
+                
+                if not y_column or y_column not in df.columns:
+                    raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
+                
+                if x_column and x_column in df.columns:
+                    # Grouped violin plot
+                    sns.violinplot(data=df, x=x_column, y=y_column)
+                    plt.xticks(rotation=45)
+                else:
+                    # Single violin plot
+                    sns.violinplot(y=df[y_column])
+                
+                plt.xlabel(x_column if x_column else '', fontsize=12)
+                plt.ylabel(y_column, fontsize=12)
+                plt.title(title, fontsize=14, fontweight='bold')
+                plt.grid(True, alpha=0.3)
+            
+            elif function_name == 'pair_plot':
+                title = parameters.get('title', 'Pair Plot')
+                hue_column = parameters.get('hue_column', '')
+                
+                # Select numeric columns for pair plot
+                numeric_df = df.select_dtypes(include=[np.number])
+                if len(numeric_df.columns) < 2:
+                    raise ValueError("Need at least 2 numeric columns for pair plot")
+                
+                # Limit to first 5 numeric columns to avoid overcrowding
+                plot_df = numeric_df.iloc[:, :5]
+                
+                if hue_column and hue_column in df.columns:
+                    plot_df[hue_column] = df[hue_column]
+                    sns.pairplot(plot_df, hue=hue_column)
+                else:
+                    sns.pairplot(plot_df)
+                
+                plt.suptitle(title, fontsize=14, fontweight='bold', y=1.02)
             
             else:
                 raise ValueError(f"Plot function '{function_name}' is not supported")
@@ -476,4 +660,14 @@ class DataScienceExecutor:
         
         except Exception as e:
             plt.close()  # Ensure plot is closed even on error
+            # Log the actual error for debugging
+            print(f"Matplotlib function '{function_name}' error: {str(e)}")
+            print(f"Parameters: {parameters}")
+            print(f"Data type: {type(data)}")
+            print(f"Data sample: {str(data)[:200] if data is not None else 'None'}...")
+            if 'df' in locals():
+                print(f"DataFrame columns: {list(df.columns)}")
+                print(f"DataFrame shape: {df.shape}")
+            else:
+                print("DataFrame conversion failed")
             return None, "error", False
