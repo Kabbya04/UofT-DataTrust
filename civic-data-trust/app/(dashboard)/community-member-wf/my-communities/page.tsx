@@ -53,10 +53,10 @@ export default function MyCommunitiesPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-foreground">My Communities</h1>
-          <Button className="flex items-center gap-2">
+          {/* <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Create Community
-          </Button>
+          </Button> */}
         </div>
         <p className="text-muted-foreground">Manage your communities and stay updated with recent activities</p>
       </div>
