@@ -6,7 +6,7 @@ import { Input } from "@/app/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table";
 import { Users, UserPlus, UserCheck, UserX } from "lucide-react";
-
+import Link from "next/link";
 const users = [
     { name: "Jhon Doe", email: "jhon@email.com", role: "Super Admin", joinDate: "Jan 15, 2025", lastActivity: "1 hour ago", status: "Active" },
     { name: "Sarah Dell", email: "sarah@email.com", role: "Project Admin", joinDate: "Jan 15, 2025", lastActivity: "1 hour ago", status: "Active" },
@@ -21,7 +21,13 @@ export default function UserManagementPage() {
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">User Management</h1>
-                <Button><UserPlus className="h-4 w-4 mr-2" />Add New User</Button>
+                <Link href={'/super-admin-wf/invite-member'}>
+                    <Button variant="outline" className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90">
+                        <UserPlus className="h-4 w-4 mr-2" />Invite Member
+                    </Button>
+                </Link>
+
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
