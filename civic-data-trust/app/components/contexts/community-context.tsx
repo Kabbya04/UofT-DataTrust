@@ -32,6 +32,7 @@ interface CommunityContextType {
   getCommunity: (communityId: string) => Community | undefined
   submitJoinRequest: (communityId: string, message: string) => void
   fetchCommunities: () => Promise<void>
+  refreshCommunities: () => Promise<void>
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined)
@@ -85,6 +86,11 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     console.log(`Join request submitted for community ${communityId}:`, message)
   }
 
+  const refreshCommunities = async () => {
+    // Force refresh by clearing cache and refetching
+    await fetchCommunities()
+  }
+
   return (
     <CommunityContext.Provider value={{ 
       communities, 
@@ -93,7 +99,8 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       toggleJoinStatus, 
       getCommunity, 
       submitJoinRequest, 
-      fetchCommunities 
+      fetchCommunities,
+      refreshCommunities
     }}>
       {children}
     </CommunityContext.Provider>

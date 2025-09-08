@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1'
+const API_BASE_URL = process.env.NEXT_PUBLIC_USE_PROXY !== 'false' ? '/api' : 'https://civic-data-trust-backend.onrender.com/api/v1'
 
 interface ApiResponse<T> {
   status: boolean
@@ -52,6 +52,6 @@ export const api = {
           email: string
         }>
         users: Array<any>
-      }>>(`/community/?page=${page}&limit=${limit}`)
+      }>>(`/community?page=${page}&limit=${limit}`)
   }
 }
