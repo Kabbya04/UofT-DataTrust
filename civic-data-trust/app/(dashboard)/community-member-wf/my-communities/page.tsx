@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Users, Database, TrendingUp, Clock, Settings, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card"
@@ -10,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import { useCommunity } from "@/app/components/contexts/community-context"
 
 export default function MyCommunitiesPage() {
-  const { communities } = useCommunity()
+  const { communities, loading, error } = useCommunity()
   const router = useRouter()
   
   const joinedCommunities = communities.filter(c => c.isJoined)
@@ -35,16 +34,16 @@ export default function MyCommunitiesPage() {
   ]
 
   const recommendedCommunities = [
-    { id: 7, name: "Medical AI Research Hub", memberCount: 892, datasets: 23, description: "AI applications in healthcare", category: "Medicine" },
-    { id: 8, name: "Gaming Analytics Pro", memberCount: 4567, datasets: 67, description: "Game performance metrics", category: "Games" },
-    { id: 9, name: "Financial Analytics Pro", memberCount: 4123, datasets: 58, description: "Financial market data", category: "Business" }
+    { id: "7", name: "Medical AI Research Hub", memberCount: 892, datasets: 23, description: "AI applications in healthcare", category: "Medicine" },
+    { id: "8", name: "Gaming Analytics Pro", memberCount: 4567, datasets: 67, description: "Game performance metrics", category: "Games" },
+    { id: "9", name: "Financial Analytics Pro", memberCount: 4123, datasets: 58, description: "Financial market data", category: "Business" }
   ]
 
-  const handleViewCommunity = (communityId: number) => {
+  const handleViewCommunity = (communityId: string) => {
     router.push(`/community-member-wf/community-details/${communityId}`)
   }
 
-  const handleJoinCommunity = (communityId: number) => {
+  const handleJoinCommunity = (communityId: string) => {
     router.push(`/community-member-wf/join-community?communityId=${communityId}`)
   }
 
@@ -69,14 +68,25 @@ export default function MyCommunitiesPage() {
         </TabsList>
 
         <TabsContent value="joined" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {joinedCommunities.map((community) => (
-              <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-muted-foreground">Loading communities...</div>
+            </div>
+          )}
+          {error && (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-red-500">Error: {error}</div>
+            </div>
+          )}
+          {!loading && !error && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {joinedCommunities.map((community) => (
+                <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <Badge variant="secondary" className="mb-2">{community.category}</Badge>
+                      <Badge variant="secondary" className="mb-2">{community.community_category?.name || 'General'}</Badge>
                     </div>
                     <Button variant="ghost" size="sm">
                       <Settings className="h-4 w-4" />
@@ -84,9 +94,9 @@ export default function MyCommunitiesPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description}</p>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount.toLocaleString()}</span></div>
+                    <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
                     <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{Math.floor(Math.random() * 50) + 10} datasets</span></div>
                   </div>
                   <div className="flex gap-2">
@@ -94,9 +104,10 @@ export default function MyCommunitiesPage() {
                     <Button variant="default" size="sm" className="flex-1">Manage</Button>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
-          </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
@@ -110,7 +121,7 @@ export default function MyCommunitiesPage() {
                     {activity.type === 'comment' && <Users className="h-4 w-4 text-orange-500" />}
                     {activity.type === 'member' && <Plus className="h-4 w-4 text-purple-500" />}
                     <span className="text-sm text-muted-foreground">{activity.action}{' '}
-                      <span className="font-medium text-foreground hover:text-primary cursor-pointer" onClick={() => handleViewCommunity(activity.communityId)}>{activity.community}</span>
+                      <span className="font-medium text-foreground hover:text-primary cursor-pointer" onClick={() => handleViewCommunity(activity.communityId.toString())}>{activity.community}</span>
                     </span>
                   </div>
                   <h4 className="font-medium text-foreground mb-1">{activity.title}</h4>
@@ -132,10 +143,10 @@ export default function MyCommunitiesPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description}</p>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount.toLocaleString()}</span></div>
-                    <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{community.datasets} datasets</span></div>
+                    <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
+                    <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{Math.floor(Math.random() * 50) + 10} datasets</span></div>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewCommunity(community.id)}>View Details</Button>

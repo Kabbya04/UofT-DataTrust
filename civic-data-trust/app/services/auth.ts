@@ -326,7 +326,7 @@ class AuthService {
       '7d1222ee-a32b-4981-8b31-89ac68b640fb': '/researcher-wf/home', // Researcher
       '38252b5f-55ff-4cae-aad1-f442971e2e16': '/community-member-wf/home', // Community User  
       '445acacc-aa8c-4902-892d-13e8afc8be3f': '/project-admin-wf/home', // Community Admin
-      '093e572a-3226-4786-a16b-8020e2cf5bfd': '/super-admin-wf/home', // Super Admin
+      '093e572a-3226-4786-a16b-8020e2cf5bfd': '/super-admin-wf/dashboard', // Super Admin
     };
 
     // Also handle role names for backward compatibility
@@ -334,7 +334,7 @@ class AuthService {
       'Researcher': '/researcher-wf/home',
       'Community User': '/community-member-wf/home',
       'Community Admin': '/project-admin-wf/home',
-      'Super Admin': '/super-admin-wf/home',
+      'Super Admin': '/super-admin-wf/dashboard',
     };
 
     return roleRedirects[role] || roleNameRedirects[role] || '/dashboard';

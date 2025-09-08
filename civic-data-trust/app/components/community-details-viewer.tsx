@@ -246,7 +246,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
   const { getCommunity, toggleJoinStatus } = useCommunity()
   const router = useRouter()
 
-  const community = getCommunity(Number.parseInt(communityId))
+  const community = getCommunity(communityId)
   const extendedDetails = mockCommunityDetails[communityId as unknown as keyof typeof mockCommunityDetails]
 
   if (!community) {
@@ -393,11 +393,11 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
               <div className="flex flex-wrap items-center gap-4 mb-2">
                 <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                   <Users className="h-4 w-4 mr-2" />
-                  <span className="font-semibold">{community.memberCount.toLocaleString()}</span>
+                  <span className="font-semibold">{community.memberCount?.toLocaleString() || '0'}</span>
                   <span className="hidden sm:inline ml-1">members</span>
                 </div>
                 <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                  {community.category}
+                  {community.community_category?.name || 'General'}
                 </Badge>
               </div>
             </div>
@@ -472,7 +472,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                   <CardContent>
                     <p className="text-muted-foreground mb-4 leading-relaxed">{extendedDetails?.mission}</p>
                     <div className="flex flex-wrap gap-2">
-                      {community.tags.map((tag) => (
+                      {community.tags?.map((tag) => (
                         <Badge
                           key={tag}
                           variant="outline"
@@ -515,7 +515,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-muted-foreground">Total Members</span>
-                      <span className="font-bold text-lg text-primary">{community.memberCount.toLocaleString()}</span>
+                      <span className="font-bold text-lg text-primary">{community.memberCount?.toLocaleString() || '0'}</span>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
@@ -526,7 +526,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                       <span className="text-muted-foreground">Category</span>
                       <Badge variant="outline" className="font-semibold">
-                        {community.category}
+                        {community.community_category?.name || 'General'}
                       </Badge>
                     </div>
                   </CardContent>
