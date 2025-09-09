@@ -5,9 +5,20 @@ import { updateNode } from '@/app/store/workflowSlice';
 import { RootState } from '@/app/store';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import EDAResultsModal from './EDAResultsModal';
+import FileDownloadService from './FileDownloadService';
 
 // Function to execute the function chain via API
-const executeFunctionChain = async (nodeId: string, library: string | null, functionChain: any[], dispatch: any, currentNode: any, setPlotData: (data: any) => void) => {
+const executeFunctionChain = async (
+  nodeId: string, 
+  library: string | null, 
+  functionChain: any[], 
+  dispatch: any, 
+  currentNode: any, 
+  setPlotData: (data: any) => void,
+  setEDAResults: (results: any) => void,
+  setShowResultsModal: (show: boolean) => void
+) => {
   try {
     toast.loading('Executing function chain...');
     
@@ -68,30 +79,61 @@ const executeFunctionChain = async (nodeId: string, library: string | null, func
     
     toast.dismiss();
     
-    if (response.data && response.data.success) {
-      toast.success('Function chain executed successfully');
+    // Check for partial success - if any operations succeeded, show results
+    const hasAnySuccess = (
+      (response.data.pandas_results?.success_count > 0) ||
+      (response.data.numpy_results?.success_count > 0) ||
+      (response.data.matplotlib_results?.success_count > 0)
+    );
+    
+    const hasAnyErrors = (
+      (response.data.pandas_results?.error_count > 0) ||
+      (response.data.numpy_results?.error_count > 0) ||
+      (response.data.matplotlib_results?.error_count > 0)
+    );
+    
+    if (response.data && (response.data.success || hasAnySuccess)) {
+      // Show appropriate message based on success/error status
+      if (response.data.success) {
+        toast.success('EDA workflow executed successfully!');
+      } else if (hasAnySuccess && hasAnyErrors) {
+        toast.success('EDA workflow completed with some errors - check results for details');
+      } else {
+        toast.success('EDA workflow executed successfully!');
+      }
       
       // Update the node with execution results
       dispatch(updateNode({
         id: nodeId,
         updates: { 
           parameters: {
-            ...functionChain[0].parameters,
-            executionResults: response.data.results,
-            lastExecuted: new Date().toISOString()
+            ...functionChain[0]?.parameters,
+            executionResults: response.data,
+            lastExecuted: new Date().toISOString(),
+            downloadUrl: response.data.download_url,
+            executionId: response.data.execution_id
           }
         }
       }));
       
       // Check for plot results and store them
-      const plotResults = response.data.results.filter((result: any) => result.output_type === 'plot' && result.success);
+      const allResults = [
+        ...(response.data.pandas_results?.steps || []),
+        ...(response.data.numpy_results?.steps || []),
+        ...(response.data.matplotlib_results?.steps || [])
+      ];
+      const plotResults = allResults.filter((result: any) => result.output_type === 'plot' && result.success);
       if (plotResults.length > 0) {
         setPlotData(plotResults);
       }
       
+      // Show EDA results modal
+      setEDAResults(response.data);
+      setShowResultsModal(true);
+      
       return response.data;
     } else {
-      toast.error('Error executing function chain');
+      toast.error('Error executing EDA workflow');
       console.error('API error:', response.data);
       return null;
     }
@@ -569,6 +611,17 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   const [showVisualization, setShowVisualization] = useState(false);
   const [plotData, setPlotData] = useState<any>(null);
   
+  // EDA Results Modal state
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [edaResults, setEDAResults] = useState<any>(null);
+  
+  // EDA Function Chains state
+  const [edaFunctionChains, setEdaFunctionChains] = useState<EDAFunctionChains>({
+    pandas: [],
+    numpy: [],
+    matplotlib: []
+  });
+  
   useEffect(() => {
     setParameters(node?.parameters || {});
     // Always use function chain mode
@@ -695,11 +748,6 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   // EDA Processor state
   const [activeTab, setActiveTab] = useState<string>('workflow');
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('basic_eda');
-  const [edaFunctionChains, setEdaFunctionChains] = useState<EDAFunctionChains>({
-    pandas: [],
-    numpy: [],
-    matplotlib: []
-  });
   const [generateDownloadLink, setGenerateDownloadLink] = useState<boolean>(true);
   const [colabOptimized, setColabOptimized] = useState<boolean>(true);
 
@@ -720,7 +768,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         {isDataScienceNode && functionChain.length > 0 && (
           <div className="mb-4 space-y-2">
             <button
-              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData)}
+              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Play className="w-4 h-4" />
@@ -935,9 +983,27 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
 
                 {/* Execute Button */}
                 <button
-                  onClick={() => {
-                    // Execute EDA workflow
-                    toast.success(`Executing ${selectedWorkflow} workflow...`);
+                  onClick={async () => {
+                    // Execute EDA workflow with proper function chain
+                    const workflowFunctions = {
+                      'basic_eda': [
+                        { id: 'eda-1', functionName: 'head', category: 'Data Inspection', library: 'pandas', parameters: { n: 10 }, description: 'View first 10 rows' },
+                        { id: 'eda-2', functionName: 'info', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Data info' },
+                        { id: 'eda-3', functionName: 'describe', category: 'Statistical Analysis', library: 'pandas', parameters: {}, description: 'Statistical summary' }
+                      ],
+                      'data_cleaning': [
+                        { id: 'clean-1', functionName: 'isnull', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Check missing values' },
+                        { id: 'clean-2', functionName: 'dropna', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove missing values' },
+                        { id: 'clean-3', functionName: 'drop_duplicates', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove duplicates' }
+                      ],
+                      'visualization_suite': [
+                        { id: 'viz-1', functionName: 'histogram', category: 'Basic Plots', library: 'matplotlib', parameters: { column: 'salary', bins: 20 }, description: 'Salary distribution' },
+                        { id: 'viz-2', functionName: 'box_plot', category: 'Statistical Plots', library: 'matplotlib', parameters: { columns: 'age,salary' }, description: 'Box plots' }
+                      ]
+                    };
+                    
+                    const workflowChain = workflowFunctions[selectedWorkflow as keyof typeof workflowFunctions] || [];
+                    await executeFunctionChain(nodeId, 'pandas', workflowChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal);
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
@@ -1343,6 +1409,27 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
           </div>
         </div>
       )}
+      
+      {/* EDA Results Modal */}
+      <EDAResultsModal
+        isOpen={showResultsModal}
+        onClose={() => setShowResultsModal(false)}
+        results={edaResults}
+        onDownload={() => {
+          if (edaResults?.download_url) {
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = edaResults.download_url;
+            link.download = `eda_results_${edaResults.execution_id || 'latest'}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('Download started!');
+          } else {
+            toast.error('No download URL available');
+          }
+        }}
+      />
     </div>
   );
 }
