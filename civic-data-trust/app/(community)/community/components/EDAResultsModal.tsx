@@ -18,6 +18,17 @@ interface EDAResult {
   description?: string;
 }
 
+// Update the interface to match the actual API response structure
+interface LibraryResults {
+  steps: EDAResult[];
+  success_count?: number;
+  error_count?: number;
+  total_execution_time_ms?: number;
+  visualizations?: any[];
+  data_transformations?: any[];
+  calculations?: any[];
+}
+
 interface EDAResultsData {
   success: boolean;
   execution_id: string;
@@ -26,9 +37,9 @@ interface EDAResultsData {
   steps_executed: number;
   total_steps: number;
   total_execution_time_ms: number;
-  pandas_results: EDAResult[];
-  numpy_results: EDAResult[];
-  matplotlib_results: EDAResult[];
+  pandas_results: LibraryResults;
+  numpy_results: LibraryResults;
+  matplotlib_results: LibraryResults;
   download_url?: string;
   wget_command?: string;
   colab_compatible: boolean;
@@ -55,10 +66,11 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
 
   if (!isOpen || !results) return null;
 
+  // Fix the allResults computation (around line 52)
   const allResults = [
-    ...(Array.isArray(results.pandas_results) ? results.pandas_results : []),
-    ...(Array.isArray(results.numpy_results) ? results.numpy_results : []),
-    ...(Array.isArray(results.matplotlib_results) ? results.matplotlib_results : [])
+    ...(results.pandas_results?.steps || []),
+    ...(results.numpy_results?.steps || []),
+    ...(results.matplotlib_results?.steps || [])
   ];
 
   const successfulResults = allResults.filter(r => r.success);
@@ -247,9 +259,9 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'chronological', label: `Timeline (${allResults.length})`, icon: '⏱️' },
-              { id: 'pandas', label: `Pandas (${Array.isArray(results.pandas_results) ? results.pandas_results.length : 0})`, icon: '🐼' },
-              { id: 'numpy', label: `NumPy (${Array.isArray(results.numpy_results) ? results.numpy_results.length : 0})`, icon: '🔢' },
-              { id: 'matplotlib', label: `Matplotlib (${Array.isArray(results.matplotlib_results) ? results.matplotlib_results.length : 0})`, icon: '📈' },
+              { id: 'pandas', label: `Pandas (${results.pandas_results?.steps?.length || 0})`, icon: '🐼' },
+              { id: 'numpy', label: `NumPy (${results.numpy_results?.steps?.length || 0})`, icon: '🔢' },
+              { id: 'matplotlib', label: `Matplotlib (${results.matplotlib_results?.steps?.length || 0})`, icon: '📈' },
               { id: 'download', label: 'Download', icon: '💾' }
             ].map((tab) => (
               <button
@@ -345,21 +357,21 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
               {activeTab === 'pandas' && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900 mb-3">Pandas Operations</h4>
-                  {(Array.isArray(results.pandas_results) ? results.pandas_results : []).map((result, index) => renderResultCard(result, index))}
+                  {(results.pandas_results?.steps || []).map((result, index) => renderResultCard(result, index))}
                 </div>
               )}
 
               {activeTab === 'numpy' && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900 mb-3">NumPy Operations</h4>
-                  {(Array.isArray(results.numpy_results) ? results.numpy_results : []).map((result, index) => renderResultCard(result, index))}
+                  {(results.numpy_results?.steps || []).map((result, index) => renderResultCard(result, index))}
                 </div>
               )}
 
               {activeTab === 'matplotlib' && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900 mb-3">Matplotlib Visualizations</h4>
-                  {(Array.isArray(results.matplotlib_results) ? results.matplotlib_results : []).map((result, index) => renderResultCard(result, index))}
+                  {(results.matplotlib_results?.steps || []).map((result, index) => renderResultCard(result, index))}
                 </div>
               )}
 

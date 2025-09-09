@@ -989,7 +989,8 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                       'basic_eda': [
                         { id: 'eda-1', functionName: 'head', category: 'Data Inspection', library: 'pandas', parameters: { n: 10 }, description: 'View first 10 rows' },
                         { id: 'eda-2', functionName: 'info', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Data info' },
-                        { id: 'eda-3', functionName: 'describe', category: 'Statistical Analysis', library: 'pandas', parameters: {}, description: 'Statistical summary' }
+                        { id: 'eda-3', functionName: 'describe', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Statistical summary' },
+                        { id: 'eda-4', functionName: 'heatmap', category: 'Statistical Plots', library: 'matplotlib', parameters: { title: 'Correlation Heatmap' }, description: 'Correlation heatmap' }
                       ],
                       'data_cleaning': [
                         { id: 'clean-1', functionName: 'isnull', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Check missing values' },
