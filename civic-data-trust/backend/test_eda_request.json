@@ -1,0 +1,16 @@
+{
+  "node_id": "test-eda-node-001",
+  "workflow_type": "basic_eda",
+  "dataset_name": "users",
+  "function_chain": [],
+  "cloudflare_config": {
+    "generate_public_link": true,
+    "colab_optimized": true,
+    "tunnel_name": "test-eda-tunnel"
+  },
+  "execution_options": {
+    "continue_on_error": true,
+    "track_progress": true,
+    "timeout_seconds": 300
+  }
+}

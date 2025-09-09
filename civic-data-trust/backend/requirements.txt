@@ -9,3 +9,7 @@ pydantic==2.6.0
 pydantic-settings==2.2.0
 pillow==10.2.0
 scipy==1.12.0
+python-magic==0.4.27
+psutil==5.9.8
+aiohttp>=3.10.0
+requests>=2.32.0

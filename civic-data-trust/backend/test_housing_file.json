@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "content": "",
+      "filename": "Housing.csv",
+      "file_type": "text/csv"
+    }
+  ],
+  "processing_options": {
+    "auto_detect_workflow": true,
+    "batch_processing": false,
+    "target_columns": ["price", "area", "bedrooms", "bathrooms", "stories", "mainroad", "guestroom", "basement", "hotwaterheating", "airconditioning", "parking", "prefarea", "furnishingstatus"],
+    "eda_functions": {
+      "pandas": ["head", "info", "describe", "isnull().sum()", "fillna(method='median')", "drop_duplicates()"],
+      "numpy": ["corrcoef", "mean", "std"],
+      "matplotlib": ["hist", "scatter", "heatmap", "boxplot"]
+    }
+  },
+  "cloudflare_config": {
+    "use_cloudflare": false,
+    "tunnel_url": null
+  },
+  "node_id": "housing-file-test-001"
+}

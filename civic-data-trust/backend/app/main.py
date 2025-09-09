@@ -27,8 +27,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Initialize any background tasks or connections here
     if settings.USE_ASYNCIO_OPTIMIZATION:
         # Python 3.12+ asyncio optimizations
-        loop = asyncio.get_event_loop()
-        loop.set_task_factory(asyncio.eager_task_factory)  # Python 3.12+ feature
+        try:
+            loop = asyncio.get_event_loop()
+            if hasattr(asyncio, 'eager_task_factory'):
+                loop.set_task_factory(asyncio.eager_task_factory)  # Python 3.12+ feature
+            else:
+                logger.info("eager_task_factory not available, skipping optimization")
+        except Exception as e:
+            logger.warning(f"Failed to set asyncio optimizations: {e}")
     
     yield
     

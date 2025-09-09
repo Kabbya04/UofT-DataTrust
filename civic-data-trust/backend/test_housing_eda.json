@@ -1,0 +1,34 @@
+{
+  "workflow_type": "data_cleaning",
+  "dataset_name": "housing",
+  "file_path": "../public/Housing.csv",
+  "node_id": "housing-eda-test-001",
+  "cloudflare_config": {
+    "use_cloudflare": false,
+    "tunnel_url": null
+  },
+  "execution_options": {
+    "pandas_functions": [
+      "head",
+      "info",
+      "describe",
+      "isnull().sum()",
+      "fillna(method='median')",
+      "drop_duplicates()"
+    ],
+    "numpy_functions": [
+      "corrcoef",
+      "mean",
+      "std"
+    ],
+    "matplotlib_functions": [
+      "hist",
+      "scatter",
+      "heatmap",
+      "boxplot"
+    ],
+    "output_format": "csv",
+    "generate_colab_link": false
+  },
+  "target_columns": ["price", "area", "bedrooms", "bathrooms", "stories", "mainroad", "guestroom", "basement", "hotwaterheating", "airconditioning", "parking", "prefarea", "furnishingstatus"]
+}

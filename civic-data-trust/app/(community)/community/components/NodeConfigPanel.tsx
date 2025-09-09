@@ -44,17 +44,26 @@ const executeFunctionChain = async (nodeId: string, library: string | null, func
       }
     }
     
-    const response = await axios.post('http://localhost:8000/api/v1/execute/', {
+    const response = await axios.post('http://localhost:8000/api/v1/eda-execute/', {
       node_id: nodeId,
-      library: library,
+      workflow_type: library === 'pandas' ? 'basic_eda' : 
+                     library === 'numpy' ? 'custom' : 
+                     library === 'matplotlib' ? 'visualization_suite' : 'custom',
       function_chain: functionChain.map(step => ({
         id: step.id,
         functionName: step.functionName,
         category: step.category,
+        library: library,
         parameters: step.parameters,
         description: step.description || ''
       })),
-      input_data: input_data
+      input_data: {
+        csv_content: typeof input_data === 'string' ? input_data : 
+                     input_data?.csv_content || JSON.stringify(input_data),
+        filename: input_data?.filename || 'data.csv'
+      },
+      generate_download_link: false,
+      colab_optimized: false
     });
     
     toast.dismiss();
@@ -105,6 +114,13 @@ interface FunctionStep {
   category: string;
   parameters: Record<string, any>;
   description: string;
+}
+
+interface EDAFunctionChains {
+  pandas: FunctionStep[];
+  numpy: FunctionStep[];
+  matplotlib: FunctionStep[];
+  [key: string]: FunctionStep[];
 }
 
 // Type definitions for library functions
@@ -672,8 +688,20 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   if (!node) return null;
 
   const isDataScienceNode = ['pandas', 'numpy', 'matplotlib'].includes(node.type);
+  const isEDAProcessor = node.type === 'eda_processor';
   const currentLibrary = isDataScienceNode ? node.type : null;
   const currentFunctions = currentLibrary ? LIBRARY_FUNCTIONS[currentLibrary] : null;
+  
+  // EDA Processor state
+  const [activeTab, setActiveTab] = useState<string>('workflow');
+  const [selectedWorkflow, setSelectedWorkflow] = useState<string>('basic_eda');
+  const [edaFunctionChains, setEdaFunctionChains] = useState<EDAFunctionChains>({
+    pandas: [],
+    numpy: [],
+    matplotlib: []
+  });
+  const [generateDownloadLink, setGenerateDownloadLink] = useState<boolean>(true);
+  const [colabOptimized, setColabOptimized] = useState<boolean>(true);
 
   return (
     <div className="absolute top-0 right-0 w-96 h-full bg-white shadow-xl z-50 flex flex-col">
@@ -817,6 +845,294 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                       )}
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* EDA Processor Configuration */}
+        {isEDAProcessor && (
+          <div className="space-y-4">
+            <div className="bg-purple-50 rounded-lg p-3">
+              <h3 className="font-medium text-purple-900 mb-2">
+                EDA Processor - Unified Data Analysis
+              </h3>
+              <p className="text-sm text-purple-600">
+                Execute pandas, numpy, and matplotlib functions in a unified workflow
+              </p>
+            </div>
+
+            {/* Tab Navigation */}
+            <div className="border-b border-gray-200">
+              <nav className="-mb-px flex space-x-8">
+                {[
+                  { id: 'workflow', label: 'Workflow', icon: '🔄' },
+                  { id: 'pandas', label: 'Pandas', icon: '🐼' },
+                  { id: 'numpy', label: 'NumPy', icon: '🔢' },
+                  { id: 'matplotlib', label: 'Matplotlib', icon: '📊' },
+                  { id: 'settings', label: 'Settings', icon: '⚙️' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === tab.id
+                        ? 'border-purple-500 text-purple-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="mr-1">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Workflow Tab */}
+            {activeTab === 'workflow' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select EDA Workflow
+                  </label>
+                  <select
+                    value={selectedWorkflow}
+                    onChange={(e) => setSelectedWorkflow(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="basic_eda">Basic EDA - Essential data exploration</option>
+                    <option value="data_cleaning">Data Cleaning - Clean and prepare data</option>
+                    <option value="visualization_suite">Visualization Suite - Comprehensive charts</option>
+                    <option value="custom">Custom Chain - Build your own workflow</option>
+                  </select>
+                </div>
+
+                {/* Workflow Description */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    {selectedWorkflow === 'basic_eda' && 'Basic EDA Workflow'}
+                    {selectedWorkflow === 'data_cleaning' && 'Data Cleaning Workflow'}
+                    {selectedWorkflow === 'visualization_suite' && 'Visualization Suite Workflow'}
+                    {selectedWorkflow === 'custom' && 'Custom Workflow'}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {selectedWorkflow === 'basic_eda' && 'Performs essential exploratory data analysis: head() → info() → describe() → correlation heatmap'}
+                    {selectedWorkflow === 'data_cleaning' && 'Cleans and prepares data: dropna() → drop_duplicates() → statistical summary'}
+                    {selectedWorkflow === 'visualization_suite' && 'Creates comprehensive visualizations: histogram → box plots → scatter plots → correlation matrix'}
+                    {selectedWorkflow === 'custom' && 'Build a custom function chain across pandas, numpy, and matplotlib libraries'}
+                  </p>
+                  
+                  {selectedWorkflow !== 'custom' && (
+                    <div className="text-xs text-gray-500">
+                      <strong>Functions:</strong> 
+                      {selectedWorkflow === 'basic_eda' && 'head, info, describe, heatmap'}
+                      {selectedWorkflow === 'data_cleaning' && 'dropna, drop_duplicates, describe'}
+                      {selectedWorkflow === 'visualization_suite' && 'histogram, box_plot, scatter_plot, heatmap'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Execute Button */}
+                <button
+                  onClick={() => {
+                    // Execute EDA workflow
+                    toast.success(`Executing ${selectedWorkflow} workflow...`);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <Play className="w-4 h-4" />
+                  Execute EDA Workflow
+                </button>
+              </div>
+            )}
+
+            {/* Library-specific tabs */}
+            {['pandas', 'numpy', 'matplotlib'].includes(activeTab) && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <h4 className="font-medium text-blue-900 mb-2">
+                    {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Functions
+                  </h4>
+                  <p className="text-sm text-blue-600">
+                    Add {activeTab} functions to the unified EDA chain
+                  </p>
+                </div>
+
+                {/* Function Chain for this library */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-medium text-gray-900">
+                      {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Chain ({edaFunctionChains[activeTab].length} functions)
+                    </h5>
+                    <button
+                      onClick={() => {
+                       // Add function logic
+                       toast.success(`Add ${activeTab} function`);
+                     }}
+                      className="flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                      Add Function
+                    </button>
+                  </div>
+
+                  {edaFunctionChains[activeTab].length === 0 ? (
+                    <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                      <div className="text-2xl mb-2">
+                        {activeTab === 'pandas' && '🐼'}
+                        {activeTab === 'numpy' && '🔢'}
+                        {activeTab === 'matplotlib' && '📊'}
+                      </div>
+                      <p className="text-sm">No {activeTab} functions added</p>
+                      <p className="text-xs">Click "Add Function" to get started</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {edaFunctionChains[activeTab].map((func, index) => (
+                        <div key={index} className="bg-white border rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium text-sm">{func.functionName}</div>
+                              <div className="text-xs text-gray-500">{func.description}</div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                // Remove function
+                                  const newChain = [...edaFunctionChains[activeTab]];
+                                  newChain.splice(index, 1);
+                                  setEdaFunctionChains(prev => ({
+                                    ...prev,
+                                    [activeTab]: newChain
+                                  }));
+                              }}
+                              className="p-1 text-red-500 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Available Functions */}
+                <div className="border border-gray-200 rounded-lg p-3">
+                  <h5 className="font-medium text-gray-900 mb-2">Available {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Functions</h5>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {LIBRARY_FUNCTIONS[activeTab] && Object.entries(LIBRARY_FUNCTIONS[activeTab]).map(([categoryName, categoryFunctions]) => (
+                      <div key={categoryName}>
+                        <div className="font-medium text-xs text-gray-600 mb-1">{categoryName}</div>
+                        <div className="grid grid-cols-1 gap-1">
+                          {Object.entries(categoryFunctions).map(([functionName, functionDef]) => (
+                            <button
+                              key={functionName}
+                              onClick={() => {
+                                // Add function to chain
+                                const newFunction: FunctionStep = {
+                                   id: `${activeTab}-${Date.now()}`,
+                                   functionName,
+                                   category: categoryName,
+                                   parameters: {},
+                                   description: functionDef.description
+                                 };
+                                 setEdaFunctionChains(prev => ({
+                                    ...prev,
+                                    [activeTab]: [...prev[activeTab], newFunction]
+                                  }));
+                                toast.success(`Added ${functionName} to ${activeTab} chain`);
+                              }}
+                              className="text-left p-2 text-xs rounded hover:bg-gray-50 border border-gray-100"
+                            >
+                              <div className="font-medium">{functionName}</div>
+                              <div className="text-gray-500">{functionDef.description}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Settings Tab */}
+            {activeTab === 'settings' && (
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="font-medium text-gray-900 mb-2">EDA Execution Settings</h4>
+                  <p className="text-sm text-gray-600">Configure output and integration options</p>
+                </div>
+
+                {/* Download Link Generation */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-medium text-sm text-gray-700">Generate Download Link</label>
+                    <p className="text-xs text-gray-500">Create public Cloudflare tunnel for results</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={generateDownloadLink}
+                    onChange={(e) => setGenerateDownloadLink(e.target.checked)}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                </div>
+
+                {/* Google Colab Optimization */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-medium text-sm text-gray-700">Google Colab Optimized</label>
+                    <p className="text-xs text-gray-500">Include wget commands and Colab notebook</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={colabOptimized}
+                    onChange={(e) => setColabOptimized(e.target.checked)}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                </div>
+
+                {/* Execution Options */}
+                <div className="space-y-3">
+                  <h5 className="font-medium text-gray-900">Execution Options</h5>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="font-medium text-sm text-gray-700">Continue on Error</label>
+                      <p className="text-xs text-gray-500">Continue execution if a function fails</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="font-medium text-sm text-gray-700">Track Progress</label>
+                      <p className="text-xs text-gray-500">Show real-time execution progress</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      defaultChecked={true}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Execution Summary */}
+                <div className="bg-purple-50 rounded-lg p-3">
+                  <h5 className="font-medium text-purple-900 mb-2">Execution Summary</h5>
+                  <div className="text-sm text-purple-700 space-y-1">
+                    <div>Pandas functions: {edaFunctionChains.pandas.length}</div>
+                    <div>NumPy functions: {edaFunctionChains.numpy.length}</div>
+                    <div>Matplotlib functions: {edaFunctionChains.matplotlib.length}</div>
+                    <div className="font-medium pt-1 border-t border-purple-200">
+                      Total functions: {edaFunctionChains.pandas.length + edaFunctionChains.numpy.length + edaFunctionChains.matplotlib.length}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

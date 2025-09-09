@@ -3,7 +3,7 @@ import {
   Bot, Brain, Zap, Cpu, Settings, 
   Database, GitBranch, Globe, Webhook,
   Filter, GitMerge, Split, Code, FileText, Image,
-  Calculator, Table, LineChart
+  Calculator, Table, LineChart, BarChart3
 } from 'lucide-react';
 
 const nodeLibrary = [
@@ -110,36 +110,34 @@ const nodeLibrary = [
     ]
   },
   
-  // Data Science
+  // Data Science - Unified EDA Processor
   { 
-    id: 'numpy', 
-    name: 'NumPy', 
-    icon: <Calculator className="w-5 h-5" />, 
-    color: '#013243',
+    id: 'eda_processor', 
+    name: 'EDA Processor', 
+    icon: <BarChart3 className="w-5 h-5" />, 
+    color: '#7C3AED',
     category: 'Data Science',
-    description: 'Array operations & math',
-    inputs: [{ id: 'main', type: 'main', label: 'Input' }],
-    outputs: [{ id: 'main', type: 'main', label: 'Array' }]
-  },
-  { 
-    id: 'pandas', 
-    name: 'Pandas', 
-    icon: <Table className="w-5 h-5" />, 
-    color: '#150458',
-    category: 'Data Science',
-    description: 'DataFrame operations',
-    inputs: [{ id: 'main', type: 'main', label: 'Input' }],
-    outputs: [{ id: 'main', type: 'main', label: 'DataFrame' }]
-  },
-  { 
-    id: 'matplotlib', 
-    name: 'Matplotlib', 
-    icon: <LineChart className="w-5 h-5" />, 
-    color: '#11557C',
-    category: 'Data Science',
-    description: 'Data visualization',
-    inputs: [{ id: 'main', type: 'main', label: 'Data' }],
-    outputs: [{ id: 'main', type: 'main', label: 'Chart' }]
+    description: 'Unified exploratory data analysis with pandas, numpy & matplotlib',
+    inputs: [{ id: 'main', type: 'main', label: 'Data Input' }],
+    outputs: [
+      { id: 'processed_data', type: 'data', label: 'Processed Data' },
+      { id: 'visualizations', type: 'visualization', label: 'Charts' },
+      { id: 'download_link', type: 'link', label: 'Colab Link' }
+    ],
+    features: [
+      'Multi-library execution (Pandas → NumPy → Matplotlib)',
+      'Predefined EDA workflows',
+      'Custom function chains',
+      'Google Colab integration',
+      'Automated file type detection',
+      'Public download links'
+    ],
+    workflows: [
+      'Basic EDA',
+      'Data Cleaning', 
+      'Visualization Suite',
+      'Custom Chain'
+    ]
   },
   
   // API

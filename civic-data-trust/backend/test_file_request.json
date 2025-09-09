@@ -1,0 +1,11 @@
+{
+  "files": [
+    {
+      "file_content": "id,name,age,salary,department\n1,Alice Johnson,25,50000,Engineering\n2,Bob Smith,30,60000,Marketing\n3,Charlie Brown,28,55000,Engineering",
+      "filename": "test_employees.csv",
+      "file_type": "text/csv"
+    }
+  ],
+  "auto_detect_workflow": true,
+  "batch_processing": false
+}
