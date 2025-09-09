@@ -103,29 +103,29 @@ class EDAExecutor(DataScienceExecutor):
                     id="viz_1",
                     functionName="histogram",
                     category="Basic Plots",
-                    parameters={"column": "auto", "bins": 10},
-                    description="Distribution histograms"
+                    parameters={"column": "age", "bins": 20},
+                    description="Age distribution histogram"
                 ),
                 FunctionStep(
                     id="viz_2",
                     functionName="box_plot",
                     category="Statistical Plots",
-                    parameters={"columns": "numeric"},
-                    description="Box plots for outlier detection"
+                    parameters={"columns": "age,salary,years_experience,performance_score"},
+                    description="Box plots for numeric columns"
                 ),
                 FunctionStep(
                     id="viz_3",
                     functionName="scatter_plot",
                     category="Basic Plots",
-                    parameters={"x_column": "auto", "y_column": "auto"},
-                    description="Scatter plot relationships"
+                    parameters={"x_column": "years_experience", "y_column": "salary"},
+                    description="Experience vs salary scatter plot"
                 ),
                 FunctionStep(
                     id="viz_4",
                     functionName="heatmap",
                     category="Statistical Plots",
-                    parameters={"correlation": True},
-                    description="Correlation matrix"
+                    parameters={"title": "Correlation Heatmap", "colormap": "coolwarm"},
+                    description="Correlation matrix heatmap"
                 )
             ]
         }
@@ -222,7 +222,9 @@ class EDAExecutor(DataScienceExecutor):
     def _infer_library_from_function(self, function_name: str) -> str:
         """Infer library from function name"""
         pandas_functions = ['head', 'tail', 'info', 'describe', 'dropna', 'fillna', 'drop_duplicates', 
-                           'groupby', 'sort_values', 'merge', 'filter_rows', 'select_columns']
+                           'groupby', 'sort_values', 'merge', 'filter_rows', 'select_columns',
+                           'shape', 'dtypes', 'isnull', 'memory_usage', 'correlation', 'value_counts',
+                           'unique', 'nunique', 'covariance', 'detect_outliers_iqr', 'detect_outliers_zscore']
         numpy_functions = ['reshape', 'transpose', 'flatten', 'sum', 'mean', 'std', 'min', 'max']
         matplotlib_functions = ['line_plot', 'scatter_plot', 'histogram', 'bar_plot', 'box_plot', 
                                'violin_plot', 'heatmap', 'pair_plot']

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { X, Download, Eye, FileText, BarChart3, Database, Clock, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import FileDownloadService from './FileDownloadService';
+import { toast } from 'react-hot-toast';
 
 interface EDAResult {
   library: string;
@@ -53,16 +55,56 @@ interface EDAResultsModalProps {
   onClose: () => void;
   results: EDAResultsData | null;
   onDownload?: () => void;
+  nodeId?: string;
 }
 
 const EDAResultsModal: React.FC<EDAResultsModalProps> = ({ 
   isOpen, 
   onClose, 
   results, 
-  onDownload 
+  onDownload,
+  nodeId 
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'chronological' | 'pandas' | 'numpy' | 'matplotlib' | 'download'>('overview');
   const [selectedResult, setSelectedResult] = useState<EDAResult | null>(null);
+  const [useSimpleDownload, setUseSimpleDownload] = useState(false);
+
+  // Simple download handler using backend endpoint
+  const handleSimpleDownload = async () => {
+    if (!results?.execution_id) {
+      toast.error('No execution ID available for download');
+      return;
+    }
+
+    toast.loading('Starting download...');
+
+    try {
+      // Use the backend download endpoint with execution ID
+      const downloadUrl = `http://localhost:8000/api/v1/eda-download/${results.execution_id}`;
+      const params = new URLSearchParams({
+        execution_id: results.execution_id,
+        filename: `eda_results_${results.execution_id}.zip`,
+        format: 'zip'
+      });
+
+      if (nodeId) {
+        params.append('node_id', nodeId);
+      }
+
+      const fullUrl = `${downloadUrl}?${params.toString()}`;
+      
+      // Open in new tab - let browser handle the download
+      window.open(fullUrl, '_blank', 'noopener,noreferrer');
+      
+      toast.dismiss();
+      toast.success('Download started! Check your downloads folder or new tab.');
+      
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.dismiss();
+      toast.error('Download failed. Please try again or contact support.');
+    }
+  };
 
   if (!isOpen || !results) return null;
 
@@ -379,22 +421,79 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
                 <div className="space-y-4">
                   <h4 className="font-medium text-gray-900 mb-3">Download Options</h4>
                   
-                  {results.download_url && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Download className="w-5 h-5 text-blue-500" />
-                        <span className="font-medium text-blue-800">Processed Data Package</span>
-                      </div>
-                      <p className="text-sm text-blue-600 mb-3">Complete EDA results with data, visualizations, and metadata</p>
-                      <button
-                        onClick={onDownload}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download ZIP Package
-                      </button>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Download className="w-5 h-5 text-blue-500" />
+                      <span className="font-medium text-blue-800">Processed Data Package</span>
                     </div>
-                  )}
+                    <p className="text-sm text-blue-600 mb-4">Complete EDA results with data, visualizations, and metadata</p>
+                    
+                    {!useSimpleDownload ? (
+                      <>
+                        <FileDownloadService
+                          downloadUrl={results.download_url}
+                          fileName={`eda_results_${results.execution_id || Date.now()}.zip`}
+                          executionId={results.execution_id}
+                          nodeId={nodeId}
+                          onDownloadComplete={(success, filePath) => {
+                            if (success) {
+                              console.log('Download completed successfully:', filePath);
+                            } else {
+                              console.error('Download failed');
+                              setUseSimpleDownload(true);
+                            }
+                          }}
+                        />
+                        
+                        {/* Switch to simple download button */}
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                          <button
+                            onClick={() => setUseSimpleDownload(true)}
+                            className="text-xs text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Having issues? Try simple download instead
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Simple Download Interface */}
+                        <div className="space-y-3">
+                          <button
+                            onClick={handleSimpleDownload}
+                            disabled={!results.download_url}
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                              results.download_url
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            <Download className="w-4 h-4" />
+                            {results.download_url ? 'Download ZIP Package' : 'No Download URL Available'}
+                          </button>
+                          
+                          <div className="flex justify-between items-center text-xs">
+                            <button
+                              onClick={() => setUseSimpleDownload(false)}
+                              className="text-blue-600 hover:text-blue-800 underline"
+                            >
+                              ← Back to advanced download
+                            </button>
+                            {results.download_url && (
+                              <a
+                                href={results.download_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 underline"
+                              >
+                                Open in new tab
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
 
                   {results.colab_compatible && results.wget_command && (
                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">

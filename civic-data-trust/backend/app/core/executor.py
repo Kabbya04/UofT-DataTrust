@@ -207,6 +207,31 @@ class DataScienceExecutor:
             elif function_name == 'shape':
                 return {"rows": data.shape[0], "columns": data.shape[1]}, "info", False
             
+            elif function_name == 'dtypes':
+                dtypes_info = data.dtypes.to_dict()
+                # Convert numpy dtypes to string for JSON serialization
+                dtypes_str = {col: str(dtype) for col, dtype in dtypes_info.items()}
+                return {"column_types": dtypes_str}, "info", False
+            
+            elif function_name == 'isnull':
+                null_counts = data.isnull().sum().to_dict()
+                null_percentage = (data.isnull().sum() / len(data) * 100).to_dict()
+                return {
+                    "null_counts": null_counts,
+                    "null_percentage": null_percentage,
+                    "total_nulls": data.isnull().sum().sum()
+                }, "data", True
+            
+            elif function_name == 'memory_usage':
+                deep = parameters.get('deep', False)
+                memory_info = data.memory_usage(deep=deep).to_dict()
+                total_memory = sum(memory_info.values())
+                return {
+                    "memory_usage_bytes": memory_info,
+                    "total_memory_bytes": total_memory,
+                    "total_memory_mb": round(total_memory / (1024 * 1024), 2)
+                }, "info", False
+            
             # Data Cleaning functions
             elif function_name == 'dropna':
                 axis = parameters.get('axis', 0)
@@ -334,6 +359,143 @@ class DataScienceExecutor:
                 
                 result = data[columns]
                 return result.to_dict('records'), "data", True
+            
+            # Statistical Analysis functions
+            elif function_name == 'correlation':
+                method = parameters.get('method', 'pearson')
+                numeric_data = data.select_dtypes(include=[np.number])
+                if numeric_data.empty:
+                    raise ValueError("No numeric columns found for correlation analysis")
+                
+                correlation_matrix = numeric_data.corr(method=method)
+                return correlation_matrix.to_dict(), "data", True
+            
+            elif function_name == 'value_counts':
+                column = parameters.get('column', '')
+                normalize = parameters.get('normalize', False)
+                sort_values = parameters.get('sort', True)
+                
+                if not column or column not in data.columns:
+                    # Auto-select first categorical or object column if not specified
+                    categorical_cols = list(data.select_dtypes(include=['object', 'category']).columns)
+                    if not categorical_cols:
+                        raise ValueError("No categorical columns found for value_counts")
+                    column = categorical_cols[0]
+                    if parameters.get('column'):
+                        print(f"Warning: Column '{parameters.get('column')}' not found. Using '{column}' instead.")
+                
+                counts = data[column].value_counts(normalize=normalize, sort=sort_values)
+                return {
+                    "column": column,
+                    "counts": counts.to_dict(),
+                    "total_unique": len(counts)
+                }, "data", True
+            
+            elif function_name == 'unique':
+                column = parameters.get('column', '')
+                
+                if not column or column not in data.columns:
+                    raise ValueError(f"Column '{column}' not found. Available columns: {list(data.columns)}")
+                
+                unique_values = data[column].unique()
+                # Convert numpy types to Python types for JSON serialization
+                unique_list = [str(val) if pd.isna(val) else val for val in unique_values.tolist()]
+                
+                return {
+                    "column": column,
+                    "unique_values": unique_list,
+                    "count": len(unique_values)
+                }, "data", True
+            
+            elif function_name == 'nunique':
+                column = parameters.get('column', '')
+                
+                if column and column in data.columns:
+                    # Single column
+                    unique_count = data[column].nunique()
+                    return {
+                        "column": column,
+                        "unique_count": unique_count
+                    }, "data", True
+                else:
+                    # All columns
+                    unique_counts = data.nunique().to_dict()
+                    return {
+                        "unique_counts_per_column": unique_counts,
+                        "total_columns": len(unique_counts)
+                    }, "data", True
+            
+            elif function_name == 'covariance':
+                numeric_data = data.select_dtypes(include=[np.number])
+                if numeric_data.empty:
+                    raise ValueError("No numeric columns found for covariance analysis")
+                
+                covariance_matrix = numeric_data.cov()
+                return covariance_matrix.to_dict(), "data", True
+            
+            # Outlier Detection functions
+            elif function_name == 'detect_outliers_iqr':
+                column = parameters.get('column', '')
+                multiplier = parameters.get('multiplier', 1.5)
+                
+                if not column or column not in data.columns:
+                    # Auto-select first numeric column
+                    numeric_cols = list(data.select_dtypes(include=[np.number]).columns)
+                    if not numeric_cols:
+                        raise ValueError("No numeric columns found for outlier detection")
+                    column = numeric_cols[0]
+                    if parameters.get('column'):
+                        print(f"Warning: Column '{parameters.get('column')}' not found. Using '{column}' instead.")
+                
+                if not pd.api.types.is_numeric_dtype(data[column]):
+                    raise ValueError(f"Column '{column}' is not numeric")
+                
+                Q1 = data[column].quantile(0.25)
+                Q3 = data[column].quantile(0.75)
+                IQR = Q3 - Q1
+                
+                lower_bound = Q1 - multiplier * IQR
+                upper_bound = Q3 + multiplier * IQR
+                
+                outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+                
+                return {
+                    "column": column,
+                    "outlier_count": len(outliers),
+                    "outlier_percentage": round(len(outliers) / len(data) * 100, 2),
+                    "bounds": {"lower": lower_bound, "upper": upper_bound},
+                    "quartiles": {"Q1": Q1, "Q3": Q3, "IQR": IQR},
+                    "outlier_indices": outliers.index.tolist()
+                }, "data", True
+            
+            elif function_name == 'detect_outliers_zscore':
+                column = parameters.get('column', '')
+                threshold = parameters.get('threshold', 3)
+                
+                if not column or column not in data.columns:
+                    # Auto-select first numeric column
+                    numeric_cols = list(data.select_dtypes(include=[np.number]).columns)
+                    if not numeric_cols:
+                        raise ValueError("No numeric columns found for outlier detection")
+                    column = numeric_cols[0]
+                    if parameters.get('column'):
+                        print(f"Warning: Column '{parameters.get('column')}' not found. Using '{column}' instead.")
+                
+                if not pd.api.types.is_numeric_dtype(data[column]):
+                    raise ValueError(f"Column '{column}' is not numeric")
+                
+                z_scores = np.abs((data[column] - data[column].mean()) / data[column].std())
+                outliers = data[z_scores > threshold]
+                
+                return {
+                    "column": column,
+                    "outlier_count": len(outliers),
+                    "outlier_percentage": round(len(outliers) / len(data) * 100, 2),
+                    "threshold": threshold,
+                    "mean": data[column].mean(),
+                    "std": data[column].std(),
+                    "outlier_indices": outliers.index.tolist()
+                }, "data", True
             
             else:
                 raise ValueError(f"Function '{function_name}' is not supported")
@@ -514,10 +676,21 @@ class DataScienceExecutor:
                 alpha = parameters.get('alpha', 0.7)
                 marker = parameters.get('marker', 'o')
                 
+                # Auto-select numeric columns if not specified or invalid
+                numeric_cols = list(df.select_dtypes(include=[np.number]).columns)
+                if len(numeric_cols) < 2:
+                    raise ValueError(f"Need at least 2 numeric columns for scatter plot. Found: {numeric_cols}")
+                
                 if not x_column or x_column not in df.columns:
-                    raise ValueError(f"X column '{x_column}' not found. Available: {list(df.columns)}")
+                    x_column = numeric_cols[0]
+                    if parameters.get('x_column'):
+                        print(f"Warning: X column '{parameters.get('x_column')}' not found. Using '{x_column}' instead.")
+                
                 if not y_column or y_column not in df.columns:
-                    raise ValueError(f"Y column '{y_column}' not found. Available: {list(df.columns)}")
+                    # Use second numeric column if available, otherwise use first
+                    y_column = numeric_cols[1] if len(numeric_cols) > 1 and numeric_cols[1] != x_column else numeric_cols[0]
+                    if parameters.get('y_column'):
+                        print(f"Warning: Y column '{parameters.get('y_column')}' not found. Using '{y_column}' instead.")
                 
                 plt.scatter(df[x_column], df[y_column], 
                            c=color, s=size, alpha=alpha, marker=marker, edgecolors='black', linewidth=0.5)
@@ -532,8 +705,14 @@ class DataScienceExecutor:
                 bins = parameters.get('bins', 30)
                 color = parameters.get('color', 'skyblue')
                 
+                # Auto-select first numeric column if column not specified or invalid
                 if not column or column not in df.columns:
-                    raise ValueError(f"Column '{column}' not found. Available: {list(df.columns)}")
+                    numeric_cols = list(df.select_dtypes(include=[np.number]).columns)
+                    if not numeric_cols:
+                        raise ValueError("No numeric columns found for histogram")
+                    column = numeric_cols[0]
+                    if parameters.get('column'):  # Only warn if user specified a column
+                        print(f"Warning: Column '{parameters.get('column')}' not found. Using '{column}' instead. Available: {list(df.columns)}")
                 
                 plt.hist(df[column], bins=bins, alpha=0.7, edgecolor='black', color=color)
                 plt.xlabel(column, fontsize=12)
@@ -563,14 +742,27 @@ class DataScienceExecutor:
                 columns = parameters.get('columns', '')
                 title = parameters.get('title', 'Box Plot')
                 
-                if isinstance(columns, str):
+                # Handle column specification
+                if isinstance(columns, str) and columns:
                     columns = [col.strip() for col in columns.split(',')]
+                else:
+                    columns = []
                 
                 # Filter to numeric columns only using pandas numeric detection
-                numeric_cols = [col for col in columns if col in df.columns and pd.api.types.is_numeric_dtype(df[col])]
+                numeric_cols = []
+                if columns:
+                    # Use specified columns if they exist
+                    numeric_cols = [col for col in columns if col in df.columns and pd.api.types.is_numeric_dtype(df[col])]
+                
+                # Auto-select all numeric columns if none specified or none valid
                 if not numeric_cols:
-                    available_numeric = list(df.select_dtypes(include=[np.number]).columns)
-                    raise ValueError(f"No valid numeric columns found in specified columns: {columns}. Available numeric columns: {available_numeric}")
+                    all_numeric = list(df.select_dtypes(include=[np.number]).columns)
+                    if not all_numeric:
+                        raise ValueError("No numeric columns found for box plot")
+                    # Limit to first 6 columns to avoid overcrowded plots
+                    numeric_cols = all_numeric[:6]
+                    if parameters.get('columns'):
+                        print(f"Warning: Specified columns '{parameters.get('columns')}' not found or not numeric. Using available numeric columns: {numeric_cols}")
                 
                 plt.boxplot([df[col].dropna() for col in numeric_cols], labels=numeric_cols)
                 plt.ylabel('Values', fontsize=14)

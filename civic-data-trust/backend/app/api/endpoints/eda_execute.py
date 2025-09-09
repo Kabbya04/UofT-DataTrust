@@ -28,6 +28,9 @@ eda_processor = EDAProcessor()
 cloudflare_service = CloudflareService()
 packaging_service = FilePackagingService()
 
+# Import storage from download endpoint
+from app.api.endpoints.eda_download import execution_storage
+
 # Active executions tracking
 active_executions: Dict[str, Dict[str, Any]] = {}
 
@@ -107,6 +110,10 @@ async def execute_eda_pipeline(request: EDAExecutionRequest, background_tasks: B
         response = _build_eda_response(
             execution_id, request, execution_result, file_processing_info, download_info
         )
+        
+        # Store results for download
+        if execution_result['success']:
+            _store_results_for_download(execution_id, response.dict())
         
         # Schedule cleanup if requested
         if request.auto_cleanup:
@@ -480,6 +487,20 @@ def _build_eda_response(execution_id: str, request: EDAExecutionRequest,
         timestamp=execution_result.get('timestamp', datetime.now().isoformat()),
         error=execution_result.get('error')
     )
+
+
+def _store_results_for_download(execution_id: str, response_data: Dict[str, Any]):
+    """Store execution results for download service"""
+    try:
+        execution_storage[execution_id] = {
+            "results": response_data,
+            "stored_at": datetime.now().isoformat(),
+            "access_count": 0
+        }
+        logger.info(f"Stored results for download: {execution_id}")
+        
+    except Exception as e:
+        logger.error(f"Failed to store results for download {execution_id}: {str(e)}")
 
 
 async def _cleanup_execution(execution_id: str):

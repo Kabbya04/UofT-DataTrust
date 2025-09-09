@@ -33,103 +33,68 @@ const FileDownloadService: React.FC<FileDownloadServiceProps> = ({
   });
 
   const handleDownload = async () => {
-    if (!downloadUrl && !executionId) {
-      toast.error('No download URL or execution ID provided');
+    if (!executionId && !downloadUrl) {
+      toast.error('No execution ID or download URL provided');
       return;
     }
 
     setDownloadStatus({
       status: 'preparing',
-      progress: 0,
+      progress: 25,
       message: 'Preparing download...'
     });
 
     try {
-      let finalDownloadUrl = downloadUrl;
+      // Use backend endpoint to generate and download ZIP file
+      const downloadEndpoint = `http://localhost:8000/api/v1/eda-download/${executionId || 'direct'}`;
       
-      // If no direct download URL, try to get it from the execution ID
-      if (!finalDownloadUrl && executionId) {
-        setDownloadStatus({
-          status: 'preparing',
-          progress: 25,
-          message: 'Generating download package...'
-        });
-
-        const packageResponse = await axios.post('http://localhost:8000/api/v1/eda-execute/generate-package', {
-          execution_id: executionId,
-          node_id: nodeId,
-          include_visualizations: true,
-          include_processed_data: true,
-          include_metadata: true,
-          format: 'zip'
-        });
-
-        if (packageResponse.data && packageResponse.data.download_url) {
-          finalDownloadUrl = packageResponse.data.download_url;
-        } else {
-          throw new Error('Failed to generate download package');
-        }
-      }
-
-      if (!finalDownloadUrl) {
-        throw new Error('No download URL available');
-      }
-
       setDownloadStatus({
         status: 'downloading',
         progress: 50,
-        message: 'Downloading file...'
+        message: 'Requesting download from server...'
       });
 
-      // Download the file
-      const response = await axios.get(finalDownloadUrl, {
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setDownloadStatus({
-              status: 'downloading',
-              progress: 50 + (progress * 0.5), // 50-100%
-              message: `Downloading... ${progress}%`
-            });
-          }
-        }
-      });
-
-      // Create blob and download
-      const blob = new Blob([response.data], { type: 'application/zip' });
-      const url = window.URL.createObjectURL(blob);
+      // Create a simple download link that opens in a new tab
+      // This is the most reliable method across all browsers
       const link = document.createElement('a');
-      link.href = url;
+      link.href = downloadEndpoint;
+      link.target = '_blank';
       link.download = fileName;
+      
+      // Add query parameters for better server handling
+      const params = new URLSearchParams();
+      if (nodeId) params.append('node_id', nodeId);
+      if (executionId) params.append('execution_id', executionId);
+      params.append('filename', fileName);
+      params.append('format', 'zip');
+      
+      link.href = `${downloadEndpoint}?${params.toString()}`;
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
 
       setDownloadStatus({
         status: 'completed',
         progress: 100,
-        message: 'Download completed successfully!',
+        message: 'Download link opened! Check your browser downloads.',
         filePath: fileName
       });
 
-      toast.success('EDA results downloaded successfully!');
+      toast.success('Download started! Check your downloads folder or browser downloads.');
       onDownloadComplete?.(true, fileName);
 
     } catch (error: any) {
       console.error('Download error:', error);
       
-      const errorMessage = error.response?.data?.detail || error.message || 'Download failed';
-      
       setDownloadStatus({
         status: 'error',
         progress: 0,
         message: 'Download failed',
-        error: errorMessage
+        error: error.message || 'Unknown error'
       });
 
-      toast.error(`Download failed: ${errorMessage}`);
+      toast.error(`Download failed: ${error.message || 'Unknown error'}`);
       onDownloadComplete?.(false);
     }
   };

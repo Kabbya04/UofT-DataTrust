@@ -73,8 +73,8 @@ const executeFunctionChain = async (
                      input_data?.csv_content || JSON.stringify(input_data),
         filename: input_data?.filename || 'data.csv'
       },
-      generate_download_link: false,
-      colab_optimized: false
+      generate_download_link: true,
+      colab_optimized: true
     });
     
     toast.dismiss();
@@ -226,6 +226,23 @@ const LIBRARY_FUNCTIONS: LibraryFunctions = {
         description: 'Return tuple of dimensions',
         params: [],
         returnsData: false
+      },
+      'dtypes': {
+        description: 'Return data types of columns',
+        params: [],
+        returnsData: false
+      },
+      'isnull': {
+        description: 'Detect missing values',
+        params: [],
+        returnsData: true
+      },
+      'memory_usage': {
+        description: 'Return memory usage of DataFrame',
+        params: [
+          { name: 'deep', type: 'boolean', default: false, description: 'Introspect the data deeply' }
+        ],
+        returnsData: false
       }
     },
     'Data Cleaning': {
@@ -303,6 +320,61 @@ const LIBRARY_FUNCTIONS: LibraryFunctions = {
         description: 'Select specific columns',
         params: [
           { name: 'columns', type: 'text', default: '', description: 'Comma-separated column names' }
+        ],
+        returnsData: true
+      }
+    },
+    'Statistical Analysis': {
+      'correlation': {
+        description: 'Compute pairwise correlation of columns',
+        params: [
+          { name: 'method', type: 'select', options: ['pearson', 'kendall', 'spearman'], default: 'pearson', description: 'Correlation method' }
+        ],
+        returnsData: true
+      },
+      'value_counts': {
+        description: 'Return counts of unique values',
+        params: [
+          { name: 'column', type: 'text', default: '', description: 'Column name' },
+          { name: 'normalize', type: 'boolean', default: false, description: 'Return proportions instead of counts' },
+          { name: 'sort', type: 'boolean', default: true, description: 'Sort by values' }
+        ],
+        returnsData: true
+      },
+      'unique': {
+        description: 'Return unique values in a column',
+        params: [
+          { name: 'column', type: 'text', default: '', description: 'Column name' }
+        ],
+        returnsData: true
+      },
+      'nunique': {
+        description: 'Count unique values in each column',
+        params: [
+          { name: 'column', type: 'text', default: '', description: 'Column name (leave empty for all columns)' }
+        ],
+        returnsData: true
+      },
+      'covariance': {
+        description: 'Compute pairwise covariance of columns',
+        params: [],
+        returnsData: true
+      }
+    },
+    'Outlier Detection': {
+      'detect_outliers_iqr': {
+        description: 'Detect outliers using IQR method',
+        params: [
+          { name: 'column', type: 'text', default: '', description: 'Column name' },
+          { name: 'multiplier', type: 'number', default: 1.5, description: 'IQR multiplier threshold' }
+        ],
+        returnsData: true
+      },
+      'detect_outliers_zscore': {
+        description: 'Detect outliers using Z-score method',
+        params: [
+          { name: 'column', type: 'text', default: '', description: 'Column name' },
+          { name: 'threshold', type: 'number', default: 3, description: 'Z-score threshold' }
         ],
         returnsData: true
       }
@@ -752,7 +824,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   const [colabOptimized, setColabOptimized] = useState<boolean>(true);
 
   return (
-    <div className="absolute top-0 right-0 w-96 h-full bg-white shadow-xl z-50 flex flex-col">
+    <div className="absolute top-0 right-0 w-[32rem] h-full bg-white shadow-xl z-50 flex flex-col">
       <div className="p-4 border-b flex items-center justify-between bg-gray-50">
         <h2 className="text-lg font-semibold text-gray-900">{node.name} Configuration</h2>
         <button
@@ -968,7 +1040,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                     {selectedWorkflow === 'basic_eda' && 'Performs essential exploratory data analysis: head() → info() → describe() → correlation heatmap'}
                     {selectedWorkflow === 'data_cleaning' && 'Cleans and prepares data: dropna() → drop_duplicates() → statistical summary'}
                     {selectedWorkflow === 'visualization_suite' && 'Creates comprehensive visualizations: histogram → box plots → scatter plots → correlation matrix'}
-                    {selectedWorkflow === 'custom' && 'Build a custom function chain across pandas, numpy, and matplotlib libraries'}
+                    {selectedWorkflow === 'custom' && 'Build a custom function chain by adding functions from the pandas, numpy, and matplotlib tabs below. Switch to those tabs to select functions, then return here to execute.'}
                   </p>
                   
                   {selectedWorkflow !== 'custom' && (
@@ -979,32 +1051,169 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                       {selectedWorkflow === 'visualization_suite' && 'histogram, box_plot, scatter_plot, heatmap'}
                     </div>
                   )}
+                  
+                  {selectedWorkflow === 'custom' && (
+                    <div className="text-xs text-gray-500">
+                      <strong>Selected Functions:</strong>
+                      <div className="mt-1 space-y-1">
+                        {edaFunctionChains.pandas.length > 0 && (
+                          <div><span className="font-medium">Pandas:</span> {edaFunctionChains.pandas.map(f => f.functionName).join(', ')}</div>
+                        )}
+                        {edaFunctionChains.numpy.length > 0 && (
+                          <div><span className="font-medium">NumPy:</span> {edaFunctionChains.numpy.map(f => f.functionName).join(', ')}</div>
+                        )}
+                        {edaFunctionChains.matplotlib.length > 0 && (
+                          <div><span className="font-medium">Matplotlib:</span> {edaFunctionChains.matplotlib.map(f => f.functionName).join(', ')}</div>
+                        )}
+                        {edaFunctionChains.pandas.length === 0 && edaFunctionChains.numpy.length === 0 && edaFunctionChains.matplotlib.length === 0 && (
+                          <div className="text-orange-600">No functions selected. Please add functions from the library tabs.</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Execute Button */}
                 <button
                   onClick={async () => {
-                    // Execute EDA workflow with proper function chain
-                    const workflowFunctions = {
-                      'basic_eda': [
-                        { id: 'eda-1', functionName: 'head', category: 'Data Inspection', library: 'pandas', parameters: { n: 10 }, description: 'View first 10 rows' },
-                        { id: 'eda-2', functionName: 'info', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Data info' },
-                        { id: 'eda-3', functionName: 'describe', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Statistical summary' },
-                        { id: 'eda-4', functionName: 'heatmap', category: 'Statistical Plots', library: 'matplotlib', parameters: { title: 'Correlation Heatmap' }, description: 'Correlation heatmap' }
-                      ],
-                      'data_cleaning': [
-                        { id: 'clean-1', functionName: 'isnull', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Check missing values' },
-                        { id: 'clean-2', functionName: 'dropna', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove missing values' },
-                        { id: 'clean-3', functionName: 'drop_duplicates', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove duplicates' }
-                      ],
-                      'visualization_suite': [
-                        { id: 'viz-1', functionName: 'histogram', category: 'Basic Plots', library: 'matplotlib', parameters: { column: 'salary', bins: 20 }, description: 'Salary distribution' },
-                        { id: 'viz-2', functionName: 'box_plot', category: 'Statistical Plots', library: 'matplotlib', parameters: { columns: 'age,salary' }, description: 'Box plots' }
-                      ]
-                    };
-                    
-                    const workflowChain = workflowFunctions[selectedWorkflow as keyof typeof workflowFunctions] || [];
-                    await executeFunctionChain(nodeId, 'pandas', workflowChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal);
+                    // Execute EDA workflow with proper function chain using configurable settings
+                    try {
+                      toast.loading('Executing EDA workflow...');
+                      
+                      // Determine input data
+                      let input_data: any = {
+                        dataset_name: "sample_employees"
+                      };
+                      
+                      if (node?.parameters?.csvContent) {
+                        input_data = {
+                          csv_content: node.parameters.csvContent,
+                          filename: node.parameters.fileName || 'uploaded.csv'
+                        };
+                      } else {
+                        const uploadedData = localStorage.getItem('lastUploadedCSV');
+                        if (uploadedData) {
+                          try {
+                            const parsedData = JSON.parse(uploadedData);
+                            input_data = {
+                              csv_content: parsedData.content,
+                              filename: parsedData.filename || 'uploaded.csv'
+                            };
+                          } catch (e) {
+                            console.warn('Failed to parse stored CSV data:', e);
+                          }
+                        }
+                      }
+
+                      const workflowFunctions = {
+                        'basic_eda': [
+                          { id: 'eda-1', functionName: 'head', category: 'Data Inspection', library: 'pandas', parameters: { n: 10 }, description: 'View first 10 rows' },
+                          { id: 'eda-2', functionName: 'info', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Data info' },
+                          { id: 'eda-3', functionName: 'describe', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Statistical summary' },
+                          { id: 'eda-4', functionName: 'heatmap', category: 'Statistical Plots', library: 'matplotlib', parameters: { title: 'Correlation Heatmap' }, description: 'Correlation heatmap' }
+                        ],
+                        'data_cleaning': [
+                          { id: 'clean-1', functionName: 'isnull', category: 'Data Inspection', library: 'pandas', parameters: {}, description: 'Check missing values' },
+                          { id: 'clean-2', functionName: 'dropna', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove missing values' },
+                          { id: 'clean-3', functionName: 'drop_duplicates', category: 'Data Cleaning', library: 'pandas', parameters: {}, description: 'Remove duplicates' }
+                        ],
+                        'visualization_suite': [
+                          { id: 'viz-1', functionName: 'histogram', category: 'Basic Plots', library: 'matplotlib', parameters: { column: 'age', bins: 20 }, description: 'Age distribution' },
+                          { id: 'viz-2', functionName: 'box_plot', category: 'Statistical Plots', library: 'matplotlib', parameters: { columns: 'age,salary,years_experience,performance_score' }, description: 'Box plots for numeric columns' },
+                          { id: 'viz-3', functionName: 'scatter_plot', category: 'Basic Plots', library: 'matplotlib', parameters: { x_column: 'years_experience', y_column: 'salary', title: 'Experience vs Salary' }, description: 'Experience vs salary relationship' },
+                          { id: 'viz-4', functionName: 'heatmap', category: 'Statistical Plots', library: 'matplotlib', parameters: { title: 'Correlation Heatmap', colormap: 'coolwarm' }, description: 'Correlation matrix heatmap' }
+                        ]
+                      };
+                      
+                      // Determine workflow chain based on selected workflow type
+                      let workflowChain: any[] = [];
+                      
+                      if (selectedWorkflow === 'custom') {
+                        // For custom workflow, combine all functions from pandas, numpy, and matplotlib chains
+                        workflowChain = [
+                          ...edaFunctionChains.pandas,
+                          ...edaFunctionChains.numpy,
+                          ...edaFunctionChains.matplotlib
+                        ];
+                        
+                        if (workflowChain.length === 0) {
+                          toast.error('Please add functions from the pandas, numpy, or matplotlib tabs to create a custom workflow');
+                          return;
+                        }
+                      } else {
+                        // Use predefined workflow functions
+                        workflowChain = workflowFunctions[selectedWorkflow as keyof typeof workflowFunctions] || [];
+                      }
+                      
+                      const response = await axios.post('http://localhost:8000/api/v1/eda-execute/', {
+                        node_id: nodeId,
+                        workflow_type: selectedWorkflow,
+                        function_chain: workflowChain.map(step => ({
+                          id: step.id,
+                          functionName: step.functionName,
+                          category: step.category,
+                          library: step.library,
+                          parameters: step.parameters,
+                          description: step.description || ''
+                        })),
+                        input_data: {
+                          csv_content: typeof input_data === 'string' ? input_data : 
+                                       input_data?.csv_content || JSON.stringify(input_data),
+                          filename: input_data?.filename || 'data.csv'
+                        },
+                        generate_download_link: generateDownloadLink,
+                        colab_optimized: colabOptimized
+                      });
+                      
+                      toast.dismiss();
+                      
+                      // Check for partial success - if any operations succeeded, show results
+                      const hasAnySuccess = (
+                        (response.data.pandas_results?.success_count > 0) ||
+                        (response.data.numpy_results?.success_count > 0) ||
+                        (response.data.matplotlib_results?.success_count > 0)
+                      );
+                      
+                      const hasAnyErrors = (
+                        (response.data.pandas_results?.error_count > 0) ||
+                        (response.data.numpy_results?.error_count > 0) ||
+                        (response.data.matplotlib_results?.error_count > 0)
+                      );
+                      
+                      if (response.data && (response.data.success || hasAnySuccess)) {
+                        // Show appropriate message based on success/error status
+                        if (response.data.success) {
+                          toast.success('EDA workflow executed successfully!');
+                        } else if (hasAnySuccess && hasAnyErrors) {
+                          toast.success('EDA workflow completed with some errors - check results for details');
+                        } else {
+                          toast.success('EDA workflow executed successfully!');
+                        }
+                        
+                        dispatch(updateNode({
+                          id: nodeId,
+                          updates: { 
+                            parameters: {
+                              ...node.parameters,
+                              executionResults: response.data,
+                              lastExecuted: new Date().toISOString(),
+                              downloadUrl: response.data.download_url,
+                              executionId: response.data.execution_id
+                            }
+                          }
+                        }));
+                        
+                        setEDAResults(response.data);
+                        setShowResultsModal(true);
+                      } else {
+                        toast.error('Error executing EDA workflow');
+                        console.error('API error:', response.data);
+                      }
+                    } catch (error) {
+                      toast.dismiss();
+                      toast.error('Failed to execute EDA workflow');
+                      console.error('Execution error:', error);
+                    }
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
@@ -1032,16 +1241,9 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                     <h5 className="font-medium text-gray-900">
                       {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Chain ({edaFunctionChains[activeTab].length} functions)
                     </h5>
-                    <button
-                      onClick={() => {
-                       // Add function logic
-                       toast.success(`Add ${activeTab} function`);
-                     }}
-                      className="flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                    >
-                      <Plus className="w-3 h-3" />
-                      Add Function
-                    </button>
+                    <div className="text-xs text-gray-500">
+                      Click functions below to add them
+                    </div>
                   </div>
 
                   {edaFunctionChains[activeTab].length === 0 ? (
@@ -1057,32 +1259,82 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                   ) : (
                     <div className="space-y-2">
                       {edaFunctionChains[activeTab].map((func, index) => (
-                        <div key={index} className="bg-white border rounded-lg p-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-medium text-sm">{func.functionName}</div>
-                              <div className="text-xs text-gray-500">{func.description}</div>
+                        <div key={index} className="bg-white border rounded-lg">
+                          <div className="p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <div className="font-medium text-sm">{func.functionName}</div>
+                                <div className="text-xs text-gray-500">{func.description}</div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  // Remove function
+                                    const newChain = [...edaFunctionChains[activeTab]];
+                                    newChain.splice(index, 1);
+                                    setEdaFunctionChains(prev => ({
+                                      ...prev,
+                                      [activeTab]: newChain
+                                    }));
+                                }}
+                                className="p-1 text-red-500 hover:bg-red-50 rounded"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => {
-                                // Remove function
-                                  const newChain = [...edaFunctionChains[activeTab]];
-                                  newChain.splice(index, 1);
-                                  setEdaFunctionChains(prev => ({
-                                    ...prev,
-                                    [activeTab]: newChain
-                                  }));
-                              }}
-                              className="p-1 text-red-500 hover:bg-red-50 rounded"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            
+                            {/* Parameter Configuration */}
+                            {LIBRARY_FUNCTIONS[activeTab] && 
+                             LIBRARY_FUNCTIONS[activeTab][func.category] && 
+                             LIBRARY_FUNCTIONS[activeTab][func.category][func.functionName] && 
+                             LIBRARY_FUNCTIONS[activeTab][func.category][func.functionName].params.length > 0 && (
+                              <div className="border-t pt-2 mt-2">
+                                <div className="text-xs font-medium text-gray-600 mb-2">Parameters:</div>
+                                {LIBRARY_FUNCTIONS[activeTab][func.category][func.functionName].params.map((param) => (
+                                  <div key={param.name} className="mb-2">
+                                    <label className="block text-xs text-gray-500 mb-1">
+                                      {param.name} - {param.description}
+                                    </label>
+                                    <DynamicFormField
+                                      param={param}
+                                      value={func.parameters[param.name]}
+                                      onChange={(value) => {
+                                        const newChain = [...edaFunctionChains[activeTab]];
+                                        newChain[index] = {
+                                          ...newChain[index],
+                                          parameters: {
+                                            ...newChain[index].parameters,
+                                            [param.name]: value
+                                          }
+                                        };
+                                        setEdaFunctionChains(prev => ({
+                                          ...prev,
+                                          [activeTab]: newChain
+                                        }));
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+
+                {/* Execute Library Chain Button */}
+                {edaFunctionChains[activeTab].length > 0 && (
+                  <button
+                    onClick={async () => {
+                      await executeFunctionChain(nodeId, activeTab, edaFunctionChains[activeTab], dispatch, node, setPlotData, setEDAResults, setShowResultsModal);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Play className="w-4 h-4" />
+                    Execute {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Chain
+                  </button>
+                )}
 
                 {/* Available Functions */}
                 <div className="border border-gray-200 rounded-lg p-3">
@@ -1096,12 +1348,17 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                             <button
                               key={functionName}
                               onClick={() => {
-                                // Add function to chain
+                                // Add function to chain with default parameters
+                                const defaultParams: Record<string, any> = {};
+                                functionDef.params.forEach(param => {
+                                  defaultParams[param.name] = param.default;
+                                });
+                                
                                 const newFunction: FunctionStep = {
                                    id: `${activeTab}-${Date.now()}`,
                                    functionName,
                                    category: categoryName,
-                                   parameters: {},
+                                   parameters: defaultParams,
                                    description: functionDef.description
                                  };
                                  setEdaFunctionChains(prev => ({
@@ -1416,18 +1673,40 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         isOpen={showResultsModal}
         onClose={() => setShowResultsModal(false)}
         results={edaResults}
-        onDownload={() => {
-          if (edaResults?.download_url) {
-            // Trigger download
-            const link = document.createElement('a');
-            link.href = edaResults.download_url;
-            link.download = `eda_results_${edaResults.execution_id || 'latest'}.zip`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            toast.success('Download started!');
-          } else {
-            toast.error('No download URL available');
+        nodeId={nodeId}
+        onDownload={async () => {
+          if (!edaResults?.execution_id) {
+            toast.error('No execution ID available for download');
+            return;
+          }
+
+          toast.loading('Starting download...');
+
+          try {
+            // Use the backend download endpoint - this is the most reliable approach
+            const downloadUrl = `http://localhost:8000/api/v1/eda-download/${edaResults.execution_id}`;
+            const params = new URLSearchParams({
+              execution_id: edaResults.execution_id,
+              node_id: nodeId,
+              filename: `eda_results_${edaResults.execution_id}.zip`,
+              format: 'zip',
+              include_visualizations: 'true',
+              include_processed_data: 'true',
+              include_metadata: 'true'
+            });
+
+            const fullUrl = `${downloadUrl}?${params.toString()}`;
+            
+            // Open in new tab - let the backend handle file generation and download
+            window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            
+            toast.dismiss();
+            toast.success('Download started! Check your downloads folder or new tab.');
+            
+          } catch (error) {
+            toast.dismiss();
+            toast.error('Download failed. Please try again.');
+            console.error('Download error:', error);
           }
         }}
       />

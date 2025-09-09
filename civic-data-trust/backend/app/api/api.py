@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.endpoints import execute, data, eda_execute
+from app.api.endpoints import execute, data, eda_execute, eda_download
 
 api_router = APIRouter()
 
@@ -7,3 +7,4 @@ api_router = APIRouter()
 api_router.include_router(execute.router, prefix="/execute", tags=["execution"])
 api_router.include_router(data.router, prefix="/data", tags=["data"])
 api_router.include_router(eda_execute.router, prefix="/eda-execute", tags=["eda"])
+api_router.include_router(eda_download.router, prefix="/eda-download", tags=["downloads"])
