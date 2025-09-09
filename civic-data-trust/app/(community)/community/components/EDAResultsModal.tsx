@@ -6,6 +6,13 @@ interface EDAResult {
   function_name: string;
   success: boolean;
   output: any;
+  result?: {
+    plot_type?: string;
+    image_base64?: string;
+    parameters?: any;
+    python_version?: string;
+    optimizations_used?: any;
+  };
   execution_time_ms: number;
   output_type: 'text' | 'plot' | 'data' | 'error';
   description?: string;
@@ -43,7 +50,7 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
   results, 
   onDownload 
 }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'pandas' | 'numpy' | 'matplotlib' | 'download'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'chronological' | 'pandas' | 'numpy' | 'matplotlib' | 'download'>('overview');
   const [selectedResult, setSelectedResult] = useState<EDAResult | null>(null);
 
   if (!isOpen || !results) return null;
@@ -101,19 +108,32 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
           <p className="text-xs text-gray-600 mb-2">{result.description}</p>
         )}
         
-        <div className="flex items-center justify-between">
-          <span className={`text-xs px-2 py-1 rounded ${
-            result.output_type === 'plot' ? 'bg-purple-100 text-purple-700' :
-            result.output_type === 'data' ? 'bg-blue-100 text-blue-700' :
-            result.output_type === 'text' ? 'bg-gray-100 text-gray-700' :
-            'bg-red-100 text-red-700'
-          }`}>
-            {result.output_type}
-          </span>
-          <button className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
-            <Eye className="w-3 h-3" />
-            View
-          </button>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className={`text-xs px-2 py-1 rounded ${
+              result.output_type === 'plot' ? 'bg-purple-100 text-purple-700' :
+              result.output_type === 'data' ? 'bg-blue-100 text-blue-700' :
+              result.output_type === 'text' ? 'bg-gray-100 text-gray-700' :
+              'bg-red-100 text-red-700'
+            }`}>
+              {result.output_type}
+            </span>
+            <button className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              View
+            </button>
+          </div>
+          
+          {/* Plot preview thumbnail */}
+          {result.output_type === 'plot' && result.result?.image_base64 && (
+            <div className="mt-2">
+              <img
+                src={`data:image/png;base64,${result.result.image_base64}`}
+                alt={`${result.function_name} preview`}
+                className="w-full h-16 object-cover rounded border opacity-75 hover:opacity-100 transition-opacity"
+              />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -157,10 +177,27 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
           <div className="bg-white rounded border p-3 max-h-64 overflow-auto">
             {selectedResult.output_type === 'plot' ? (
               <div className="text-center">
-                <BarChart3 className="w-16 h-16 mx-auto text-purple-500 mb-2" />
-                <p className="text-sm text-gray-600">Visualization generated</p>
-                {selectedResult.output && (
-                  <p className="text-xs text-gray-500 mt-1">{selectedResult.output}</p>
+                {selectedResult.result?.image_base64 ? (
+                  <div className="space-y-3">
+                    <img
+                      src={`data:image/png;base64,${selectedResult.result.image_base64}`}
+                      alt={`${selectedResult.function_name} visualization`}
+                      className="max-w-full h-auto rounded shadow-sm mx-auto"
+                      style={{ maxHeight: '400px' }}
+                    />
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <p><strong>Plot Type:</strong> {selectedResult.result.plot_type}</p>
+                      <p><strong>Parameters:</strong> {JSON.stringify(selectedResult.result.parameters)}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <BarChart3 className="w-16 h-16 mx-auto text-purple-500 mb-2" />
+                    <p className="text-sm text-gray-600">Visualization generated</p>
+                    {selectedResult.output && (
+                      <p className="text-xs text-gray-500 mt-1">{selectedResult.output}</p>
+                    )}
+                  </div>
                 )}
               </div>
             ) : selectedResult.output_type === 'data' ? (
@@ -209,6 +246,7 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
           <nav className="flex space-x-8 px-6">
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
+              { id: 'chronological', label: `Timeline (${allResults.length})`, icon: '⏱️' },
               { id: 'pandas', label: `Pandas (${Array.isArray(results.pandas_results) ? results.pandas_results.length : 0})`, icon: '🐼' },
               { id: 'numpy', label: `NumPy (${Array.isArray(results.numpy_results) ? results.numpy_results.length : 0})`, icon: '🔢' },
               { id: 'matplotlib', label: `Matplotlib (${Array.isArray(results.matplotlib_results) ? results.matplotlib_results.length : 0})`, icon: '📈' },
@@ -259,6 +297,48 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
                     <h4 className="font-medium text-gray-900">All Results</h4>
                     {allResults.map((result, index) => renderResultCard(result, index))}
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'chronological' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="w-5 h-5 text-blue-500" />
+                    <h4 className="font-medium text-gray-900">Execution Timeline</h4>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {allResults.map((result, index) => (
+                      <div key={`timeline-${result.library}-${index}`} className="relative">
+                        {/* Timeline connector */}
+                        {index < allResults.length - 1 && (
+                          <div className="absolute left-6 top-12 w-0.5 h-8 bg-gray-200"></div>
+                        )}
+                        
+                        {/* Timeline item */}
+                        <div className="flex gap-3">
+                          <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-lg ${
+                            result.success ? 'bg-green-100' : 'bg-red-100'
+                          }`}>
+                            {result.library === 'pandas' ? '🐼' : 
+                             result.library === 'numpy' ? '🔢' : 
+                             result.library === 'matplotlib' ? '📊' : '⚙️'}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            {renderResultCard(result, index)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {allResults.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No execution results to display</p>
+                    </div>
+                  )}
                 </div>
               )}
 

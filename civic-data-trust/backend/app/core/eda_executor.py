@@ -150,10 +150,12 @@ class EDAExecutor(DataScienceExecutor):
         with self.execution_lock:
             try:
                 # Initialize execution context
+                original_data = self.initialize_data(data)
                 execution_context = {
                     'execution_id': execution_id,
                     'start_time': start_time,
-                    'current_data': self.initialize_data(data),
+                    'current_data': original_data,
+                    'original_data': original_data,  # Keep reference to original DataFrame for visualizations
                     'results': [],
                     'library_results': {
                         'pandas': {'steps': [], 'data_transformations': []},
@@ -247,9 +249,15 @@ class EDAExecutor(DataScienceExecutor):
             step_start_time = time.perf_counter()
             
             try:
+                # For matplotlib functions, always use original data for visualizations
+                if library == 'matplotlib':
+                    data_for_function = execution_context['original_data']
+                else:
+                    data_for_function = current_data
+                
                 # Execute function based on library
                 result, output_type, returns_data = self.execute_function(
-                    current_data, library, step.functionName, step.parameters
+                    data_for_function, library, step.functionName, step.parameters
                 )
                 
                 step_end_time = time.perf_counter()
