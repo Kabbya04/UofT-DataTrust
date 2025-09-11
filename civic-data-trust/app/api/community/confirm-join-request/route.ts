@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const request_id = searchParams.get('request_id');
+    const approve = searchParams.get('approve') || 'true';
+    
+    const authHeader = request.headers.get('authorization');
+    
+    console.log('=== Confirm Join Request Proxy ===');
+    console.log('Request ID:', request_id);
+    console.log('Approve:', approve);
+    console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+    
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+    };
+    
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/community/confirm-join-request?request_id=${request_id}&approve=${approve}`, {
+      method: 'POST',
+      headers,
+    });
+
+    console.log('Backend response status:', response.status, response.statusText);
+
+    let data;
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType?.includes('application/json')) {
+      data = await response.json();
+      console.log('Backend response data:', data);
+    } else {
+      const text = await response.text();
+      console.log('Backend response text:', text);
+      data = { message: text };
+    }
+    
+    if (!response.ok) {
+      console.log('Backend error response:', data);
+      return NextResponse.json(
+        { error: data.detail || data.message || 'Failed to confirm join request' },
+        { status: response.status }
+      );
+    }
+
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error('=== Confirm Join Request Proxy Error ===');
+    console.error('Error:', error);
+    
+    return NextResponse.json(
+      { error: `Proxy error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { status: 500 }
+    );
+  }
+}

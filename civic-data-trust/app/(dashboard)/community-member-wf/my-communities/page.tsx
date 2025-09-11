@@ -14,6 +14,12 @@ export default function MyCommunitiesPage() {
   
   const joinedCommunities = communities.filter(c => c.isJoined)
   
+  // Debug logging
+  console.log('MyCommunitiesPage - All communities:', communities.length)
+  console.log('MyCommunitiesPage - Joined communities:', joinedCommunities.length)
+  console.log('MyCommunitiesPage - Loading:', loading)
+  console.log('MyCommunitiesPage - Error:', error)
+  
   const recentActivity = [
     {
       id: 1, action: "New post in", community: "Data Science Enthusiasts", communityId: 1,
@@ -79,34 +85,49 @@ export default function MyCommunitiesPage() {
             </div>
           )}
           {!loading && !error && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {joinedCommunities.map((community) => (
-                <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <Badge variant="secondary" className="mb-2">{community.community_category?.name || 'General'}</Badge>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
-                    <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{Math.floor(Math.random() * 50) + 10} datasets</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewCommunity(community.id)}>View Community</Button>
-                    <Button variant="default" size="sm" className="flex-1">Manage</Button>
-                  </div>
-                </CardContent>
-                </Card>
-              ))}
-            </div>
+            <>
+              {joinedCommunities.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {joinedCommunities.map((community) => (
+                    <Card key={community.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                          <Badge variant="secondary" className="mb-2">{community.community_category?.name || 'General'}</Badge>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
+                        <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{Math.floor(Math.random() * 50) + 10} datasets</span></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewCommunity(community.id)}>View Community</Button>
+                        <Button variant="default" size="sm" className="flex-1">Manage</Button>
+                      </div>
+                    </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Communities Joined</h3>
+                  <p className="text-muted-foreground mb-4 max-w-sm">
+                    You haven't joined any communities yet. Browse communities and request to join ones that interest you.
+                  </p>
+                  <Button onClick={() => router.push('/community-member-wf/discover-communities')}>
+                    Discover Communities
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </TabsContent>
 

@@ -146,6 +146,10 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
   const [searchTags, setSearchTags] = useState("");
 
+  const usageStats = {
+    totalDatasets: 847, totalDownloads: 12456, totalUploads: 234,
+    storageUsed: "45.7 GB"
+  }
   const toggleCategory = (category: string) => {
     setOpenCategories(prev => ({
       ...prev,

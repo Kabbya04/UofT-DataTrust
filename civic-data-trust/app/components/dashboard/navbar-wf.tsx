@@ -73,7 +73,7 @@ export function NavbarWf() {
 
           {isCommunityMemberWf && (<>
             <NavLink href="/community-member-wf/my-communities">My Communities</NavLink>
-            {/* <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink> */}
+            {/* <NavLink href="/community-member-wf/data-usage">Data Usage</NavLink> */} 
             <NavLink href="/community-member-wf/statistics">Statistics</NavLink>
           </>)}
         </nav>
