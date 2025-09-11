@@ -501,7 +501,12 @@ class DataScienceExecutor:
                 raise ValueError(f"Function '{function_name}' is not supported")
         
         except Exception as e:
-            return None, "error", False
+            # Log the actual error for debugging
+            error_msg = str(e)
+            print(f"Pandas function '{function_name}' error: {error_msg}")
+            print(f"Data type: {type(data)}, Data shape: {getattr(data, 'shape', 'N/A')}")
+            # Return the actual error message instead of generic "error"
+            return None, self.format_user_friendly_error(error_msg, function_name), False
     
     def execute_numpy_function(self, data: Any, function_name: str, 
                               parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
@@ -599,7 +604,12 @@ class DataScienceExecutor:
                 raise ValueError(f"Function '{function_name}' is not supported")
         
         except Exception as e:
-            return None, "error", False
+            # Log the actual error for debugging
+            error_msg = str(e)
+            print(f"Numpy function '{function_name}' error: {error_msg}")
+            print(f"Data type: {type(data)}")
+            # Return the actual error message instead of generic "error"
+            return None, self.format_user_friendly_error(error_msg, function_name), False
     
     def execute_matplotlib_function(self, data: Any, function_name: str, 
                                   parameters: Dict[str, Any]) -> Tuple[Any, str, bool]:
@@ -862,4 +872,5 @@ class DataScienceExecutor:
                 print(f"DataFrame shape: {df.shape}")
             else:
                 print("DataFrame conversion failed")
-            return None, "error", False
+            # Return the actual error message instead of generic "error"
+            return None, self.format_user_friendly_error(str(e), function_name), False
