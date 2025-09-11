@@ -10,7 +10,7 @@ import { useCommunity } from "@/app/components/contexts/community-context"
 function JoinCommunityRequestContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { communities } = useCommunity() // Removed submitJoinRequest as it's not in context
+  const { communities, submitJoinRequest } = useCommunity()
   const [message, setMessage] = useState("")
   const [agreed, setAgreed] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,7 +24,7 @@ function JoinCommunityRequestContent() {
         <Card className="border border-border max-w-md">
           <CardContent className="p-8 text-center">
             <h3 className="text-lg font-medium mb-2">Community Not Found</h3>
-            <p className="text-sm text-muted-foreground mb-4">The community you're trying to join could not be found.</p>
+            <p className="text-sm text-muted-foreground mb-4">The community you&apos;re trying to join could not be found.</p>
             <Button variant="outline" onClick={() => router.back()}>Go Back</Button>
           </CardContent>
         </Card>
@@ -39,10 +39,9 @@ function JoinCommunityRequestContent() {
     }
     setIsSubmitting(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
       console.log(`Submitting join request for community ${community.id} with message: ${message}`);
-      // In a real app, you would call a function from your context here like:
-      // submitJoinRequest(community.id, message)
+      await submitJoinRequest(community.id, message)
+      alert("Join request submitted successfully!")
       router.push(`/community-member-wf/community-details/${community.id}?joined=pending`)
     } catch (error) {
       console.error("Failed to submit join request:", error)
