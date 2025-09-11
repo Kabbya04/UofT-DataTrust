@@ -265,7 +265,8 @@ class EDAExecutor(DataScienceExecutor):
                 step_end_time = time.perf_counter()
                 execution_time_ms = (step_end_time - step_start_time) * 1000
                 
-                if result is not None:
+                # Check both result and output_type to handle errors properly
+                if result is not None and output_type != "error":
                     step_result = StepResult(
                         step_id=step.id,
                         function_name=step.functionName,
@@ -291,11 +292,14 @@ class EDAExecutor(DataScienceExecutor):
                         library_results.setdefault('visualizations', []).append(result)
                 
                 else:
+                    # Handle error case - use the actual error message from output_type if available
+                    error_message = output_type if output_type and output_type != "error" else f"Function {step.functionName} returned no result"
+                    
                     step_result = StepResult(
                         step_id=step.id,
                         function_name=step.functionName,
                         success=False,
-                        error=f"Function {step.functionName} returned no result",
+                        error=error_message,
                         execution_time_ms=execution_time_ms,
                         output_type="error"
                     )

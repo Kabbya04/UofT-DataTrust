@@ -8,7 +8,7 @@ import io
 import base64
 import warnings
 import sys
-from typing import Any, Dict, Tuple, Optional, Union
+from typing import Any, Dict, Tuple, Optional, Union, List
 from functools import lru_cache
 from contextlib import contextmanager
 
@@ -78,14 +78,26 @@ class DataScienceExecutor:
         columns = list(columns_tuple)
         return {col: "cached_info" for col in columns}
     
-    def initialize_data(self, input_data: Optional[Dict[str, Any]]) -> Any:
+    def initialize_data(self, input_data: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]) -> Any:
         """Initialize data from input or use sample data with validation"""
         if not input_data:
             # Default to first sample dataset if no input provided
             return SAMPLE_DATA['users'].copy()
         
+        # If input_data is a list of records (common case from API)
+        if isinstance(input_data, list) and len(input_data) > 0 and isinstance(input_data[0], dict):
+            try:
+                df = pd.DataFrame(input_data)
+                # Validate converted DataFrame
+                validation_result = validate_dataframe_for_research(df)
+                if not validation_result['validation_passed']:
+                    print(f"Data validation warnings: {validation_result['warnings']} warnings, {validation_result['errors']} errors")
+                return df
+            except Exception as e:
+                raise ValueError(f"Could not convert list of records to DataFrame: {str(e)}")
+        
         # If CSV content is provided directly (from uploaded file)
-        if 'csv_content' in input_data:
+        if isinstance(input_data, dict) and 'csv_content' in input_data:
             try:
                 csv_buffer = io.StringIO(input_data['csv_content'])
                 df = pd.read_csv(csv_buffer)
@@ -179,12 +191,12 @@ class DataScienceExecutor:
             if function_name == 'head':
                 n = parameters.get('n', 5)
                 result = data.head(n)
-                return result.to_dict('records'), "data", True
+                return result.to_dict('records'), "data", False
             
             elif function_name == 'tail':
                 n = parameters.get('n', 5)
                 result = data.tail(n)
-                return result.to_dict('records'), "data", True
+                return result.to_dict('records'), "data", False
             
             elif function_name == 'info':
                 buffer = io.StringIO()
@@ -202,7 +214,7 @@ class DataScienceExecutor:
                     include = [object]
                 
                 result = data.describe(include=include)
-                return result.to_dict(), "data", True
+                return result.to_dict(), "data", False
             
             elif function_name == 'shape':
                 return {"rows": data.shape[0], "columns": data.shape[1]}, "info", False
@@ -220,7 +232,7 @@ class DataScienceExecutor:
                     "null_counts": null_counts,
                     "null_percentage": null_percentage,
                     "total_nulls": data.isnull().sum().sum()
-                }, "data", True
+                }, "data", False
             
             elif function_name == 'memory_usage':
                 deep = parameters.get('deep', False)
@@ -368,7 +380,7 @@ class DataScienceExecutor:
                     raise ValueError("No numeric columns found for correlation analysis")
                 
                 correlation_matrix = numeric_data.corr(method=method)
-                return correlation_matrix.to_dict(), "data", True
+                return correlation_matrix.to_dict(), "data", False
             
             elif function_name == 'value_counts':
                 column = parameters.get('column', '')
@@ -389,7 +401,7 @@ class DataScienceExecutor:
                     "column": column,
                     "counts": counts.to_dict(),
                     "total_unique": len(counts)
-                }, "data", True
+                }, "data", False
             
             elif function_name == 'unique':
                 column = parameters.get('column', '')
@@ -405,7 +417,7 @@ class DataScienceExecutor:
                     "column": column,
                     "unique_values": unique_list,
                     "count": len(unique_values)
-                }, "data", True
+                }, "data", False
             
             elif function_name == 'nunique':
                 column = parameters.get('column', '')
@@ -416,14 +428,14 @@ class DataScienceExecutor:
                     return {
                         "column": column,
                         "unique_count": unique_count
-                    }, "data", True
+                    }, "data", False
                 else:
                     # All columns
                     unique_counts = data.nunique().to_dict()
                     return {
                         "unique_counts_per_column": unique_counts,
                         "total_columns": len(unique_counts)
-                    }, "data", True
+                    }, "data", False
             
             elif function_name == 'covariance':
                 numeric_data = data.select_dtypes(include=[np.number])
@@ -431,7 +443,7 @@ class DataScienceExecutor:
                     raise ValueError("No numeric columns found for covariance analysis")
                 
                 covariance_matrix = numeric_data.cov()
-                return covariance_matrix.to_dict(), "data", True
+                return covariance_matrix.to_dict(), "data", False
             
             # Outlier Detection functions
             elif function_name == 'detect_outliers_iqr':
@@ -466,7 +478,7 @@ class DataScienceExecutor:
                     "bounds": {"lower": lower_bound, "upper": upper_bound},
                     "quartiles": {"Q1": Q1, "Q3": Q3, "IQR": IQR},
                     "outlier_indices": outliers.index.tolist()
-                }, "data", True
+                }, "data", False
             
             elif function_name == 'detect_outliers_zscore':
                 column = parameters.get('column', '')
@@ -495,7 +507,7 @@ class DataScienceExecutor:
                     "mean": data[column].mean(),
                     "std": data[column].std(),
                     "outlier_indices": outliers.index.tolist()
-                }, "data", True
+                }, "data", False
             
             else:
                 raise ValueError(f"Function '{function_name}' is not supported")
