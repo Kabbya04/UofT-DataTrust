@@ -7,17 +7,13 @@ interface EDAResult {
   library: string;
   function_name: string;
   success: boolean;
-  output: any;
-  result?: {
-    plot_type?: string;
-    image_base64?: string;
-    parameters?: any;
-    python_version?: string;
-    optimizations_used?: any;
-  };
+  result: any; // Main data field - contains the actual function result
+  output?: any; // Legacy field for backward compatibility
   execution_time_ms: number;
-  output_type: 'text' | 'plot' | 'data' | 'error';
+  output_type: 'text' | 'plot' | 'data' | 'error' | 'info';
   description?: string;
+  step_id?: string;
+  error?: string;
 }
 
 // Update the interface to match the actual API response structure
@@ -267,98 +263,253 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
               // Enhanced handling for pandas and other data results
               <div>
                 {(() => {
-                  // Try to get data from either 'output' or 'result' field
-                  let displayData = selectedResult.output;
+                  // Prioritize 'result' field over 'output' field (backend uses 'result')
+                  let displayData = selectedResult.result;
                   
-                  // If output is empty/null, try to get data from result field
-                  if (!displayData && selectedResult.result) {
-                    displayData = selectedResult.result;
+                  // Fallback to output field for backward compatibility
+                  if (!displayData && selectedResult.output) {
+                    displayData = selectedResult.output;
                   }
                   
                   if (displayData) {
-                    // Special handling for pandas info function
-                    if (selectedResult.function_name === 'info' && displayData.info) {
-                      return (
-                        <div>
-                          <Database className="w-6 h-6 text-blue-500 mb-2" />
-                          <div className="space-y-3">
-                            <div>
-                              <h5 className="text-sm font-medium text-gray-700 mb-1">DataFrame Info:</h5>
-                              <pre className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded">
-                                {displayData.info}
-                              </pre>
-                            </div>
-                            {displayData.shape && (
-                              <div>
-                                <h5 className="text-sm font-medium text-gray-700 mb-1">Shape:</h5>
-                                <p className="text-sm text-gray-600">{displayData.shape[0]} rows × {displayData.shape[1]} columns</p>
-                              </div>
-                            )}
-                            {displayData.columns && (
-                              <div>
-                                <h5 className="text-sm font-medium text-gray-700 mb-1">Columns:</h5>
-                                <div className="flex flex-wrap gap-1">
-                                  {displayData.columns.map((col: string, idx: number) => (
-                                    <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                      {col}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }
+                    const library = selectedResult.library;
+                    const functionName = selectedResult.function_name;
+                    const outputType = selectedResult.output_type;
                     
-                    // Special handling for pandas head/tail functions (array of objects)
-                    if (Array.isArray(displayData) && displayData.length > 0 && typeof displayData[0] === 'object') {
-                      return (
-                        <div>
-                          <Database className="w-6 h-6 text-blue-500 mb-2" />
-                          <div className="space-y-2">
-                            <h5 className="text-sm font-medium text-gray-700">Data Preview ({displayData.length} rows):</h5>
-                            <div className="overflow-x-auto">
-                              <table className="min-w-full text-xs border border-gray-200">
-                                <thead className="bg-gray-50">
-                                  <tr>
-                                    {Object.keys(displayData[0]).map((key) => (
-                                      <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 border-b">
-                                        {key}
-                                      </th>
+                    // PANDAS FUNCTION HANDLERS
+                    if (library === 'pandas') {
+                      // Info function - special structured display
+                      if ((functionName === 'info' || outputType === 'info') && displayData.info) {
+                        return (
+                          <div>
+                            <Database className="w-6 h-6 text-blue-500 mb-2" />
+                            <div className="space-y-3">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-700 mb-1">DataFrame Info:</h5>
+                                <pre className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded">
+                                  {displayData.info}
+                                </pre>
+                              </div>
+                              {displayData.shape && (
+                                <div>
+                                  <h5 className="text-sm font-medium text-gray-700 mb-1">Shape:</h5>
+                                  <p className="text-sm text-gray-600">{displayData.shape[0]} rows × {displayData.shape[1]} columns</p>
+                                </div>
+                              )}
+                              {displayData.columns && (
+                                <div>
+                                  <h5 className="text-sm font-medium text-gray-700 mb-1">Columns:</h5>
+                                  <div className="flex flex-wrap gap-1">
+                                    {displayData.columns.map((col: string, idx: number) => (
+                                      <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                        {col}
+                                      </span>
                                     ))}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {displayData.slice(0, 10).map((row: any, idx: number) => (
-                                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                      {Object.values(row).map((value: any, cellIdx: number) => (
-                                        <td key={cellIdx} className="px-2 py-1 border-b text-gray-600">
-                                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                                        </td>
-                                      ))}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                              {displayData.length > 10 && (
-                                <p className="text-xs text-gray-500 mt-1">... and {displayData.length - 10} more rows</p>
+                                  </div>
+                                </div>
                               )}
                             </div>
                           </div>
-                        </div>
-                      );
+                        );
+                      }
+                      
+                      // Describe function - statistical summary table
+                      if (functionName === 'describe' && (Array.isArray(displayData) || typeof displayData === 'object')) {
+                        const describeData = Array.isArray(displayData) ? displayData : [displayData];
+                        if (describeData.length > 0 && typeof describeData[0] === 'object') {
+                          return (
+                            <div>
+                              <Database className="w-6 h-6 text-blue-500 mb-2" />
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-medium text-gray-700">Statistical Summary:</h5>
+                                <div className="overflow-x-auto">
+                                  <table className="min-w-full text-xs border border-gray-200">
+                                    <thead className="bg-gray-50">
+                                      <tr>
+                                        <th className="px-2 py-1 text-left font-medium text-gray-700 border-b">Statistic</th>
+                                        {Object.keys(describeData[0]).filter(key => key !== 'index').map((key) => (
+                                          <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 border-b">
+                                            {key}
+                                          </th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {describeData.map((row: any, idx: number) => (
+                                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                          <td className="px-2 py-1 border-b font-medium text-gray-700">
+                                            {row.index || `Row ${idx + 1}`}
+                                          </td>
+                                          {Object.entries(row).filter(([key]) => key !== 'index').map(([key, value]: [string, any], cellIdx: number) => (
+                                            <td key={cellIdx} className="px-2 py-1 border-b text-gray-600">
+                                              {typeof value === 'number' ? Number(value).toFixed(4) : String(value)}
+                                            </td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
+                      
+                      // Head/Tail functions - data preview table
+                      if (['head', 'tail'].includes(functionName) && Array.isArray(displayData) && displayData.length > 0 && typeof displayData[0] === 'object') {
+                        return (
+                          <div>
+                            <Database className="w-6 h-6 text-blue-500 mb-2" />
+                            <div className="space-y-2">
+                              <h5 className="text-sm font-medium text-gray-700">Data Preview ({displayData.length} rows):</h5>
+                              <div className="overflow-x-auto">
+                                <table className="min-w-full text-xs border border-gray-200">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      {Object.keys(displayData[0]).map((key) => (
+                                        <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 border-b">
+                                          {key}
+                                        </th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {displayData.slice(0, 10).map((row: any, idx: number) => (
+                                      <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        {Object.values(row).map((value: any, cellIdx: number) => (
+                                          <td key={cellIdx} className="px-2 py-1 border-b text-gray-600">
+                                            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                {displayData.length > 10 && (
+                                  <p className="text-xs text-gray-500 mt-1">... and {displayData.length - 10} more rows</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Shape function - simple display
+                      if (functionName === 'shape' && Array.isArray(displayData)) {
+                        return (
+                          <div>
+                            <Database className="w-6 h-6 text-blue-500 mb-2" />
+                            <div className="bg-blue-50 p-3 rounded">
+                              <h5 className="text-sm font-medium text-gray-700 mb-1">DataFrame Shape:</h5>
+                              <p className="text-lg font-semibold text-blue-700">
+                                {displayData[0]} rows × {displayData[1]} columns
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Groupby, pivot_table, and other aggregation results
+                      if (['groupby', 'pivot_table', 'sort_values', 'drop_duplicates', 'dropna', 'fillna'].includes(functionName)) {
+                        if (Array.isArray(displayData) && displayData.length > 0 && typeof displayData[0] === 'object') {
+                          return (
+                            <div>
+                              <Database className="w-6 h-6 text-blue-500 mb-2" />
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-medium text-gray-700">Result ({displayData.length} rows):</h5>
+                                <div className="overflow-x-auto">
+                                  <table className="min-w-full text-xs border border-gray-200">
+                                    <thead className="bg-gray-50">
+                                      <tr>
+                                        {Object.keys(displayData[0]).map((key) => (
+                                          <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 border-b">
+                                            {key}
+                                          </th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {displayData.slice(0, 20).map((row: any, idx: number) => (
+                                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                          {Object.values(row).map((value: any, cellIdx: number) => (
+                                            <td key={cellIdx} className="px-2 py-1 border-b text-gray-600">
+                                              {typeof value === 'number' ? Number(value).toFixed(2) : String(value)}
+                                            </td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                  {displayData.length > 20 && (
+                                    <p className="text-xs text-gray-500 mt-1">... and {displayData.length - 20} more rows</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
                     }
                     
-                    // Default handling for other data types
+                    // NUMPY FUNCTION HANDLERS
+                    if (library === 'numpy') {
+                      // Array operations that return arrays
+                      if (['reshape', 'transpose', 'flatten'].includes(functionName)) {
+                        if (Array.isArray(displayData)) {
+                          return (
+                            <div>
+                              <Database className="w-6 h-6 text-green-500 mb-2" />
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-medium text-gray-700">Array Result:</h5>
+                                <div className="bg-green-50 p-3 rounded">
+                                  <p className="text-xs text-gray-600 mb-2">Shape: {Array.isArray(displayData[0]) ? `${displayData.length} × ${displayData[0].length}` : displayData.length}</p>
+                                  <div className="max-h-40 overflow-auto">
+                                    <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+                                      {Array.isArray(displayData[0]) 
+                                        ? displayData.map(row => `[${row.join(', ')}]`).join('\n')
+                                        : `[${displayData.join(', ')}]`}
+                                    </pre>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
+                      
+                      // Mathematical operations that return single values or simple arrays
+                      if (['sum', 'mean', 'std', 'min', 'max', 'var'].includes(functionName)) {
+                        return (
+                          <div>
+                            <Database className="w-6 h-6 text-green-500 mb-2" />
+                            <div className="bg-green-50 p-3 rounded">
+                              <h5 className="text-sm font-medium text-gray-700 mb-1">Calculation Result:</h5>
+                              <p className="text-lg font-semibold text-green-700">
+                                {Array.isArray(displayData) 
+                                  ? displayData.length === 1 
+                                    ? displayData[0] 
+                                    : `[${displayData.join(', ')}]`
+                                  : displayData}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
+                    
+                    // DEFAULT HANDLING for any other cases
                     return (
                       <div>
                         <Database className="w-6 h-6 text-blue-500 mb-2" />
-                        <pre className="text-xs text-gray-700 whitespace-pre-wrap">
-                          {typeof displayData === 'string' 
-                            ? displayData 
-                            : JSON.stringify(displayData, null, 2)}
-                        </pre>
+                        <div className="space-y-2">
+                          <h5 className="text-sm font-medium text-gray-700">Output:</h5>
+                          <pre className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded max-h-64 overflow-auto">
+                            {typeof displayData === 'string' 
+                              ? displayData 
+                              : JSON.stringify(displayData, null, 2)}
+                          </pre>
+                        </div>
                       </div>
                     );
                   } else {

@@ -1030,47 +1030,63 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
 
                 {/* Workflow Description */}
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <h4 className="font-medium text-gray-900 mb-2">
-                    {selectedWorkflow === 'basic_eda' && 'Basic EDA Workflow'}
-                    {selectedWorkflow === 'data_cleaning' && 'Data Cleaning Workflow'}
-                    {selectedWorkflow === 'visualization_suite' && 'Visualization Suite Workflow'}
-                    {selectedWorkflow === 'custom' && 'Custom Workflow'}
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {selectedWorkflow === 'basic_eda' && 'Performs essential exploratory data analysis: head() → info() → describe() → correlation heatmap'}
-                    {selectedWorkflow === 'data_cleaning' && 'Cleans and prepares data: dropna() → drop_duplicates() → statistical summary'}
-                    {selectedWorkflow === 'visualization_suite' && 'Creates comprehensive visualizations: histogram → box plots → scatter plots → correlation matrix'}
-                    {selectedWorkflow === 'custom' && 'Build a custom function chain by adding functions from the pandas, numpy, and matplotlib tabs below. Switch to those tabs to select functions, then return here to execute.'}
-                  </p>
-                  
-                  {selectedWorkflow !== 'custom' && (
-                    <div className="text-xs text-gray-500">
-                      <strong>Functions:</strong> 
-                      {selectedWorkflow === 'basic_eda' && 'head, info, describe, heatmap'}
-                      {selectedWorkflow === 'data_cleaning' && 'dropna, drop_duplicates, describe'}
-                      {selectedWorkflow === 'visualization_suite' && 'histogram, box_plot, scatter_plot, heatmap'}
-                    </div>
-                  )}
-                  
-                  {selectedWorkflow === 'custom' && (
-                    <div className="text-xs text-gray-500">
-                      <strong>Selected Functions:</strong>
-                      <div className="mt-1 space-y-1">
-                        {edaFunctionChains.pandas.length > 0 && (
-                          <div><span className="font-medium">Pandas:</span> {edaFunctionChains.pandas.map(f => f.functionName).join(', ')}</div>
+                  {(() => {
+                    const workflowConfig = {
+                      basic_eda: {
+                        title: 'Basic EDA Workflow',
+                        description: 'Performs essential exploratory data analysis: head() → info() → describe() → correlation heatmap',
+                        functions: 'head, info, describe, heatmap'
+                      },
+                      data_cleaning: {
+                        title: 'Data Cleaning Workflow',
+                        description: 'Cleans and prepares data: dropna() → drop_duplicates() → statistical summary',
+                        functions: 'dropna, drop_duplicates, describe'
+                      },
+                      visualization_suite: {
+                        title: 'Visualization Suite Workflow',
+                        description: 'Creates comprehensive visualizations: histogram → box plots → scatter plots → correlation matrix',
+                        functions: 'histogram, box_plot, scatter_plot, heatmap'
+                      },
+                      custom: {
+                        title: 'Custom Workflow',
+                        description: 'Build a custom function chain by adding functions from the pandas, numpy, and matplotlib tabs below. Switch to those tabs to select functions, then return here to execute.',
+                        functions: null
+                      }
+                    };
+                    
+                    const config = workflowConfig[selectedWorkflow as keyof typeof workflowConfig];
+                    const totalFunctions = edaFunctionChains.pandas.length + edaFunctionChains.numpy.length + edaFunctionChains.matplotlib.length;
+                    
+                    return (
+                      <>
+                        <h4 className="font-medium text-gray-900 mb-2">{config.title}</h4>
+                        <p className="text-sm text-gray-600 mb-2">{config.description}</p>
+                        
+                        {selectedWorkflow !== 'custom' ? (
+                          <div className="text-xs text-gray-500">
+                            <strong>Functions:</strong> {config.functions}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-500">
+                            <strong>Selected Functions ({totalFunctions}):</strong>
+                            <div className="mt-1 space-y-1">
+                              {['pandas', 'numpy', 'matplotlib'].map(lib => {
+                                const funcs = edaFunctionChains[lib as keyof typeof edaFunctionChains];
+                                return funcs.length > 0 ? (
+                                  <div key={lib}>
+                                    <span className="font-medium capitalize">{lib}:</span> {funcs.map(f => f.functionName).join(', ')}
+                                  </div>
+                                ) : null;
+                              })}
+                              {totalFunctions === 0 && (
+                                <div className="text-orange-600">No functions selected. Please add functions from the library tabs.</div>
+                              )}
+                            </div>
+                          </div>
                         )}
-                        {edaFunctionChains.numpy.length > 0 && (
-                          <div><span className="font-medium">NumPy:</span> {edaFunctionChains.numpy.map(f => f.functionName).join(', ')}</div>
-                        )}
-                        {edaFunctionChains.matplotlib.length > 0 && (
-                          <div><span className="font-medium">Matplotlib:</span> {edaFunctionChains.matplotlib.map(f => f.functionName).join(', ')}</div>
-                        )}
-                        {edaFunctionChains.pandas.length === 0 && edaFunctionChains.numpy.length === 0 && edaFunctionChains.matplotlib.length === 0 && (
-                          <div className="text-orange-600">No functions selected. Please add functions from the library tabs.</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* Execute Button */}
