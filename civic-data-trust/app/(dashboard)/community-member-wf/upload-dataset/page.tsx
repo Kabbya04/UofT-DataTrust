@@ -10,7 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { Label } from "@/app/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Progress } from "@/app/components/ui/progress";
-import { Upload, FileText, X, Eye, EyeOff, FolderSearch, HelpCircle, Image as LucideImage } from "lucide-react";
+import { Upload, FileText, X, Eye, EyeOff, FolderSearch, HelpCircle, Image as LucideImage, VideoIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DATASET_TAGS, DatasetTag } from "@/app/constants/dataset-tags";
@@ -114,8 +114,11 @@ export default function UploadDatasetPage() {
                             >
                                 <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4 text-muted-foreground">
                                     <Upload className="h-12 w-12" />
-                                    <p className="text-lg font-medium text-foreground">Drag and drop files here, or click to browse</p>
-                                    <p>Max file size: 5GB</p>
+                                    <p className="text-lg font-medium text-foreground">Drag and drop files here</p>
+                                    <h2 className="text-lg font-medium text-foreground">Or</h2>
+                                    <Button size="sm" className=" bg-green-500 hover:bg-green-700 text-white cursor-pointer">Browse Files</Button>
+                                    <p>Supported Files: PNG,JPG,MOV etc. Max file size 500 MB</p>
+                                    <div className="flex items-center gap-1 hover:underline"> <VideoIcon></VideoIcon> <p>Check video tutorial to how properly upload complex data</p></div>
                                     <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileSelect} />
                                 </label>
                             </div>
@@ -194,7 +197,10 @@ export default function UploadDatasetPage() {
                                                     className="h-20 w-20 object-cover rounded-md border"
                                                 />
                                                 <div className="flex-1">
-                                                    <p className="text-sm font-medium">{thumbnailFile.name}</p>
+                                                    <p className="text-sm font-medium">
+                                                        {thumbnailFile.name}
+
+                                                    </p>
                                                     <p className="text-xs text-muted-foreground">({formatFileSize(thumbnailFile.size)})</p>
                                                 </div>
                                                 <Button variant="ghost" size="sm" onClick={removeThumbnail}>

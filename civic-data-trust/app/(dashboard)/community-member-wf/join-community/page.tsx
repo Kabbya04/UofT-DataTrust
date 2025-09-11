@@ -73,7 +73,7 @@ function JoinCommunityRequestContent() {
                 <label htmlFor="agree" className="text-sm text-foreground">I agree to abide by community guidelines</label>
               </div>
               <div>
-                <Button onClick={handleSubmitRequest} disabled={!agreed || isSubmitting} className="bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50">
+                <Button onClick={handleSubmitRequest} disabled={!agreed || isSubmitting} className="bg-primary text-background hover:bg-primary/90 disabled:opacity-50">
                   {isSubmitting ? "Sending Request..." : "Send Request"}
                 </Button>
               </div>

@@ -54,7 +54,7 @@ export default function MembershipRequestsPage() {
                 </div>
 
                 {request.status === "approved" && (
-                  <Button variant="outline" size="sm">
+                  <Button variant="default" size="sm">
                     View Community
                   </Button>
                 )}

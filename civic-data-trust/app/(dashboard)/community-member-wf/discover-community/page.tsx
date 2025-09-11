@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Image as ImageIcon, RefreshCw, Search, Grid, List } from "lucide-react"
+import { RefreshCw, Search, Grid, List } from "lucide-react"
+import Image from "next/image"
 import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
@@ -19,6 +20,7 @@ interface CommunityCardProps {
     description: string | null
     category: string
     isJoined?: boolean
+    coverImage?: string | null
   }
   onJoin: (communityId: string) => void
   onViewDetails: (communityId: string) => void
@@ -26,27 +28,36 @@ interface CommunityCardProps {
 
 function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps) {
   return (
-    <Card className="p-2 hover:shadow-lg w-fit transition-all duration-200 border border-border bg-card">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+    <Card className="p-2 hover:shadow-lg transition-all duration-200 border border-border bg-card">
+      <div className="flex gap-4 items-start border border-border rounded-lg p-3 mb-3">
+        <div className="relative w-[40%] bg-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: "16/9", minHeight: 80 }}>
+          <Image
+            src={community.coverImage || "/placeholder.svg"}
+            alt={community.name || "Community cover image"}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+            priority={false}
+          />
         </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-sm text-foreground mb-1 cursor-pointer hover:text-primary transition-colors" onClick={() => onViewDetails(community.id)}>
-            {community.name}
-          </h4>
-          <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
-            <div>• {community.datasets} datasets</div>
-            <div>• {community.description || 'No description available'}</div>
-          </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className=" text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
-            <Button size="sm" variant={community.isJoined ? "outline" : "default"} className=" text-xs h-7  cursor-pointer" onClick={() => onJoin(community.id)}>
-              {community.isJoined ? "Joined" : "Join Community"}
-            </Button>
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <div>
+            <h4 className="font-semibold text-sm text-foreground mb-1 cursor-pointer hover:text-primary transition-colors" onClick={() => onViewDetails(community.id)}>
+              {community.name}
+            </h4>
+            <div className="space-y-1 text-xs text-muted-foreground mb-3">
+              <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
+              <div>• {community.datasets} datasets</div>
+              <div>• {community.description || 'No description available'}</div>
+            </div>
           </div>
         </div>
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" className=" text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
+        <Button size="sm" variant={community.isJoined ? "outline" : "default"} className=" text-xs h-7  cursor-pointer" onClick={() => onJoin(community.id)}>
+          {community.isJoined ? "Joined" : "Join Community"}
+        </Button>
       </div>
     </Card>
   )
@@ -69,7 +80,7 @@ export default function DiscoverCommunityPage() {
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    
+
     // Also refresh when component mounts (in case user navigated here)
     handleRefresh()
 
@@ -94,18 +105,19 @@ export default function DiscoverCommunityPage() {
     ...c,
     datasets: Math.floor(Math.random() * 20) + 5,
     category: c.community_category?.name || 'General',
-    memberCount: c.memberCount || Math.floor(Math.random() * 2000) + 100
+    memberCount: c.memberCount || Math.floor(Math.random() * 2000) + 100,
+    coverImage: (c as any).coverImage || null
   }))
 
-  // Apply filters for search and category
+  // Filter communities based on search and active tab
   const filteredCommunities = extendedCommunities.filter(community => {
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch =
       community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.category.toLowerCase().includes(searchQuery.toLowerCase())
-    
+
     const matchesCategory = activeTab === 'All' || community.category === activeTab
-    
+
     return matchesSearch && matchesCategory
   })
 
@@ -124,7 +136,7 @@ export default function DiscoverCommunityPage() {
 
   // Create dynamic sections based on available categories
   const availableCategories = [...new Set(extendedCommunities.map(c => c.category))]
-  
+
   const recommendedCommunities = filteredCommunities.slice(0, 6) // Increased limit
   const educationCommunities = filteredCommunities.filter(c => c.category === 'Education').slice(0, 6)
   const dataScienceCommunities = filteredCommunities.filter(c => c.category === 'Data Science').slice(0, 6)
@@ -158,7 +170,7 @@ export default function DiscoverCommunityPage() {
             </Button>
           </div>
         </div>
-        
+
         {/* Search Bar */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -170,7 +182,7 @@ export default function DiscoverCommunityPage() {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categoryTabs.map((tab) => (
             <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" className="whitespace-nowrap" onClick={() => setActiveTab(tab)}>
@@ -185,19 +197,19 @@ export default function DiscoverCommunityPage() {
           <div className="text-muted-foreground">Loading communities...</div>
         </div>
       )}
-      
+
       {error && (
         <div className="flex items-center justify-center py-8">
           <div className="text-red-500">Error: {error}</div>
         </div>
       )}
-      
+
       {!loading && !error && extendedCommunities.length === 0 && (
         <div className="flex items-center justify-center py-8">
           <div className="text-muted-foreground">No communities found.</div>
         </div>
       )}
-      
+
       {!loading && !error && extendedCommunities.length > 0 && (
         <div className="space-y-8">
           {viewMode === 'sections' ? (
@@ -273,7 +285,7 @@ export default function DiscoverCommunityPage() {
             /* View All Mode */
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-4">
-                All Communities {searchQuery && `(filtered by "${searchQuery}")`} 
+                All Communities {searchQuery && `(filtered by "${searchQuery}")`}
                 {activeTab !== 'All' && `in ${activeTab}`}
                 <span className="text-sm text-muted-foreground ml-2">
                   ({filteredCommunities.length} communities)

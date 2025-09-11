@@ -116,10 +116,10 @@ export default function ResearcherAccessRequestsPage() {
                   <TableCell>{`"${request.purpose}"`}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" className="bg-black hover:bg-black/90 text-white">
+                      <Button size="sm" className=" bg-green-500 hover:bg-green-700 text-white cursor-pointer">
                         Approve
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" className=" bg-red-600 hover:bg-red-700 text-white cursor-pointer">
                         Reject
                       </Button>
                     </div>
