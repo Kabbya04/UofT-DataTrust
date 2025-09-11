@@ -24,7 +24,7 @@ function JoinCommunityRequestContent() {
         <Card className="border border-border max-w-md">
           <CardContent className="p-8 text-center">
             <h3 className="text-lg font-medium mb-2">Community Not Found</h3>
-            <p className="text-sm text-muted-foreground mb-4">The community you're trying to join could not be found.</p>
+            <p className="text-sm text-muted-foreground mb-4">The community you are trying to join could not be found.</p>
             <Button variant="outline" onClick={() => router.back()}>Go Back</Button>
           </CardContent>
         </Card>

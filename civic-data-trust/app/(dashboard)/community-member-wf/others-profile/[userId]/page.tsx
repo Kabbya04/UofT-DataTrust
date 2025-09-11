@@ -92,10 +92,10 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
             <div className="flex gap-6">
                 <div className="flex-1">
                     {/* Profile Header */}
-                    <Card className="p-6 mb-6">
-                        <div className="flex items-start justify-between">
+                    <Card className="p-6 mb-6 border-none">
+                        <div className="flex items-center justify-start gap-2">
                             <div className="flex items-center gap-4">
-                                <Avatar className="w-16 h-16">
+                                <Avatar className="w-12 h-12">
                                     <AvatarImage src={userData.avatar || "/placeholder.svg"} alt={userData.name} />
                                     <AvatarFallback className="bg-gray-600 text-white text-lg">
                                         {userData.name
@@ -119,8 +119,8 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
 
 
                     {/* Tabs */}
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-                        <TabsList className="grid w-full grid-cols-3">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 border-none bg-none">
+                        <TabsList className=" bg-transparent">
                             <TabsTrigger value="latest">Latest</TabsTrigger>
                             <TabsTrigger value="popular">Popular</TabsTrigger>
                             <TabsTrigger value="most-used">Most Used</TabsTrigger>
@@ -170,7 +170,7 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
                     </Card>
 
                     {/* Interests */}
-                    <Card className="p-4">
+                    {/* <Card className="p-4">
                         <h2 className="text-lg font-semibold mb-4">Interests</h2>
                         <div className="flex flex-wrap gap-2">
                             {userData.interests.map((interest, index) => (
@@ -179,7 +179,7 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
                                 </Badge>
                             ))}
                         </div>
-                    </Card>
+                    </Card> */}
                 </div>
             </div>
         </div>

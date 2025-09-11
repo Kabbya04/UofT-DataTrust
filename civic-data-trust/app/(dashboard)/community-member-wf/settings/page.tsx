@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState(0)
 
   return (
-    <div className="w-full mx-auto ">
+    <div className="w-full  ">
       <h1 className="text-2xl font-bold mb-1">Settings</h1>
       <p className="text-sm text-muted-foreground mb-6">Manage your settings and preferences.</p>
       <div className="flex gap-6 mb-6">
@@ -137,7 +137,7 @@ function AccountSettings() {
   }
 
   return (
-    <div className="ml-10 px-8">
+    <div className="px-8">
       <div className="flex items-center gap-4 mb-6">
         <Avatar className="w-16 h-16">
           <AvatarImage src="/profile.jpg" alt={user.name} />
@@ -146,7 +146,7 @@ function AccountSettings() {
         <div>
           <div className="font-semibold text-lg">
             {user.name} 
-            <span className="bg-muted px-2 py-0.5 rounded text-xs ml-2">
+            <span className=" bg-green-500 text-white px-2 py-0.5 rounded text-xs ml-2">
               {getRoleName(user.role)}
             </span>
           </div>
@@ -349,10 +349,10 @@ function DisplayPreferences() {
       <div className="border border-primary rounded-lg p-4">
         <h2 className="font-semibold mb-4">Data Management</h2>
         <div className="space-y-4 px-10">
-          <ActionRow label="Download my data" action="Download" />
-          <ActionRow label="Export Activity History" action="Export" />
-          <ActionRow label="Clear cache" action="Clear" />
-          <ActionRow label="Delete account" action="Delete" danger />
+          <ActionRow label="Download my data" action="download" />
+          <ActionRow label="Export Activity History" action="export" />
+          <ActionRow label="Clear cache" action="clear" />
+          <ActionRow label="Delete account" action="delete"/>
         </div>
       </div>
       <div className="col-span-2 mt-6">
@@ -381,7 +381,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-pressed={checked}
       onClick={() => onChange(!checked)}
       className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200
-        ${checked ? "bg-black" : "bg-gray-400"}`}
+        ${checked ? "bg-primary" : "bg-gray-400"}`}
       style={{ boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined }}
     >
       <span
@@ -402,11 +402,11 @@ function Radio({ label, checked }: { label: string; checked?: boolean }) {
   )
 }
 
-function ActionRow({ label, action, danger }: { label: string; action: string; danger?: boolean }) {
+function ActionRow({ label, action }: { label: string; action: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-md">{label}</span>
-      <Button variant={danger ? "destructive" : "outline"} size="sm" className=" w-32">{action}</Button>
+      <Button variant='default' size="sm" className={`${action == 'export' && 'bg-green-500'} ${action == 'clear' && 'bg-yellow-500'} ${action == 'delete' && 'bg-red-500'} w-32 text-white uppercase `}>{action}</Button>
     </div>
   )
 }

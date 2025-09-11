@@ -236,9 +236,10 @@ export default function UploadDatasetPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-start gap-2">
                                 <Button variant="outline">Cancel</Button>
                                 <Button className="bg-primary hover:bg-primary/90">Upload</Button>
+                                <Button variant="outline" className="border border-primary hover:bg-primary/90 text-primary">Save as draft</Button>
                             </div>
                         </CardContent>
                     </Card>
