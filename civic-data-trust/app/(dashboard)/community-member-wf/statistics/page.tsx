@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { Eye, ChevronDown, Database, TrendingUp, TrendingDown, Maximize2, Minimize2, RotateCcw } from "lucide-react"
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, Legend, Brush } from "recharts"
-import { Card, CardContent } from "@/app/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 
@@ -27,6 +27,11 @@ export default function StatisticsPage() {
     const [timeFilter, setTimeFilter] = useState("30")
     const [expandedChart, setExpandedChart] = useState<'pie' | 'line' | null>(null)
 
+    const usageStats = {
+        totalDatasets: 847, totalDownloads: 12456, totalUploads: 234,
+        storageUsed: "45.7 GB"
+    }
+    // Memoized filtered data based on current filters
     const filteredData = useMemo(() => {
         const daysAgo = parseInt(timeFilter);
         const cutoffDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
@@ -44,7 +49,7 @@ export default function StatisticsPage() {
             name, value: totalViews > 0 ? Math.round((value / totalViews) * 100) : 0,
             fill: `hsl(26 83% 58% / ${1 - (index * 0.15)})`
         }));
-        
+
         const totalRequests = perfData.reduce((sum, item) => sum + item.researchUsage, 0);
         const totalApproved = perfData.reduce((sum, item) => sum + item.downloads, 0);
 
@@ -68,13 +73,29 @@ export default function StatisticsPage() {
                     <Select value={timeFilter} onValueChange={setTimeFilter}><SelectTrigger className="w-48"><SelectValue placeholder="Last 30 Days" /></SelectTrigger><SelectContent><SelectItem value="7">Last 7 Days</SelectItem><SelectItem value="30">Last 30 Days</SelectItem><SelectItem value="90">Last 90 Days</SelectItem></SelectContent></Select>
                     <Button variant="default">Export</Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">{filteredData.audienceStats.map((stat, index) => (<Card key={index} className="border border-border"><CardContent className="p-6"><div className="flex items-center justify-between mb-2"><span className="text-sm font-medium text-muted-foreground">{stat.title}</span><div className="p-1 bg-muted rounded">{stat.icon}</div></div><div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div><div className={`text-sm ${stat.trend === 'up' ? 'text-foreground' : 'text-red-600'}`}>{stat.change}</div></CardContent></Card>))}</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">{filteredData.audienceStats.map((stat, index) => (
+                    <Card key={index} className="border border-border">
+                        <CardContent className="p-6"><div className="flex items-center justify-between mb-2"><span className="text-sm font-medium text-muted-foreground">{stat.title}</span><div className="p-1 bg-muted rounded">{stat.icon}</div></div><div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div><div className={`text-sm ${stat.trend === 'up' ? 'text-foreground' : 'text-red-600'}`}>{stat.change}</div></CardContent>
+                    </Card>))}</div>
             </div>
+
             <div className={`transition-all duration-300 mb-8 ${expandedChart ? 'fixed inset-0 z-50 bg-background p-6 overflow-auto' : 'grid grid-cols-1 lg:grid-cols-2 gap-6'}`}>
-                {(!expandedChart || expandedChart === 'pie') && (<Card className={`border border-border ${expandedChart === 'pie' ? 'w-full h-full' : ''}`}><CardContent className="p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Data Usage Category</h3><Button variant="outline" size="sm" onClick={() => setExpandedChart(expandedChart ? null : 'pie')} className="flex items-center gap-1">{expandedChart ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{expandedChart ? 'Minimize' : 'Expand'}</Button></div><PieChart width={500} height={300}><Pie data={filteredData.categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" stroke="hsl(var(--background))" strokeWidth={2}>{filteredData.categoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.fill} />))}</Pie><Legend verticalAlign="bottom" height={36} iconType="circle" /></PieChart></CardContent></Card>)}
-                {(!expandedChart || expandedChart === 'line') && (<Card className={`border border-border ${expandedChart === 'line' ? 'w-full h-full' : ''}`}><CardContent className="p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Data Usage Trends</h3><div className="flex gap-2">{expandedChart === 'line' && (<Button variant="outline" size="sm" onClick={() => {}} className="flex items-center gap-1"><RotateCcw className="h-4 w-4" />Reset Zoom</Button>)}<Button variant="outline" size="sm" onClick={() => setExpandedChart(expandedChart ? null : 'line')} className="flex items-center gap-1">{expandedChart ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{expandedChart ? 'Minimize' : 'Expand'}</Button></div></div><LineChart data={filteredData.trendData} margin={{ top: 5, right: 30, left: 20, bottom: 40 }}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis /><Line type="monotone" dataKey="usage" stroke="hsl(var(--primary))" dot={false} /><Brush dataKey="date" height={35} stroke="hsl(var(--primary))" /></LineChart></CardContent></Card>)}
+
+                {(!expandedChart || expandedChart === 'pie') && (
+
+                    <Card className={`border border-border ${expandedChart === 'pie' ? 'w-full h-full' : ''}`}>
+                        <CardContent className="p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Data Usage Category</h3><Button variant="outline" size="sm" onClick={() => setExpandedChart(expandedChart ? null : 'pie')} className="flex items-center gap-1">{expandedChart ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{expandedChart ? 'Minimize' : 'Expand'}</Button></div><PieChart width={500} height={300}><Pie data={filteredData.categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" stroke="hsl(var(--background))" strokeWidth={2}>{filteredData.categoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.fill} />))}</Pie><Legend verticalAlign="bottom" height={36} iconType="circle" /></PieChart></CardContent>
+                    </Card>)}
+                {(!expandedChart || expandedChart === 'line') && (<Card className={`border border-border ${expandedChart === 'line' ? 'w-full h-full' : ''}`}><CardContent className="p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Data Usage Trends</h3><div className="flex gap-2">{expandedChart === 'line' && (<Button variant="outline" size="sm" onClick={() => { }} className="flex items-center gap-1"><RotateCcw className="h-4 w-4" />Reset Zoom</Button>)}<Button variant="outline" size="sm" onClick={() => setExpandedChart(expandedChart ? null : 'line')} className="flex items-center gap-1">{expandedChart ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{expandedChart ? 'Minimize' : 'Expand'}</Button></div></div><LineChart data={filteredData.trendData} margin={{ top: 5, right: 30, left: 20, bottom: 40 }}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis /><Line type="monotone" dataKey="usage" stroke="hsl(var(--primary))" dot={false} /><Brush dataKey="date" height={35} stroke="hsl(var(--primary))" /></LineChart></CardContent></Card>)}
             </div>
             <div>
+                
+                <div className="mb-6">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Datasets</CardTitle><Database className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader><CardContent><div className="text-2xl font-bold">{usageStats.totalDatasets}</div></CardContent>
+                    </Card>
+                </div>
                 <h2 className="text-lg font-semibold text-foreground mb-4">Data Performance</h2>
                 <div className="space-y-4">{filteredData.performanceData.length === 0 ? <Card className="border border-border"><CardContent className="p-8 text-center"><div className="text-muted-foreground">No data available for the selected filters.</div></CardContent></Card> : filteredData.performanceData.map((item) => (<Card key={item.id} className="border border-border"><CardContent className="p-4"><div className="flex items-center justify-between"><div className="flex items-center gap-4"><div className="w-10 h-10 bg-muted rounded flex items-center justify-center"><Database className="h-5 w-5 text-muted-foreground" /></div><div><h4 className="font-semibold text-foreground">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date.toLocaleDateString()} • {item.size} • {item.category}</p></div></div><div className="flex items-center gap-8 text-center"><div><div className="text-2xl font-bold">{item.views.toLocaleString()}</div><div className="text-sm text-muted-foreground">Views</div></div><div><div className="text-2xl font-bold">{item.researchUsage.toLocaleString()}</div><div className="text-sm text-muted-foreground">Research Usage</div></div><div><div className="text-2xl font-bold">{item.downloads.toLocaleString()}</div><div className="text-sm text-muted-foreground">Downloads</div></div><div className="flex items-center gap-1">{item.growth.startsWith('+') ? <TrendingUp className="h-4 w-4 text-foreground" /> : <TrendingDown className="h-4 w-4 text-red-500" />}<span className={`text-sm font-medium ${item.growth.startsWith('+') ? 'text-foreground' : 'text-red-600'}`}>{item.growth}</span></div></div></div></CardContent></Card>))}</div>
             </div>

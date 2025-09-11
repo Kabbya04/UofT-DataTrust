@@ -130,10 +130,10 @@ const TextLink = ({ href, children }: { href: string, children: React.ReactNode 
     <Link
       href={href}
       className={cn(
-        "flex items-center space-x-2 px-3 py-2 rounded-lg text-base font-medium transition-colors",
+        "flex items-center space-x-2 px-3 py-2 rounded-lg text-base font-normal transition-colors",
         isActive
-          ? "bg-primary text-primary-foreground"
-          : "text-foreground hover:bg-muted"
+          ? "bg-white shadow font-bold"
+          : " text-gray-600 hover:bg-gray-50 hover:text-gray-900"
       )}
     >
       {children}
@@ -168,32 +168,31 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
           <Search className="h-4 w-4" />
           <span>Discover</span>
         </TextLink>
-        {/* <TextLink href={`/${rolePrefix}/my-communities`}>
-          <Users className="h-4 w-4" />
-          <span>My Communities</span>
-        </TextLink> */}
+
         <TextLink href={`/${rolePrefix}/popular`}>
           <TrendingUp className="h-4 w-4" />
           <span>Popular</span>
         </TextLink>
+        {
+          rolePrefix === 'community-member-wf' && (
+            <TextLink href={`/${rolePrefix}/upload-dataset`} >
+              <Button size="sm" 
+              className="bg-primary hover:bg-primary/90 cursor-pointer">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Dataset
+              </Button>
+            </TextLink>
+          )
+        }
+
+
       </div>
       <hr className="my-3 border-border" />
 
       {/* Dataset Categories Section */}
       <div className="space-y-1">
         <div className="flex items-center justify-between px-3 py-2">
-          <h3 className="text-sm font-semibold text-muted-foreground">Dataset Categories</h3>
-          <span className="text-xs text-muted-foreground">{filteredTags.length}</span>
-        </div>
-        {/* Search Tags */}
-        <div className="px-3 pb-2">
-          <input
-            type="text"
-            placeholder="Search categories..."
-            value={searchTags}
-            onChange={(e) => setSearchTags(e.target.value)}
-            className="w-full px-2 py-1 text-sm border border-border rounded-md bg-background"
-          />
+          <h3 className="text-lg font-semibold text-gray-400 uppercase tracking-wider">You Topics</h3>
         </div>
         {/* Display grouped categories */}
         <div className="max-h-96 overflow-y-auto">
@@ -206,30 +205,39 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
 
             return (
               <div key={categoryName}>
-                <button
-                  onClick={() => toggleCategory(categoryName)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium text-left"
+                <TextLink href={`#`}
                 >
-                  <span className="text-muted-foreground">{categoryName}</span>
+                  <div className="flex items-center justify-between w-full"
+                    onClick={() => toggleCategory(categoryName)}>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-600">{categoryName}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-gray-600" />
+                  </div>
+                </TextLink>
+                {/* <button
+                  onClick={() => toggleCategory(categoryName)}
+                  className="w-full flex gap-2 items-center justify-between px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium text-left  "
+                >
+                  <span className="text-gray-600">{categoryName}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                      {visibleTags.length}
-                    </span>
                     <ChevronDown
                       className={cn(
-                        "h-4 w-4 transition-transform text-muted-foreground",
+                        "h-4 w-4 transition-transform text-gray-600",
                         openCategories[categoryName] && "rotate-180"
                       )}
                     />
                   </div>
-                </button>
+                  
+                </button> */}
                 {openCategories[categoryName] && (
-                  <div className="pl-6 mt-1 space-y-1">
+                  <div className="pl-6 mt-1 ">
                     {visibleTags.map((tag) => (
                       <Link
                         key={tag}
-                        href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="block px-2 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors"
+                        href={`#`}
+                        // href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                        className="block px-2 py-1 text-sm text-gray-500 hover:bg-muted rounded-md transition-colors"
                       >
                         {tag}
                       </Link>
@@ -241,6 +249,7 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
           })}
         </div>
       </div>
+      {/* Optionally, you can add a search input for tags here */}
     </>
   );
 };
@@ -502,7 +511,7 @@ export function SidebarWf() {
 
   return (
     // The sidebar itself is a flex column that does NOT scroll
-    <div className="w-64 bg-background border-r border-border flex flex-col h-full">
+    <div className="w-64 bg-gray-100 border-r border-border flex flex-col h-full">
 
       <div className="flex-1 overflow-y-auto p-4">
         {isResearcherWf && isResearcherResearchSection && <ResearcherResearchNav />}

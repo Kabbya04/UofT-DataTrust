@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { PlayCircle, Image as ImageIcon } from "lucide-react";
 import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
+import Image from "next/image";
 export default function CommunityMemberHomePage() {
   const router = useRouter();
   const { communities, loading, error } = useCommunity();
@@ -37,6 +38,19 @@ export default function CommunityMemberHomePage() {
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
       videoThumbnail: "/placeholder.svg?height=200&width=400",
     },
+    {
+      id: "3",
+      title: "Another Post Title",
+      author: {
+        name: "Jane Smith",
+        avatar: "/placeholder.svg?height=40&width=40",
+        username: "janesmith",
+      },
+      timestamp: "2 hours ago",
+      content:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+      videoThumbnail: "/placeholder.svg?height=200&width=400",
+    },
   ]
 
   const topGridItems = [
@@ -52,86 +66,101 @@ export default function CommunityMemberHomePage() {
     .slice(0, 3);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="">
       {/* Main Content */}
-      <div className="lg:col-span-2 space-y-8">
+      <div className=" space-y-8">
+        <h2 className="text-2xl font-bold mb-4">Trending Now</h2>
         {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {topGridItems.map((item, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
-                  {item.type === 'video' ? <PlayCircle className="h-12 w-12 text-muted-foreground/50" /> : <ImageIcon className="h-12 w-12 text-muted-foreground/50" />}
-                </div>
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {posts.map((post) => (
+            <ExpandableContentCard key={post.id} {...post} />
           ))}
         </div>
 
-        {/* Latest Section */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Latest (Based on your interest)</h2>
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <ExpandableContentCard key={post.id} {...post} />
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Latest Section */}
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="text-2xl font-bold mb-4">Latest (Based on your interest)</h2>
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <ExpandableContentCard key={post.id} {...post} />
+              ))}
+            </div>
+          </div>
 
-            {/* {latestItems.map((item, i) => (
-              <Card key={i} className="flex flex-col md:flex-row items-center gap-6 p-4">
-                <div className="w-full md:w-48 h-32 bg-muted rounded-md flex-shrink-0 flex items-center justify-center">
-                    <PlayCircle className="h-12 w-12 text-muted-foreground/50"/>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.</p>
-                </div>
-              </Card>
-            ))} */}
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Popular Communities</h2>
+            {loading && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-muted-foreground text-sm">Loading communities...</div>
+              </div>
+            )}
+            {error && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-red-500 text-sm">Error: {error}</div>
+              </div>
+            )}
+            {!loading && !error && popularCommunities.length === 0 && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-muted-foreground text-sm">No communities found.</div>
+              </div>
+            )}
+            {!loading && !error && popularCommunities.length > 0 && (
+              <div className="space-y-4">
+                {popularCommunities.map((community, i) => (
+                  <Card key={community.id}
+                    onClick={() => router.push(`/community-member-wf/community-details/${community.id}`)}
+                    className=" w-full h-32 flex flex-row gap-2 cursor-pointer">
+                    <>
+                      {/* <Image
+                        src={community.coverImage || "/placeholder.svg?height=200&width=400"}
+                        alt={community.name || "Community cover image"}
+                        width={400}
+                        height={200}
+                        style={{ width: "100%", height: "auto" }}
+                      /> */}
+                      <div className="relative w-[40%]  bg-gray-200 rounded-lg overflow-hidden">
+                        {community.coverImage ? (
+                          <Image
+                            src={community.coverImage}
+                            alt={community.name || "Community cover image"}
+                            layout="fill"
+                            objectFit="cover"
+                          />
+                        ) : (
+                          <Image
+                            src="/placeholder.svg"
+                            alt="Placeholder image"
+                            layout="fill"
+                            objectFit="cover"
+                          />
+                        )}
+                      </div>
+                      <CardContent className=" w-[60%] p-0">
+                        <h3 className="font-semibold text-lg ">{community.name}</h3>
+                        <ul className="text-xs text-muted-foreground list-disc ml-3 ">
+                          <li>{community.memberCount || 0} members</li>
+                          <li>{Math.floor(Math.random() * 20) + 5} datasets</li>
+                          <li>{community.community_category?.name || 'General'} data & research</li>
+                        </ul>
+                        {/* <div className="flex items-center gap-1 ">
+                          <Button variant="outline" className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/community-details/${community.id}`)}>View Details</Button>
+                          <Button className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/join-community?communityId=${community.id}`)}>Join Community</Button>
+                        </div> */}
+                      </CardContent>
+                    </>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
+
       </div>
 
-      {/* Right Sidebar */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Popular Communities</h2>
-        {loading && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-muted-foreground text-sm">Loading communities...</div>
-          </div>
-        )}
-        {error && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-red-500 text-sm">Error: {error}</div>
-          </div>
-        )}
-        {!loading && !error && popularCommunities.length === 0 && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-muted-foreground text-sm">No communities found.</div>
-          </div>
-        )}
-        {!loading && !error && popularCommunities.length > 0 && (
-          <div className="space-y-4">
-            {popularCommunities.map((community, i) => (
-              <Card key={i}>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{community.name}</h3>
-                <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1 mb-4">
-                  <li>{community.memberCount || 0} members</li>
-                  <li>{Math.floor(Math.random() * 20) + 5} datasets</li>
-                  <li>{community.community_category?.name || 'General'} data & research</li>
-                </ul>
-                <div className="flex items-center gap-1 ">
-                  <Button variant="outline" className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/community-details/${community.id}`)}>View Details</Button>
-                  <Button className="w-fit text-xs" onClick={() => router.push(`/community-member-wf/join-community?communityId=${community.id}`)}>Join Community</Button>
-                </div>
-              </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+
     </div>
   );
 }

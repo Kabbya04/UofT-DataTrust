@@ -65,7 +65,7 @@ export function NotificationButton() {
         alt={notification.user}
         width={40}
         height={40}
-        className="rounded-full"
+        className="rounded-full "
       />
       <div className="flex-1 min-w-0">
         <p className="text-sm ">
@@ -106,8 +106,8 @@ export function NotificationButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 p-0">
-          <Bell className="h-6 w-6" />
+        <Button variant="ghost" className="relative h-10 w-10 p-0 bg-white border border-transparent hover:border-gray-300 rounded-full">
+          <Bell className="h-6 w-6 text-gray-500" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs font-medium flex items-center justify-center">
               {unreadCount}
