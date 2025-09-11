@@ -146,6 +146,10 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
   const [searchTags, setSearchTags] = useState("");
 
+  const usageStats = {
+    totalDatasets: 847, totalDownloads: 12456, totalUploads: 234,
+    storageUsed: "45.7 GB"
+  }
   const toggleCategory = (category: string) => {
     setOpenCategories(prev => ({
       ...prev,
@@ -168,13 +172,17 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
           <Search className="h-4 w-4" />
           <span>Discover</span>
         </TextLink>
-        {/* <TextLink href={`/${rolePrefix}/my-communities`}>
-          <Users className="h-4 w-4" />
-          <span>My Communities</span>
-        </TextLink> */}
+
         <TextLink href={`/${rolePrefix}/popular`}>
           <TrendingUp className="h-4 w-4" />
           <span>Popular</span>
+        </TextLink>
+        <TextLink href={`/${rolePrefix}/upload-dataset`}>
+          <Button size="sm"
+           className="bg-primary hover:bg-primary/90">
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Dataset
+          </Button>
         </TextLink>
       </div>
       <hr className="my-3 border-border" />
