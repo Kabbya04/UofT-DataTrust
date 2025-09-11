@@ -264,11 +264,116 @@ const EDAResultsModal: React.FC<EDAResultsModalProps> = ({
                 </pre>
               </div>
             ) : (
-              <pre className="text-xs text-gray-700 whitespace-pre-wrap">
-                {typeof selectedResult.output === 'string' 
-                  ? selectedResult.output 
-                  : JSON.stringify(selectedResult.output, null, 2)}
-              </pre>
+              // Enhanced handling for pandas and other data results
+              <div>
+                {(() => {
+                  // Try to get data from either 'output' or 'result' field
+                  let displayData = selectedResult.output;
+                  
+                  // If output is empty/null, try to get data from result field
+                  if (!displayData && selectedResult.result) {
+                    displayData = selectedResult.result;
+                  }
+                  
+                  if (displayData) {
+                    // Special handling for pandas info function
+                    if (selectedResult.function_name === 'info' && displayData.info) {
+                      return (
+                        <div>
+                          <Database className="w-6 h-6 text-blue-500 mb-2" />
+                          <div className="space-y-3">
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-700 mb-1">DataFrame Info:</h5>
+                              <pre className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded">
+                                {displayData.info}
+                              </pre>
+                            </div>
+                            {displayData.shape && (
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-700 mb-1">Shape:</h5>
+                                <p className="text-sm text-gray-600">{displayData.shape[0]} rows × {displayData.shape[1]} columns</p>
+                              </div>
+                            )}
+                            {displayData.columns && (
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-700 mb-1">Columns:</h5>
+                                <div className="flex flex-wrap gap-1">
+                                  {displayData.columns.map((col: string, idx: number) => (
+                                    <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                      {col}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Special handling for pandas head/tail functions (array of objects)
+                    if (Array.isArray(displayData) && displayData.length > 0 && typeof displayData[0] === 'object') {
+                      return (
+                        <div>
+                          <Database className="w-6 h-6 text-blue-500 mb-2" />
+                          <div className="space-y-2">
+                            <h5 className="text-sm font-medium text-gray-700">Data Preview ({displayData.length} rows):</h5>
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full text-xs border border-gray-200">
+                                <thead className="bg-gray-50">
+                                  <tr>
+                                    {Object.keys(displayData[0]).map((key) => (
+                                      <th key={key} className="px-2 py-1 text-left font-medium text-gray-700 border-b">
+                                        {key}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {displayData.slice(0, 10).map((row: any, idx: number) => (
+                                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                      {Object.values(row).map((value: any, cellIdx: number) => (
+                                        <td key={cellIdx} className="px-2 py-1 border-b text-gray-600">
+                                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                              {displayData.length > 10 && (
+                                <p className="text-xs text-gray-500 mt-1">... and {displayData.length - 10} more rows</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Default handling for other data types
+                    return (
+                      <div>
+                        <Database className="w-6 h-6 text-blue-500 mb-2" />
+                        <pre className="text-xs text-gray-700 whitespace-pre-wrap">
+                          {typeof displayData === 'string' 
+                            ? displayData 
+                            : JSON.stringify(displayData, null, 2)}
+                        </pre>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="text-center py-4">
+                        <FileText className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500">No output data available</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Function executed successfully but returned no displayable output
+                        </p>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
             )}
           </div>
         </div>
