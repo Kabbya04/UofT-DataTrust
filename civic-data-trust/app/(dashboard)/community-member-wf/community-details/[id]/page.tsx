@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback } from "@/app/components/ui/avatar"
 import { useCommunity } from "@/app/components/contexts/community-context"
 import { useState, useEffect } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
-
+import Image from "next/image"
+import Breadcrumbs from "@/app/components/dashboard/breadcrumbs";
 const mockCommunityPosts = [
   { id: 1, title: "Revolutionary Data Sharing Protocol Implementation", content: "A comprehensive guide to implementing secure data sharing protocols in healthcare environments...", author: "Dr. Alex Chen", timestamp: "2 hours ago", type: "video" as const },
   { id: 2, title: "New Healthcare Analytics Framework Released - Version 3.0", content: "The latest update to our open-source healthcare analytics framework includes improved patient privacy features...", author: "Dr. Sarah Wilson", timestamp: "4 hours ago", type: "video" as const },
@@ -84,12 +85,12 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
   }, [params]);
 
   const community = communities.find(c => c.id.toString() === communityId) || {
-    id: parseInt(communityId || "1"), 
+    id: parseInt(communityId || "1"),
     name: "Toronto Health Community",
     description: "Tincidunt cursque ipsum sit sit urna arci molestaque tincidunt et commodo. Praesent massa elit faucibus odio elit in adipiscing nec ipsum ut. Vestibulum ipsum sit.",
-    memberCount: 123, 
-    category: "Healthcare", 
-    isJoined: false, 
+    memberCount: 123,
+    category: "Healthcare",
+    isJoined: false,
     tags: ["Healthcare", "Research", "Data"]
   };
 
@@ -117,39 +118,89 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <div className="w-full h-48 bg-muted border border-primary rounded-lg mb-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-muted-foreground/20 to-muted-foreground/10" />
-          <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-            <div className="flex items-end gap-4">
-              <Avatar className="w-20 h-20 border-4 border-background"><AvatarFallback className="bg-background text-foreground text-lg font-semibold">{community.name.split(' ').map(word => word[0]).join('').slice(0, 2)}</AvatarFallback></Avatar>
-              <div className="pb-2"><h1 className="text-2xl font-bold text-foreground mb-1">{community.name}</h1></div>
-            </div>
+    <>
+      {/* Banner Section */}
+      <div className="">
+        <Breadcrumbs items={[
+          { label: "Community", href: "/community-member-wf/discover-community" }, 
+          { label: community.name, href:`/community-member-wf/community-details/communityId=${community.id}` }]} />
+        {/* Top illustration banner */}
+        <div className="w-full h-40 md:h-48 lg:h-56 rounded-t-lg overflow-hidden relative  bg-gray-400">
+          <Image
+            src="/Rectangle-4281.png" // Place your illustration image in the public folder and use the correct path
+            alt="Community Banner"
+            className="w-full h-full object-cover"
+            draggable={false}
+            fill
+            priority
+            sizes="50vw"
+          />
+        </div>
 
-            <div className="flex items-center gap-2 pb-2">
-              {community.isJoined && <Button variant="outline" size="sm" onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}>Create Post</Button>}
-              
-              <Button variant={community.isJoined ? "outline" : "default"} size="sm" onClick={handleJoinToggle}>{community.isJoined ? "Joined" : "Join"}</Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline" size="sm" className="px-2"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={handleAddToFavorite} className="cursor-pointer">
-                    {isFavorite ? "Remove from Favourite" : "Add to Favourite"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleMute} className="cursor-pointer">
-                    {isMuted ? "Unmute" : "Mute"}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+      </div>
+      {/* Main community info row */}
+      <div className=" bg-transparent rounded-b-lg shadow-sm px-6 py-4 flex flex-col md:flex-row items-center md:items-end justify-between mb-20 -mt-12 z-10">
+        <div className="flex items-end gap-6">
+          {/* Community logo/avatar */}
+          <Avatar className="w-32 h-32 border-4 border-gray-800 shadow-lg bg-background">
+            <AvatarFallback className="bg-background text-foreground text-2xl font-semibold">
+              {community.name.split(' ').map(word => word[0]).join('').slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="pb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">{community.name}</h1>
+            {/* Members avatars and count */}
+            <div className="flex items-center gap-2 mt-2">
+              {/* Example member avatars */}
+              <div className="flex -space-x-2">
+                <Image src="https://randomuser.me/api/portraits/men/32.jpg" width={32} height={32} className="w-8 h-8 rounded-full border-2 border-white" alt="member" />
+                <Image src="https://randomuser.me/api/portraits/women/44.jpg" width={32} height={32} className="w-8 h-8 rounded-full border-2 border-white" alt="member" />
+                <Image src="https://randomuser.me/api/portraits/men/65.jpg" width={32} height={32} className="w-8 h-8 rounded-full border-2 border-white" alt="member" />
+                <Image src="https://randomuser.me/api/portraits/women/22.jpg" width={32} height={32} className="w-8 h-8 rounded-full border-2 border-white" alt="member" />
+              </div>
+              <span className="ml-3 text-muted-foreground text-sm font-medium">
+                4.8K members
+                {/* {(community.memberCount ?? 0).toLocaleString()} members */}
+              </span>
             </div>
           </div>
+        </div>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 mt-4 md:mt-0">
+          {
+            community.isJoined && (<Button
+              variant="default"
+              size="sm"
+              className="font-semibold"
+              onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}
+            >
+              + create Post
+            </Button>)
+          }
+
+          <Button
+            variant={community.isJoined ? "outline" : "default"}
+            size="sm"
+            onClick={handleJoinToggle}
+            className="font-semibold"
+          >
+            {community.isJoined ? "Joined" : "Join"}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="px-2">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleAddToFavorite} className="cursor-pointer">
+                {isFavorite ? "Remove from Favourite" : "Add to Favourite"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleMute} className="cursor-pointer">
+                {isMuted ? "Unmute" : "Mute"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -161,12 +212,12 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           </div>
           <div className={`transition-all duration-300 ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>{mockCommunityPosts.map((post) => (<PostCard key={post.id} post={post} />))}</div>
         </div>
-        <div className={`w-80" ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>
+        <div className={`w-80${!community.isJoined ? " opacity-90 blur-xs pointer-events-none" : ""}`}>
           <div className="top-6 space-y-6">
             <Card className="p-4">
               <h3 className="font-semibold text-foreground mb-4">Stats</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Members</span></div><span className="font-semibold text-foreground">{community.memberCount}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Members</span></div><span className="font-semibold text-foreground">{community.memberCount ?? 0}</span></div>
                 <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Database className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Datasets</span></div><span className="font-semibold text-foreground">{datasets}</span></div>
               </div>
             </Card>
@@ -177,6 +228,6 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

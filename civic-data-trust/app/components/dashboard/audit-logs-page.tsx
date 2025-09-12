@@ -8,6 +8,7 @@ import { Label } from "@/app/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
 
+
 export default function AuditLogsPage() {
   const [dateFrom, setDateFrom] = useState("1 Sep 2025")
   const [dateTo, setDateTo] = useState("1 Sep 2025")
@@ -90,6 +91,7 @@ export default function AuditLogsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      
       <div className="container mx-auto px-4 ">
 
         <h1 className="text-3xl font-bold mb-8">Audit Logs</h1>

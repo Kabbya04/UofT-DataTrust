@@ -120,7 +120,7 @@ export default function MyCommunitiesPage() {
                   <Users className="h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">No Communities Joined</h3>
                   <p className="text-muted-foreground mb-4 max-w-sm">
-                    You haven't joined any communities yet. Browse communities and request to join ones that interest you.
+                    You haven&apos;t joined any communities yet. Browse communities and request to join ones that interest you.
                   </p>
                   <Button onClick={() => router.push('/community-member-wf/discover-communities')}>
                     Discover Communities
