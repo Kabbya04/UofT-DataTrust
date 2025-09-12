@@ -408,7 +408,10 @@ class EDAExecutor(DataScienceExecutor):
             'progress_tracking': execution_context['progress'],
             
             # Final output (last successful data result)
-            'final_output': self._get_final_output(execution_context['results'])
+            'final_output': self._get_final_output(execution_context['results']),
+            
+            # Current processed data for download
+            'processed_data': self._extract_processed_dataframe(execution_context['current_data'])
         }
     
     def _get_final_output(self, results: List[StepResult]) -> Any:
@@ -418,6 +421,31 @@ class EDAExecutor(DataScienceExecutor):
             if result.success and result.output_type in ['data', 'plot'] and result.result is not None:
                 return result.result
         return None
+    
+    def _extract_processed_dataframe(self, current_data: Any) -> Any:
+        """Extract processed DataFrame for download"""
+        try:
+            if current_data is None:
+                return None
+                
+            # If it's already a pandas DataFrame, convert to records for JSON serialization
+            if isinstance(current_data, pd.DataFrame):
+                return current_data.to_dict('records')
+            
+            # If it's a list of dictionaries, return as-is
+            if isinstance(current_data, list) and len(current_data) > 0 and isinstance(current_data[0], dict):
+                return current_data
+            
+            # Try to convert other data types to DataFrame then to records
+            if hasattr(current_data, 'to_dict'):
+                return current_data.to_dict('records')
+                
+            return current_data
+            
+        except Exception as e:
+            # Log the error but don't fail the entire execution
+            print(f"Warning: Could not extract processed DataFrame: {str(e)}")
+            return None
     
     def _handle_execution_error(self, execution_id: str, error_message: str, 
                                traceback_str: str) -> Dict[str, Any]:

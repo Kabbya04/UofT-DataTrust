@@ -356,30 +356,83 @@ def _save_base64_image(result_data: Dict[str, Any], output_dir: str, filename: s
 
 
 def _create_sample_data_file(file_path: str, execution_data: Dict[str, Any]):
-    """Create a sample processed data CSV file"""
+    """Create processed data CSV file from actual execution results"""
     try:
-        # Create a sample dataset
         import pandas as pd
         import numpy as np
         
-        # Generate sample data based on execution results
-        sample_size = 100
-        data = {
-            'id': range(1, sample_size + 1),
-            'value_a': np.random.normal(50, 15, sample_size),
-            'value_b': np.random.exponential(2, sample_size),
-            'category': np.random.choice(['A', 'B', 'C'], sample_size),
-            'timestamp': pd.date_range('2023-01-01', periods=sample_size, freq='D')
-        }
+        # First, try to get the final processed data from execution results
+        processed_df = None
         
-        df = pd.DataFrame(data)
-        df.to_csv(file_path, index=False, encoding='utf-8')
+        # Priority 1: Look for processed_data field (newly added)
+        if 'processed_data' in execution_data and execution_data['processed_data'] is not None:
+            processed_data = execution_data['processed_data']
+            if isinstance(processed_data, list) and len(processed_data) > 0:
+                processed_df = pd.DataFrame(processed_data)
+                logger.info("Using processed_data from execution results")
+        
+        # Priority 2: Look for final processed data in final_output
+        if processed_df is None and 'final_output' in execution_data and execution_data['final_output'] is not None:
+            # Try to extract DataFrame from final_output
+            final_output = execution_data['final_output']
+            if isinstance(final_output, list) and len(final_output) > 0 and isinstance(final_output[0], dict):
+                processed_df = pd.DataFrame(final_output)
+            elif isinstance(final_output, dict) and 'data' in final_output:
+                if isinstance(final_output['data'], list):
+                    processed_df = pd.DataFrame(final_output['data'])
+        
+        # If no final_output, look in pandas results for data transformations
+        if processed_df is None and 'pandas_results' in execution_data:
+            pandas_results = execution_data['pandas_results']
+            if 'data_transformations' in pandas_results and pandas_results['data_transformations']:
+                # Get the last data transformation
+                last_transformation = pandas_results['data_transformations'][-1]
+                if isinstance(last_transformation, list) and len(last_transformation) > 0:
+                    processed_df = pd.DataFrame(last_transformation)
+            
+            # Also check in step results for data output
+            if processed_df is None and 'steps' in pandas_results:
+                for step in reversed(pandas_results['steps']):  # Check from last to first
+                    if (step.get('success', False) and 
+                        step.get('output_type') == 'data' and 
+                        'result' in step and 
+                        step['result'] is not None):
+                        result_data = step['result']
+                        if isinstance(result_data, list) and len(result_data) > 0:
+                            processed_df = pd.DataFrame(result_data)
+                            break
+        
+        # If still no processed data, try to use original input data
+        if processed_df is None and 'input_data' in execution_data:
+            input_data = execution_data['input_data']
+            if 'csv_content' in input_data:
+                # Parse CSV content directly
+                from io import StringIO
+                csv_content = input_data['csv_content']
+                processed_df = pd.read_csv(StringIO(csv_content))
+                logger.info("Using original input data as no processed data was found")
+        
+        # If we have processed data, save it
+        if processed_df is not None and not processed_df.empty:
+            processed_df.to_csv(file_path, index=False, encoding='utf-8')
+            logger.info(f"Saved processed data with shape {processed_df.shape} to {file_path}")
+        else:
+            # Fallback: create a minimal dataset indicating no processed data
+            logger.warning("No processed data found, creating fallback dataset")
+            fallback_data = {
+                'note': ['No processed data available from execution'],
+                'execution_id': [execution_data.get('execution_id', 'unknown')],
+                'workflow_type': [execution_data.get('workflow_type', 'unknown')],
+                'status': ['Check execution logs for details']
+            }
+            df = pd.DataFrame(fallback_data)
+            df.to_csv(file_path, index=False, encoding='utf-8')
         
     except Exception as e:
-        logger.error(f"Failed to create sample data file: {str(e)}")
+        logger.error(f"Failed to create processed data file: {str(e)}")
         # Create a basic CSV as fallback
         with open(file_path, 'w', encoding='utf-8') as f:
-            f.write("id,value,category\n1,10,A\n2,20,B\n3,30,C\n")
+            f.write("error,message\ndata_extraction_failed,Could not extract processed data from execution results\n")
 
 
 def _create_original_data_file(file_path: str, execution_data: Dict[str, Any]):
