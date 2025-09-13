@@ -48,7 +48,7 @@ export default function MembershipRequestsPage() {
     const [requests, setRequests] = useState<JoinRequest[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [selectedCommunityId, setSelectedCommunityId] = useState<string>('');
-    
+
     // Use "all" as default selection to show all requests
     useEffect(() => {
         if (communities.length > 0 && !selectedCommunityId) {
@@ -66,7 +66,7 @@ export default function MembershipRequestsPage() {
             console.log('Fetching all join requests for admin');
             const fetchedRequests = await getAllJoinRequests();
             console.log('Fetched requests:', fetchedRequests);
-            
+
             // Filter by selected community if one is selected (but not "all")
             if (selectedCommunityId && selectedCommunityId !== 'all') {
                 const filteredRequests = fetchedRequests.filter(req => req.community_id === selectedCommunityId);
@@ -93,21 +93,21 @@ export default function MembershipRequestsPage() {
 
     const handleConfirmReject = async () => {
         if (!rejectionReason || !selectedRequest) return;
-        
+
         setIsProcessing(true);
-        
+
         try {
             console.log('Rejecting request:', {
                 requestId: selectedRequest.id,
                 reason: rejectionReason,
                 message: customMessage
             });
-            
+
             await rejectJoinRequest(selectedRequest.id, rejectionReason, customMessage);
-            
+
             // Refresh the requests list after successful rejection
             await fetchJoinRequests();
-            
+
             setShowRejectModal(false);
             setSelectedRequest(null);
             setRejectionReason('');
@@ -124,10 +124,10 @@ export default function MembershipRequestsPage() {
         try {
             console.log('Approving request:', request.id);
             await approveJoinRequest(request.id);
-            
+
             // Refresh the requests list after successful approval
             await fetchJoinRequests();
-            
+
             alert('Join request approved successfully!');
         } catch (error) {
             console.error('Failed to approve request:', error);
@@ -156,7 +156,7 @@ export default function MembershipRequestsPage() {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">Membership Requests</h1>
-                
+
                 {/* Community Selector */}
                 <div className="flex items-center gap-4">
                     <Label htmlFor="community-select" className="text-sm font-medium whitespace-nowrap">
@@ -180,13 +180,14 @@ export default function MembershipRequestsPage() {
                     </Button>
                 </div>
             </div>
-            
+
             {!selectedCommunityId && (
-                <div className="p-4 bg-muted/50 border border-muted rounded-lg">
-                    <p className="text-muted-foreground">Loading communities...</p>
+                <div className=" h-[60vh] flex items-center justify-center">
+                    <div className="inline-block h-12 w-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                    {/* <p className="text-muted-foreground">Loading....</p> */}
                 </div>
             )}
-            
+
             {error && (
                 <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                     <p className="text-destructive">{error}</p>
@@ -195,7 +196,7 @@ export default function MembershipRequestsPage() {
                     </Button>
                 </div>
             )}
-            
+
             {selectedCommunityId && (
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <TabsList>
@@ -219,61 +220,70 @@ export default function MembershipRequestsPage() {
                                             <div className="mt-2 text-sm">
                                                 <p>To test the functionality, try submitting a join request from:</p>
                                                 <p className="font-mono text-xs mt-1">
-                                                    http://localhost:3001/community-member-wf/discover-community
+                                                    http://localhost:3000/community-member-wf/discover-community
                                                 </p>
                                             </div>
                                         )}
                                     </div>
                                 ) : (
+                                    
+
                                     <Table>
                                         <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Name</TableHead>
-                                                <TableHead>Community</TableHead>
+                                            <TableRow className='text-lg'>
+                                                <TableHead >Name</TableHead>
                                                 <TableHead>Request Time</TableHead>
+                                                <TableHead>User Type</TableHead>
                                                 <TableHead>Message</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead className="text-right">Action</TableHead>
+                                                <TableHead className="">Action</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {filteredRequests.map((req) => {
                                                 const community = communities.find(c => c.id === req.community_id);
                                                 return (
-                                                <TableRow key={req.id}>
-                                                    <TableCell className="font-medium">{req.user.name}</TableCell>
-                                                    <TableCell className="font-medium">{community?.name || 'Unknown Community'}</TableCell>
-                                                    <TableCell>{formatDate(req.created_at)}</TableCell>
-                                                    <TableCell>{req.message || 'No message'}</TableCell>
-                                                    <TableCell>
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                            req.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                            req.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                                            'bg-red-100 text-red-800'
-                                                        }`}>
-                                                            {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {req.status === 'pending' && (
-                                                            <div className="flex gap-2 justify-end">
-                                                                <Button onClick={() => handleApprove(req)}>
-                                                                    Approve
-                                                                </Button>
-                                                                <Button 
-                                                                    variant="outline" 
-                                                                    onClick={() => handleReject(req)}
-                                                                >
-                                                                    Reject
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
+                                                    <TableRow key={req.id}>
+                                                        <TableCell className="font-medium">{req.user.name}</TableCell>
+                                                        <TableCell>{formatDate(req.created_at)}</TableCell>
+                                                        <TableCell>
+                                                            <span className="text-muted-foreground">Community Member</span>
+                                                        </TableCell>
+                                                        <TableCell>{req.message || 'Interested in joining'}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            {req.status === 'pending' && (
+                                                                <div className="flex gap-2 justify-end">
+                                                                    <Button
+                                                                        size="sm"
+                                                                        onClick={() => handleApprove(req)}
+                                                                        className="bg-green-600 hover:bg-green-700 text-white px-4"
+                                                                    >
+                                                                        Approve
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="destructive"
+                                                                        onClick={() => handleReject(req)}
+                                                                        className="bg-red-600 hover:bg-red-700 text-white px-4"
+                                                                    >
+                                                                        Reject
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                            {req.status !== 'pending' && (
+                                                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${req.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                                        'bg-red-100 text-red-800'
+                                                                    }`}>
+                                                                    {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                                                                </span>
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
                                                 );
                                             })}
                                         </TableBody>
                                     </Table>
+
+                                
                                 )}
                             </CardContent>
                         </Card>
@@ -290,7 +300,7 @@ export default function MembershipRequestsPage() {
                             <span>Reason for Rejection</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Please select a reason for rejecting <strong>{selectedRequest?.user.name}&#39;s</strong> membership request. 
+                            Please select a reason for rejecting <strong>{selectedRequest?.user.name}&#39;s</strong> membership request.
                             This information will help improve the application process.
                         </DialogDescription>
                     </DialogHeader>
@@ -323,7 +333,7 @@ export default function MembershipRequestsPage() {
                             <Textarea
                                 id="message"
                                 placeholder={
-                                    rejectionReason === "Other (please specify)" 
+                                    rejectionReason === "Other (please specify)"
                                         ? "Please specify the reason for rejection..."
                                         : "Add any additional details or feedback for the applicant..."
                                 }
@@ -333,7 +343,7 @@ export default function MembershipRequestsPage() {
                                 required={rejectionReason === "Other (please specify)"}
                             />
                             <p className="text-xs text-muted-foreground">
-                                {rejectionReason === "Other (please specify)" 
+                                {rejectionReason === "Other (please specify)"
                                     ? "Please provide specific details about the rejection reason."
                                     : "This message will be included in the rejection notification email."}
                             </p>
@@ -346,7 +356,7 @@ export default function MembershipRequestsPage() {
                                 <div className="text-sm">
                                     <p className="font-medium text-destructive mb-1">Important Notice</p>
                                     <p className="text-muted-foreground">
-                                        The applicant will be notified of this rejection via email. 
+                                        The applicant will be notified of this rejection via email.
                                         This action cannot be undone, but they may reapply in the future.
                                     </p>
                                 </div>
@@ -355,19 +365,19 @@ export default function MembershipRequestsPage() {
                     </div>
 
                     <DialogFooter className="gap-2">
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={() => setShowRejectModal(false)}
                             disabled={isProcessing}
                         >
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             variant="destructive"
                             onClick={handleConfirmReject}
                             disabled={
-                                isProcessing || 
-                                !rejectionReason || 
+                                isProcessing ||
+                                !rejectionReason ||
                                 (rejectionReason === "Other (please specify)" && !customMessage.trim())
                             }
                             className="min-w-[100px]"

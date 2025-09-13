@@ -425,7 +425,7 @@ export default function SettingsPage() {
               </Card>
             </div>
 
-            <Button onClick={handleSaveChanges} disabled={isLoading} className="w-auto">
+            <Button onClick={handleSaveChanges} disabled={isLoading} className="w-auto mt-8">
               {isLoading ? 'Saving...' : 'Save Changes'}
             </Button>
           </TabsContent>

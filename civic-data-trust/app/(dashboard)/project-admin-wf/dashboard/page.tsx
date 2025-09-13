@@ -41,22 +41,142 @@ export default function AdminDashboardPage() {
                 <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Engagement Rate</CardTitle><BarChart2 className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
             </div>
 
-            <div>
-                <h2 className="text-2xl font-bold mb-4">My Communities</h2>
-                <Tabs defaultValue="all"><TabsList><TabsTrigger value="all">All (120)</TabsTrigger><TabsTrigger value="internet">Internet (20)</TabsTrigger><TabsTrigger value="games">Games (20)</TabsTrigger><TabsTrigger value="technology">Technology (20)</TabsTrigger><TabsTrigger value="movies">Movies (20)</TabsTrigger><TabsTrigger value="television">Television (20)</TabsTrigger><TabsTrigger value="medicine">Medicine (20)</TabsTrigger></TabsList></Tabs>
+
+            {/* My communities */}
+            <div className="space-y-6">
+                <h2 className="text-2xl font-bold mb-6">My Community</h2>
+
+
+                <div>
+                    <Tabs defaultValue="all" className="">
+                        <TabsList className="flex gap-2 items-center justify-start bg-transparent p-0 h-auto">
+                            <TabsTrigger
+                                value="all"
+                                className="bg-blue-500 text-white hover:bg-blue-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                All
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="internet"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Internet (20)
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="games"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Games (20)
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="technology"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Technology (20)
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="movies"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Movies (20)
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="television"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Television (20)
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="medicine"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white px-4 py-2 rounded-md"
+                            >
+                                Medicine (20)
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                </div>
+
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    <Card className="border border-gray-200 rounded-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold">Growth of Content</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={barChartData} barCategoryGap="20%">
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#888888"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="#888888"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(value) => `${value}`}
+                                    />
+                                    <Bar
+                                        dataKey="value"
+                                        fill="#60A5FA"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={40}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border border-gray-200 rounded-lg">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold">Distribution of Content</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[300px] flex items-center justify-center">
+                            <div className="relative">
+                                <ResponsiveContainer width={200} height={200}>
+                                    <PieChart>
+                                        <Pie
+                                            data={[
+                                                { name: 'Active', value: 82.3 },
+                                                { name: 'Inactive', value: 17.7 }
+                                            ]}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            startAngle={90}
+                                            endAngle={450}
+                                            paddingAngle={2}
+                                            dataKey="value"
+                                            labelLine={false}
+                                        >
+                                            <Cell fill="#60A5FA" />
+                                            <Cell fill="#E5E7EB" />
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold">82.3%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card><CardHeader><CardTitle>Growth of Content</CardTitle></CardHeader><CardContent className="h-[300px]"><ResponsiveContainer width="100%" height="100%"><BarChart data={barChartData}><XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} /><YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} /><Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></CardContent></Card>
-                <Card><CardHeader><CardTitle>Distribution of Content</CardTitle></CardHeader><CardContent className="h-[300px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pieChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="value" labelLine={false}>{pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}</Pie></PieChart></ResponsiveContainer></CardContent></Card>
-            </div>
+
 
             <Card>
                 <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
                 <CardContent>
                     <Table>
-                        <TableHeader><TableRow><TableHead>Time</TableHead><TableHead>Activity</TableHead><TableHead>File Type</TableHead><TableHead>User</TableHead><TableHead>User Type</TableHead><TableHead>Community</TableHead><TableHead className="text-right">Action</TableHead></TableRow></TableHeader>
-                        <TableBody>{recentActivity.map((activity, index) => (<TableRow key={index}><TableCell>{activity.time}</TableCell><TableCell>{activity.activity}</TableCell><TableCell>{activity.fileType}</TableCell><TableCell>{activity.user}</TableCell><TableCell>{activity.userType}</TableCell><TableCell>{activity.community}</TableCell><TableCell className="text-right"><Button variant="link" className="p-0 h-auto text-destructive">Delete</Button> | <Button variant="link" className="p-0 h-auto">Warning</Button></TableCell></TableRow>))}</TableBody>
+                        <TableHeader><TableRow><TableHead>Time</TableHead><TableHead>Activity</TableHead><TableHead>File Type</TableHead><TableHead>User</TableHead><TableHead>User Type</TableHead><TableHead>Community</TableHead><TableHead >Action</TableHead></TableRow></TableHeader>
+                        <TableBody>{recentActivity.map((activity, index) => (<TableRow key={index}><TableCell>{activity.time}</TableCell><TableCell>{activity.activity}</TableCell><TableCell>{activity.fileType}</TableCell><TableCell>{activity.user}</TableCell><TableCell>{activity.userType}</TableCell><TableCell>{activity.community}</TableCell><TableCell className="text-right"><Button variant="secondary" className=" h-auto bg-green-500 ">Delete</Button> <Button variant="destructive" className=" h-auto">Warning</Button></TableCell></TableRow>))}</TableBody>
                     </Table>
                 </CardContent>
             </Card>

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { PlayCircle, AlertTriangle, Flag, Eye, MessageSquare, Edit3, Info, MoreHorizontal } from 'lucide-react';
+import Image from 'next/image';
 
 const postsToReview = Array(3).fill(null).map((_, index) => ({
     id: index + 1,
@@ -104,12 +105,12 @@ export default function PostReviewPage() {
 
     const handleConfirmReject = async () => {
         if (!rejectionReason) return;
-        
+
         setIsProcessing(true);
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         console.log('Rejecting post:', {
             postId: selectedPost.id,
             reason: rejectionReason,
@@ -118,7 +119,7 @@ export default function PostReviewPage() {
             notifyAuthor,
             allowResubmission
         });
-        
+
         setIsProcessing(false);
         setShowRejectModal(false);
         setSelectedPost(null);
@@ -126,12 +127,12 @@ export default function PostReviewPage() {
 
     const handleConfirmRequestChanges = async () => {
         if (!changeRequestReason || !changeRequestMessage.trim()) return;
-        
+
         setIsProcessing(true);
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         console.log('Requesting changes for post:', {
             postId: selectedPost.id,
             reason: changeRequestReason,
@@ -140,7 +141,7 @@ export default function PostReviewPage() {
             deadline: setDeadline ? deadlineDays : null,
             notifyAuthor: notifyAuthorChanges
         });
-        
+
         setIsProcessing(false);
         setShowRequestChangesModal(false);
         setSelectedPost(null);
@@ -152,7 +153,7 @@ export default function PostReviewPage() {
     };
 
     const handleViolationToggle = (violationId: string) => {
-        setSelectedViolations(prev => 
+        setSelectedViolations(prev =>
             prev.includes(violationId)
                 ? prev.filter(id => id !== violationId)
                 : [...prev, violationId]
@@ -160,7 +161,7 @@ export default function PostReviewPage() {
     };
 
     const handleChangesToggle = (changeId: string) => {
-        setSelectedChanges(prev => 
+        setSelectedChanges(prev =>
             prev.includes(changeId)
                 ? prev.filter(id => id !== changeId)
                 : [...prev, changeId]
@@ -170,7 +171,7 @@ export default function PostReviewPage() {
     return (
         <div className="space-y-8">
             <h1 className="text-3xl font-bold">Post Review (320)</h1>
-            
+
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
                     <TabsTrigger value="all">ALL</TabsTrigger>
@@ -179,42 +180,53 @@ export default function PostReviewPage() {
                     <TabsTrigger value="rejected">Rejected</TabsTrigger>
                 </TabsList>
                 <TabsContent value={activeTab} className="pt-6">
-                    <div className="grid gird-cols-2">
+                    <div className="grid gird-cols-2 space-y-4">
                         {postsToReview.map((post, index) => (
-                            <Card key={index} className="overflow-hidden">
+                            <Card key={index} className="max-w-2xl overflow-hidden">
                                 <CardContent className="p-0">
                                     {/* Video/Media Section */}
-                                    <div className="relative bg-muted h-48 flex items-center justify-center">
-                                        <PlayCircle className="h-16 w-16 "/>
-                                        
+                                    <div className="relative border rounded-lg h-48 flex items-center justify-center overflow-hidden">
+                                        {/* Background Image */}
+                                        <Image
+                                            src="/Rectangle-4281.png"
+                                            alt="Post background"
+                                            fill
+                                            className="object-cover"
+                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                            priority
+                                        />
+
+                                        {/* Optional: Add overlay for better button visibility */}
+                                        <div className="absolute inset-0 bg-black/20 z-0"></div>
+
                                         {/* Action Buttons Overlay */}
-                                        <div className="absolute top-4 right-4 flex gap-2">
-                                            <Button 
-                                                size="sm" 
+                                        <div className="absolute top-4 right-4 flex gap-2 z-10">
+                                            <Button
+                                                size="sm"
                                                 onClick={() => handleApprove(post)}
-                                                className="bg-green-600 hover:bg-green-700 focus:ring-green-500 hover:cursor-pointer"
+                                                className="bg-green-600 border-4 hover:bg-green-700 focus:ring-green-500 hover:cursor-pointer"
                                             >
                                                 Approve
                                             </Button>
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
                                                 onClick={() => handleReject(post)}
-                                                className=" bg-red-600 hover:bg-red-700 focus:ring-red-500 hover:cursor-pointer"
+                                                className=" bg-red-600 hover:bg-red-700 focus:ring-red-500 border-4 hover:cursor-pointer"
                                             >
                                                 Reject
                                             </Button>
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
                                                 onClick={() => handleRequestChanges(post)}
-                                                className=" bg-primary hover:bg-primary-700 focus:ring-primary-500 hover:cursor-pointer"
+                                                className=" bg-primary hover:bg-primary-700 focus:ring-primary-500 border-4 hover:cursor-pointer"
                                             >
                                                 Request changes
                                             </Button>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Content Section */}
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
@@ -222,7 +234,7 @@ export default function PostReviewPage() {
                                                 <h3 className="font-semibold text-lg">{post.title}</h3>
                                                 <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                                             </div>
-                                            <span className="text-sm text-muted-foreground">{post.communityName}</span>
+                                            <span className="font-semibold text-lg">{post.communityName}</span>
                                         </div>
                                         <p className="text-sm text-muted-foreground">
                                             {post.description}
@@ -244,7 +256,7 @@ export default function PostReviewPage() {
                             <span>Request Changes</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Request specific changes to &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}. 
+                            Request specific changes to &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}.
                             The author will be notified and can resubmit after making the requested modifications.
                         </DialogDescription>
                     </DialogHeader>
@@ -295,8 +307,8 @@ export default function PostReviewPage() {
                                             checked={selectedChanges.includes(change.id)}
                                             onCheckedChange={() => handleChangesToggle(change.id)}
                                         />
-                                        <Label 
-                                            htmlFor={change.id} 
+                                        <Label
+                                            htmlFor={change.id}
                                             className="text-sm cursor-pointer"
                                         >
                                             {change.label}
@@ -345,7 +357,7 @@ export default function PostReviewPage() {
                                         Set deadline for revisions
                                     </Label>
                                 </div>
-                                
+
                                 {setDeadline && (
                                     <div className="ml-6 space-y-2">
                                         <Label className="text-sm">Deadline (days from now)</Label>
@@ -362,7 +374,7 @@ export default function PostReviewPage() {
                                         </Select>
                                     </div>
                                 )}
-                                
+
                                 <div className="flex items-center space-x-2">
                                     <Checkbox
                                         id="notifyChanges"
@@ -376,7 +388,7 @@ export default function PostReviewPage() {
                                     <Label htmlFor="notifyChanges" className="text-sm cursor-pointer">
                                         Send notification email to author
                                     </Label>
-                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -387,7 +399,7 @@ export default function PostReviewPage() {
                                 <div className="text-sm">
                                     <p className="font-medium text-orange-800 mb-1">Change Request Process</p>
                                     <p className="text-orange-700">
-                                        The author will receive your feedback and can make the requested changes. 
+                                        The author will receive your feedback and can make the requested changes.
                                         The post will return to the review queue once resubmitted.
                                         {setDeadline && ` They have ${deadlineDays} days to make the changes.`}
                                     </p>
@@ -397,19 +409,19 @@ export default function PostReviewPage() {
                     </div>
 
                     <DialogFooter className="gap-2">
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={() => setShowRequestChangesModal(false)}
                             disabled={isProcessing}
                         >
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             variant="default"
                             onClick={handleConfirmRequestChanges}
                             disabled={
-                                isProcessing || 
-                                !changeRequestReason || 
+                                isProcessing ||
+                                !changeRequestReason ||
                                 !changeRequestMessage.trim() ||
                                 (changeRequestReason === "Other (please specify)" && !changeRequestMessage.trim())
                             }
@@ -437,7 +449,7 @@ export default function PostReviewPage() {
                             <span>Reject Post</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}. 
+                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}.
                             This information will help improve content quality.
                         </DialogDescription>
                     </DialogHeader>
@@ -488,8 +500,8 @@ export default function PostReviewPage() {
                                             checked={selectedViolations.includes(violation.id)}
                                             onCheckedChange={() => handleViolationToggle(violation.id)}
                                         />
-                                        <Label 
-                                            htmlFor={violation.id} 
+                                        <Label
+                                            htmlFor={violation.id}
                                             className="text-sm cursor-pointer"
                                         >
                                             {violation.label}
@@ -507,7 +519,7 @@ export default function PostReviewPage() {
                             <Textarea
                                 id="message"
                                 placeholder={
-                                    rejectionReason === "Other (please specify)" 
+                                    rejectionReason === "Other (please specify)"
                                         ? "Please specify the reason for rejection..."
                                         : "Provide specific feedback or suggestions for improvement..."
                                 }
@@ -532,7 +544,7 @@ export default function PostReviewPage() {
                                     <Checkbox
                                         id="notify"
                                         checked={notifyAuthor}
-                                       onCheckedChange={(checked) => {
+                                        onCheckedChange={(checked) => {
                                             if (typeof checked === 'boolean') {
                                                 setNotifyAuthor(checked);
                                             }
@@ -566,7 +578,7 @@ export default function PostReviewPage() {
                                 <div className="text-sm">
                                     <p className="font-medium text-destructive mb-1">Important Notice</p>
                                     <p className="text-muted-foreground">
-                                        Rejecting this post will remove it from the review queue. 
+                                        Rejecting this post will remove it from the review queue.
                                         {allowResubmission ? " The author will be able to edit and resubmit if enabled above." : " The author will not be able to resubmit this post."}
                                     </p>
                                 </div>
@@ -575,19 +587,19 @@ export default function PostReviewPage() {
                     </div>
 
                     <DialogFooter className="gap-2">
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={() => setShowRejectModal(false)}
                             disabled={isProcessing}
                         >
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             variant="destructive"
                             onClick={handleConfirmReject}
                             disabled={
-                                isProcessing || 
-                                !rejectionReason || 
+                                isProcessing ||
+                                !rejectionReason ||
                                 (rejectionReason === "Other (please specify)" && !customMessage.trim())
                             }
                             className="min-w-[120px]"
