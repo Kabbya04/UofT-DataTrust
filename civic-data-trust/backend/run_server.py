@@ -24,22 +24,22 @@ def check_dependencies():
             missing_packages.append(package)
     
     if missing_packages:
-        print("❌ Missing required packages:")
+        print("[ERROR] Missing required packages:")
         for package in missing_packages:
             print(f"   - {package}")
         print("\nInstall them with: pip install -r requirements.txt")
         return False
     
-    print("✅ All dependencies are installed")
+    print("[OK] All dependencies are installed")
     return True
 
 def start_server():
     """Start the FastAPI server"""
-    print("🚀 Starting Data Science Workflow API...")
-    print("📍 Server will be available at: http://localhost:8000")
-    print("📊 API docs will be available at: http://localhost:8000/docs")
-    print("🔗 API endpoints will be at: http://localhost:8000/api/v1")
-    print("🛑 Press Ctrl+C to stop the server")
+    print("[START] Starting Data Science Workflow API...")
+    print("[INFO] Server will be available at: http://localhost:8000")
+    print("[INFO] API docs will be available at: http://localhost:8000/docs")
+    print("[INFO] API endpoints will be at: http://localhost:8000/api/v1")
+    print("[INFO] Press Ctrl+C to stop the server")
     print("-" * 60)
     
     try:
@@ -52,9 +52,9 @@ def start_server():
             "--reload"
         ])
     except KeyboardInterrupt:
-        print("\n🛑 Server stopped by user")
+        print("\n[STOP] Server stopped by user")
     except Exception as e:
-        print(f"❌ Error starting server: {e}")
+        print(f"[ERROR] Error starting server: {e}")
 
 def main():
     """Main function"""
@@ -63,7 +63,7 @@ def main():
     
     # Check if we're in the right directory
     if not os.path.exists('app') or not os.path.exists('app/main.py'):
-        print("❌ app/main.py not found in current directory")
+        print("[ERROR] app/main.py not found in current directory")
         print("Make sure you're running this script from the backend directory")
         print("Expected structure:")
         print("  backend/")

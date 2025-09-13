@@ -50,6 +50,9 @@ function CommunityPageContent() {
   const [isMounted, setIsMounted] = useState(false);
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);
   const [activeLeftTab, setActiveLeftTab] = useState<'data' | 'templates' | 'info'>('data');
+  const [notebookMode, setNotebookMode] = useState(false);
+  const [notebookUrl, setNotebookUrl] = useState('');
+  const [notebookLoading, setNotebookLoading] = useState(false);
   
   // Get workflow state for export
   const workflowState = useSelector((state: RootState) => state.workflow);
@@ -324,6 +327,35 @@ function CommunityPageContent() {
     input.click();
   };
 
+  const toggleNotebookMode = async () => {
+    if (!notebookMode) {
+      // Switching to notebook mode
+      setNotebookLoading(true);
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/notebook/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setNotebookUrl(data.url);
+          setNotebookMode(true);
+        } else {
+          alert('Failed to start notebook server');
+        }
+      } catch (error) {
+        alert('Error connecting to backend');
+        console.error('Notebook start error:', error);
+      }
+      setNotebookLoading(false);
+    } else {
+      // Switching back to canvas mode
+      setNotebookMode(false);
+      setNotebookUrl('');
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
@@ -574,28 +606,69 @@ function CommunityPageContent() {
                           to-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Workflow Canvas</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {notebookMode ? 'Jupyter Notebook' : 'Workflow Canvas'}
+                </h1>
                 <p className="text-gray-600">
-                  Drag nodes from the library and connect them to create your workflow
+                  {notebookMode 
+                    ? 'Interactive notebook environment for data analysis'
+                    : 'Drag nodes from the library and connect them to create your workflow'
+                  }
                 </p>
               </div>
-              <button
-                onClick={() => window.location.reload()}
-                className="p-2 hover:bg-white rounded-lg transition-colors"
-                title="Refresh"
-              >
-                <RefreshCw className="w-5 h-5 text-gray-600" />
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={toggleNotebookMode}
+                  className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                    notebookMode 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  title={notebookMode ? 'Switch to Canvas' : 'Open Notebook'}
+                >
+                  <FileText className="w-4 h-4" />
+                  {notebookMode ? 'Canvas Mode' : 'Notebook Mode'}
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="p-2 hover:bg-white rounded-lg transition-colors"
+                  title="Refresh"
+                >
+                  <RefreshCw className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="flex-1 relative">
-            {isMounted && (
-              <WorkflowCanvas
-                canvasNodes={[]}
-                onDrop={handleNodeDrop}
-                draggedPlugin={draggedNode}
-              />
+            {notebookMode ? (
+              notebookLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Starting Jupyter Notebook...</p>
+                  </div>
+                </div>
+              ) : notebookUrl ? (
+                <iframe
+                  src={notebookUrl}
+                  className="w-full h-full border-0"
+                  title="Jupyter Notebook"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-gray-600">Failed to load notebook</p>
+                </div>
+              )
+            ) : (
+              isMounted && (
+                <WorkflowCanvas
+                  canvasNodes={[]}
+                  onDrop={handleNodeDrop}
+                  draggedPlugin={draggedNode}
+                />
+              )
             )}
           </div>
         </div>
