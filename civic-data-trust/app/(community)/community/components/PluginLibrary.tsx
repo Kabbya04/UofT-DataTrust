@@ -203,16 +203,25 @@ const nodeLibrary = [
 interface PluginLibraryProps {
   onDragStart: (node: any) => void;
   onDragEnd: () => void;
+  isDarkMode?: boolean;
 }
 
-export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryProps) {
+export default function PluginLibrary({ onDragStart, onDragEnd, isDarkMode = false }: PluginLibraryProps) {
   const categories = ['AI', 'Data', 'Data Science', 'API', 'Logic', 'Utility'];
   
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className={`w-80 border-l overflow-y-auto transition-colors duration-200 ${
+      isDarkMode 
+        ? 'bg-gray-800 border-gray-700' 
+        : 'bg-white border-gray-200'
+    }`}>
       <div className="p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Node Library</h2>
-        <p className="text-base text-gray-600 mb-6">
+        <h2 className={`text-2xl font-bold mb-4 transition-colors duration-200 ${
+          isDarkMode ? 'text-white' : 'text-gray-900'
+        }`}>Node Library</h2>
+        <p className={`text-base mb-6 transition-colors duration-200 ${
+          isDarkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}>
           Drag nodes to the canvas to build your workflow
         </p>
         
@@ -222,14 +231,20 @@ export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryP
           
           return (
             <div key={category} className="mb-8">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">
+              <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 transition-colors duration-200 ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
                 {category}
               </h3>
               <div className="space-y-3">
                 {categoryNodes.map(node => (
                   <div
                     key={node.id}
-                    className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-200 cursor-move hover:shadow-lg hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200"
+                    className={`flex items-center p-4 rounded-xl border cursor-move hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 hover:border-gray-500 hover:bg-gray-600' 
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
                     draggable
                     onDragStart={() => onDragStart(node)}
                     onDragEnd={onDragEnd}
@@ -241,8 +256,12 @@ export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryP
                       {node.icon}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 text-base">{node.name}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{node.description}</p>
+                      <h4 className={`font-semibold text-base transition-colors duration-200 ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}>{node.name}</h4>
+                      <p className={`text-sm mt-1 transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}>{node.description}</p>
                     </div>
                   </div>
                 ))}

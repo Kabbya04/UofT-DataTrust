@@ -8,6 +8,7 @@ import { addNode, setViewport, setZoom } from '../../store/workflowSlice';
 import PluginLibrary from './components/PluginLibrary';
 import { Upload, Save, Download, Play, FileJson, RefreshCw, Trash2, Image, FileText, Database } from 'lucide-react';
 import TemplatePanel from './components/TemplatePanel';
+import TopNavigation from './components/TopNavigation';
 // Dynamic import with SSR disabled for Konva components
 const WorkflowCanvas = dynamic(
   () => import('./components/WorkflowCanvas'),
@@ -48,6 +49,7 @@ function CommunityPageContent() {
   const [draggedNode, setDraggedNode] = useState<any>(null);
   const [workflowName, setWorkflowName] = useState('Untitled Workflow');
   const [isMounted, setIsMounted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);
   const [activeLeftTab, setActiveLeftTab] = useState<'data' | 'templates' | 'info'>('data');
   const [notebookMode, setNotebookMode] = useState(false);
@@ -356,28 +358,58 @@ function CommunityPageContent() {
     }
   };
 
+  const handleToggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    // Update the document class for global dark mode
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <div className={`flex flex-col h-screen transition-colors duration-200 ${
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+    }`}>
+      {/* Top Navigation */}
+      <TopNavigation isDarkMode={isDarkMode} onToggleDarkMode={handleToggleDarkMode} />
+      
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        <div className={`w-80 border-r flex flex-col transition-colors duration-200 ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'
+        }`}>
         {/* Header with Navigation Tabs */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Workflow Builder</h2>
+        <div className={`p-6 border-b transition-colors duration-200 ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
+          <h2 className={`text-2xl font-bold mb-4 transition-colors duration-200 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>Workflow Builder</h2>
           <input
             type="text"
             value={workflowName}
             onChange={(e) => setWorkflowName(e.target.value)}
-            className="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg 
-                  focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+            className={`w-full px-3 py-1 text-sm border rounded-lg mb-4 transition-colors duration-200 ${
+              isDarkMode 
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500' 
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+            } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
             placeholder="Enter workflow name..."
           />
 
           {/* Tab Navigation */}
-          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+          <div className={`flex gap-1 rounded-lg p-1 transition-colors duration-200 ${
+            isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+          }`}>
             <button
               onClick={() => setActiveLeftTab('data')}
               className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${activeLeftTab === 'data'
-                  ? 'bg-white text-blue-700 shadow-md border border-blue-200'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  ? (isDarkMode ? 'bg-gray-600 text-blue-400 shadow-md border border-blue-500' : 'bg-white text-blue-700 shadow-md border border-blue-200')
+                  : (isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50')
                 }`}
             >
               Data Sources
@@ -385,8 +417,8 @@ function CommunityPageContent() {
             <button
               onClick={() => setActiveLeftTab('templates')}
               className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${activeLeftTab === 'templates'
-                  ? 'bg-white text-blue-700 shadow-md border border-blue-200'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  ? (isDarkMode ? 'bg-gray-600 text-blue-400 shadow-md border border-blue-500' : 'bg-white text-blue-700 shadow-md border border-blue-200')
+                  : (isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50')
                 }`}
             >
               Templates
@@ -394,8 +426,8 @@ function CommunityPageContent() {
             <button
               onClick={() => setActiveLeftTab('info')}
               className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${activeLeftTab === 'info'
-                  ? 'bg-white text-blue-700 shadow-md border border-blue-200'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  ? (isDarkMode ? 'bg-gray-600 text-blue-400 shadow-md border border-blue-500' : 'bg-white text-blue-700 shadow-md border border-blue-200')
+                  : (isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50')
                 }`}
             >
               Workflow
@@ -407,19 +439,30 @@ function CommunityPageContent() {
         <div className="flex-1 p-6 space-y-4 overflow-y-auto">
           {/* Data Sources Tab */}
           {activeLeftTab === 'data' && (
-            <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
+            <div className={`border rounded-xl p-6 shadow-sm transition-colors duration-200 ${
+              isDarkMode 
+                ? 'border-gray-700 bg-gray-800' 
+                : 'border-gray-200 bg-white'
+            }`}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Data Sources</h3>
-                <Upload className="w-5 h-5 text-gray-400" />
+                <h3 className={`text-lg font-semibold transition-colors duration-200 ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>Data Sources</h3>
+                <Upload className={`w-5 h-5 transition-colors duration-200 ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-400'
+                }`} />
               </div>
 
               {/* Grid layout for data source cards */}
               <div className="grid grid-cols-1 gap-4">
                 {/* Image Data Card */}
                 <div
-                  className={`relative bg-white border-2 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${selectedDataSources.includes('image')
+                  className={`relative border-2 rounded-xl p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+                    selectedDataSources.includes('image')
                       ? 'border-blue-500 bg-blue-50 shadow-md'
-                      : 'border-gray-200 hover:border-blue-300 shadow-sm'
+                      : (isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 hover:border-blue-400 shadow-sm' 
+                          : 'bg-white border-gray-200 hover:border-blue-300 shadow-sm')
                     }`}
                   onClick={handleImageSelect}
                 >
@@ -428,8 +471,12 @@ function CommunityPageContent() {
                       <Image className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-base text-gray-900">Image Data</div>
-                      <div className="text-sm text-gray-600 mt-1">download.jpg</div>
+                      <div className={`font-semibold text-base transition-colors duration-200 ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}>Image Data</div>
+                      <div className={`text-sm mt-1 transition-colors duration-200 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}>download.jpg</div>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs bg-gray-100 px-3 py-1 rounded-full font-medium">JPG</span>
                         <span className="text-xs text-gray-500 font-medium">1.2 MB</span>
@@ -598,24 +645,34 @@ function CommunityPageContent() {
         </div>
       </div>
 
-      {/* Canvas Area */}
-      <div className="flex-1 p-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex 
-                          flex-col">
-          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 
-                          to-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {notebookMode ? 'Jupyter Notebook' : 'Workflow Canvas'}
-                </h1>
-                <p className="text-lg text-gray-600 mt-2">
-                  {notebookMode 
-                    ? 'Interactive notebook environment for data analysis'
-                    : 'Drag nodes from the library and connect them to create your workflow'
-                  }
-                </p>
-              </div>
+        {/* Canvas Area */}
+        <div className="flex-1 p-6">
+          <div className={`rounded-lg shadow-sm border h-full flex flex-col transition-colors duration-200 ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-200'
+          }`}>
+            <div className={`p-4 border-b transition-colors duration-200 ${
+              isDarkMode 
+                ? 'border-gray-700 bg-gradient-to-r from-gray-800 to-gray-700' 
+                : 'border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className={`text-3xl font-bold transition-colors duration-200 ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {notebookMode ? 'Jupyter Notebook' : 'Workflow Canvas'}
+                  </h1>
+                  <p className={`text-lg mt-2 transition-colors duration-200 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    {notebookMode 
+                      ? 'Interactive notebook environment for data analysis'
+                      : 'Drag nodes from the library and connect them to create your workflow'
+                    }
+                  </p>
+                </div>
               <div className="flex gap-2">
                 <button
                   onClick={toggleNotebookMode}
@@ -631,10 +688,14 @@ function CommunityPageContent() {
                 </button>
                 <button
                   onClick={() => window.location.reload()}
-                  className="p-2 hover:bg-white rounded-lg transition-colors"
+                  className={`p-2 rounded-lg transition-colors duration-200 ${
+                    isDarkMode 
+                      ? 'hover:bg-gray-700 text-gray-400 hover:text-gray-300' 
+                      : 'hover:bg-white text-gray-600 hover:text-gray-700'
+                  }`}
                   title="Refresh"
                 >
-                  <RefreshCw className="w-5 h-5 text-gray-600" />
+                  <RefreshCw className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -674,11 +735,13 @@ function CommunityPageContent() {
         </div>
       </div>
 
-      {/* Right Panel - Plugin Library */}
-      <PluginLibrary
-        onDragStart={setDraggedNode}
-        onDragEnd={() => setDraggedNode(null)}
-      />
+        {/* Right Panel - Plugin Library */}
+        <PluginLibrary
+          onDragStart={setDraggedNode}
+          onDragEnd={() => setDraggedNode(null)}
+          isDarkMode={isDarkMode}
+        />
+      </div>
     </div>
   );
 }
