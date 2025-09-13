@@ -211,8 +211,8 @@ export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryP
   return (
     <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
       <div className="p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Node Library</h2>
-        <p className="text-sm text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Node Library</h2>
+        <p className="text-base text-gray-600 mb-6">
           Drag nodes to the canvas to build your workflow
         </p>
         
@@ -221,28 +221,28 @@ export default function PluginLibrary({ onDragStart, onDragEnd }: PluginLibraryP
           if (categoryNodes.length === 0) return null;
           
           return (
-            <div key={category} className="mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <div key={category} className="mb-8">
+              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">
                 {category}
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {categoryNodes.map(node => (
                   <div
                     key={node.id}
-                    className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-move hover:shadow-md hover:border-gray-300 transition-all"
+                    className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-200 cursor-move hover:shadow-lg hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200"
                     draggable
                     onDragStart={() => onDragStart(node)}
                     onDragEnd={onDragEnd}
                   >
                     <div 
-                      className="p-2 rounded-lg mr-3"
+                      className="p-3 rounded-xl mr-4"
                       style={{ backgroundColor: node.color + '20', color: node.color }}
                     >
                       {node.icon}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 text-sm">{node.name}</h4>
-                      <p className="text-xs text-gray-500">{node.description}</p>
+                      <h4 className="font-semibold text-gray-900 text-base">{node.name}</h4>
+                      <p className="text-sm text-gray-600 mt-1">{node.description}</p>
                     </div>
                   </div>
                 ))}

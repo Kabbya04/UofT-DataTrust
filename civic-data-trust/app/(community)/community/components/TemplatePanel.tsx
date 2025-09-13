@@ -37,31 +37,31 @@ const TemplatePreviewModal: React.FC<{
 }> = ({ template, onClose, onUseTemplate }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{template.name}</h2>
-              <p className="text-gray-600 mb-4">{template.description}</p>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-700">{template.estimatedTime}</span>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">{template.name}</h2>
+              <p className="text-lg text-gray-600 mb-4">{template.description}</p>
+              <div className="flex items-center gap-6 text-base">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-gray-500" />
+                  <span className="text-gray-700 font-medium">{template.estimatedTime}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-700">{template.difficulty}</span>
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-gray-500" />
+                  <span className="text-gray-700 font-medium">{template.difficulty}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-700">{template.category}</span>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-gray-500" />
+                  <span className="text-gray-700 font-medium">{template.category}</span>
                 </div>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors text-2xl font-bold p-2 hover:bg-gray-100 rounded-lg"
             >
               ✕
             </button>
@@ -69,31 +69,31 @@ const TemplatePreviewModal: React.FC<{
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="p-8 overflow-y-auto max-h-[60vh]">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-blue-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{template.preview.nodeCount}</div>
-              <div className="text-sm text-blue-800">Nodes</div>
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="bg-blue-50 rounded-xl p-6 text-center border border-blue-100">
+              <div className="text-3xl font-bold text-blue-600">{template.preview.nodeCount}</div>
+              <div className="text-base text-blue-800 font-medium mt-1">Nodes</div>
             </div>
-            <div className="bg-green-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{template.preview.connectionCount}</div>
-              <div className="text-sm text-green-800">Connections</div>
+            <div className="bg-green-50 rounded-xl p-6 text-center border border-green-100">
+              <div className="text-3xl font-bold text-green-600">{template.preview.connectionCount}</div>
+              <div className="text-base text-green-800 font-medium mt-1">Connections</div>
             </div>
-            <div className="bg-purple-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">{template.tags.length}</div>
-              <div className="text-sm text-purple-800">Tags</div>
+            <div className="bg-purple-50 rounded-xl p-6 text-center border border-purple-100">
+              <div className="text-3xl font-bold text-purple-600">{template.tags.length}</div>
+              <div className="text-base text-purple-800 font-medium mt-1">Tags</div>
             </div>
           </div>
 
           {/* Tags */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Tags</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-700 mb-4">Tags</h3>
+            <div className="flex flex-wrap gap-3">
               {template.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium border border-gray-200"
                 >
                   {tag}
                 </span>
@@ -102,14 +102,14 @@ const TemplatePreviewModal: React.FC<{
           </div>
 
           {/* Node Flow Preview */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Workflow Overview</h3>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex flex-wrap items-center gap-2">
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-700 mb-4">Workflow Overview</h3>
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div className="flex flex-wrap items-center gap-3">
                 {template.nodes.map((node, index) => (
                   <React.Fragment key={node.id}>
                     <div
-                      className="px-3 py-2 rounded-lg text-xs font-medium text-white shadow-sm"
+                      className="px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-sm"
                       style={{ backgroundColor: node.color }}
                     >
                       {node.name}
@@ -124,13 +124,13 @@ const TemplatePreviewModal: React.FC<{
           </div>
 
           {/* Key Features */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">What's Included</h3>
-            <div className="space-y-2">
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-700 mb-4">What's Included</h3>
+            <div className="space-y-3">
               {template.nodes.slice(0, 5).map((node) => (
-                <div key={node.id} className="flex items-center gap-3">
-                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span className="text-sm text-gray-700">
+                <div key={node.id} className="flex items-center gap-4">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-base text-gray-700">
                     <strong>{node.name}:</strong> {node.parameters?.notes || 'Pre-configured node ready to use'}
                   </span>
                 </div>
@@ -144,12 +144,12 @@ const TemplatePreviewModal: React.FC<{
           </div>
 
           {/* Instructions */}
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+            <div className="flex items-start gap-4">
+              <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-blue-900 mb-1">How to use this template</h4>
-                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                <h4 className="font-bold text-blue-900 mb-3 text-lg">How to use this template</h4>
+                <ol className="text-base text-blue-800 space-y-2 list-decimal list-inside">
                   <li>Click "Use This Template" to load it onto your canvas</li>
                   <li>Review and customize the pre-configured parameters</li>
                   <li>Connect your data sources and API endpoints</li>
@@ -162,19 +162,19 @@ const TemplatePreviewModal: React.FC<{
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+        <div className="p-8 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-all duration-200 font-medium text-base hover:bg-gray-100 rounded-xl"
           >
             Cancel
           </button>
           <button
             onClick={() => onUseTemplate(template)}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                       transition-colors flex items-center gap-2 font-medium"
+            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg 
+                       transition-all duration-200 flex items-center gap-2 font-semibold text-base"
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-5 h-5" />
             Use This Template
           </button>
         </div>
@@ -262,23 +262,23 @@ export default function TemplatePanel({ onTemplateLoad }: TemplatePanelProps) {
 
   return (
     <>
-      <div className="border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-medium text-gray-900">Workflow Templates</h3>
+      <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Workflow Templates</h3>
           <Layout className="w-5 h-5 text-gray-400" />
         </div>
 
         {/* Category Filter */}
-        <div className="mb-4">
-          <div className="flex flex-wrap gap-1">
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
             {categories.map(category => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                className={`px-4 py-2 text-sm rounded-xl transition-all duration-200 ${
                   selectedCategory === category
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-blue-100 text-blue-700 font-semibold border border-blue-200 shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 font-medium border border-gray-200'
                 }`}
               >
                 {category}
@@ -288,54 +288,54 @@ export default function TemplatePanel({ onTemplateLoad }: TemplatePanelProps) {
         </div>
 
         {/* Template List */}
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-4 max-h-96 overflow-y-auto">
           {filteredTemplates.map(template => (
             <div
               key={template.id}
-              className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md 
-                         transition-all cursor-pointer group"
+              className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg hover:-translate-y-0.5 
+                         transition-all duration-200 cursor-pointer group"
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 text-sm mb-1 group-hover:text-blue-600 
+                  <h4 className="font-semibold text-gray-900 text-base mb-2 group-hover:text-blue-600 
                                  transition-colors">
                     {template.name}
                   </h4>
-                  <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                     {template.description}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                     getDifficultyColor(template.difficulty)
                   }`}>
                     {template.difficulty}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-sm text-gray-600 font-medium">
                     {template.preview.nodeCount} nodes
                   </span>
                 </div>
 
                 <button
                   onClick={() => setPreviewTemplate(template)}
-                  className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 
-                            hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 
+                            hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
                 >
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-4 h-4" />
                   Preview
                 </button>
               </div>
 
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span className="flex items-center gap-2 font-medium">
+                    <Clock className="w-4 h-4" />
                     {template.estimatedTime}
                   </span>
-                  <span>{template.category}</span>
+                  <span className="font-medium">{template.category}</span>
                 </div>
               </div>
             </div>
