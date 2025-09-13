@@ -1,55 +1,132 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Textarea } from '@/app/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Users, Globe, Lock, ArrowLeft, Plus } from 'lucide-react';
+import { Users, ArrowLeft, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { api } from '@/app/lib/api';
+import { useAuth } from '@/app/components/contexts/auth-context';
 
-const communityCategories = [
-    "Internet", "Games", "Technology", "Movies", "Pop Culture",
-    "Television", "Medicine", "Songs", "Sports", "Education",
-    "Science", "Art", "Business", "Health", "Travel"
-];
-
-const admins = [
-    { id: 1, name: "John Doe", email: "john@example.com" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com" },
-    { id: 3, name: "Mike Johnson", email: "mike@example.com" },
-    { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
-];
+interface CommunityCategory {
+    id: string;
+    name: string;
+}
 
 export default function CreateCommunityPage() {
+    const router = useRouter();
+    const { user } = useAuth();
+
     const [formData, setFormData] = useState({
         name: '',
-        category: '',
-        description: '',
-        adminId: '',
-        isPrivate: false
+        community_category_id: '',
+        description: ''
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [categories, setCategories] = useState<CommunityCategory[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+    const [loadingCategories, setLoadingCategories] = useState(true);
+
+    // Fetch community categories on component mount
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                setLoadingCategories(true);
+                const response = await fetch('/api/community-category?limit=100', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Categories response:', data);
+
+                    // Handle different response formats
+                    const categoriesData = data.data || data;
+                    if (Array.isArray(categoriesData)) {
+                        setCategories(categoriesData);
+                    } else {
+                        console.error('Unexpected categories response format:', data);
+                        setError('Failed to load categories');
+                    }
+                } else {
+                    console.error('Failed to fetch categories:', response.status);
+                    setError('Failed to load categories');
+                }
+            } catch (err) {
+                console.error('Error fetching categories:', err);
+                setError('Failed to load categories');
+            } finally {
+                setLoadingCategories(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+        setSuccess(null);
         setIsLoading(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            console.log('Creating community with data:', formData);
 
-        console.log('Creating community:', formData);
-        setIsLoading(false);
+            // Call the API service
+            const response = await api.communities.create(
+                formData.name,
+                formData.community_category_id,
+                formData.description || undefined
+            );
 
-        // Reset form or redirect
-        // router.push('/project-admin-wf/dashboard');
+            console.log('Community created successfully:', response);
+
+            setSuccess(`Community "${formData.name}" created successfully!`);
+
+            // Reset form
+            setFormData({
+                name: '',
+                community_category_id: '',
+                description: ''
+            });
+
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                router.push('/project-admin-wf/dashboard');
+            }, 2000);
+
+        } catch (err: any) {
+            console.error('Failed to create community:', err);
+
+            if (err.status === 401) {
+                setError('Authentication failed. Please sign in again.');
+            } else if (err.status === 400) {
+                setError('Invalid community data. Please check your inputs.');
+            } else if (err.status === 409) {
+                setError('A community with this name already exists.');
+            } else {
+                setError(err.message || 'Failed to create community. Please try again.');
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleInputChange = (field: string, value: string | boolean) => {
+    const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        // Clear errors when user starts typing
+        if (error) setError(null);
+        if (success) setSuccess(null);
     };
 
     return (
@@ -59,13 +136,27 @@ export default function CreateCommunityPage() {
             </Link>
             <div className="w-full mx-auto space-y-6">
                 {/* Header */}
-
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Create New Community</h1>
                     <p className="text-muted-foreground">
                         Set up a new community space for collaboration and discussion
                     </p>
                 </div>
+
+                {/* Success/Error Messages */}
+                {success && (
+                    <div className="flex items-center gap-2 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-600">
+                        <CheckCircle className="h-5 w-5" />
+                        <span>{success}</span>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600">
+                        <AlertCircle className="h-5 w-5" />
+                        <span>{error}</span>
+                    </div>
+                )}
 
                 {/* Main Form Card */}
                 <Card>
@@ -103,20 +194,33 @@ export default function CreateCommunityPage() {
                                 <Label htmlFor="category" className="text-sm font-medium">
                                     Community Category/Topic *
                                 </Label>
-                                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                                <Select
+                                    value={formData.community_category_id}
+                                    onValueChange={(value) => handleInputChange('community_category_id', value)}
+                                    disabled={loadingCategories}
+                                >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a category" />
+                                        <SelectValue placeholder={
+                                            loadingCategories ? "Loading categories..." : "Select a category"
+                                        } />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {communityCategories.map((category) => (
-                                            <SelectItem key={category} value={category.toLowerCase()}>
-                                                {category}
+                                        {categories.length === 0 && !loadingCategories ? (
+                                            <SelectItem value="" disabled>
+                                                No categories available
                                             </SelectItem>
-                                        ))}
+                                        ) : (
+                                            categories.map((category) => (
+                                                <SelectItem key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <p className="text-xs text-muted-foreground">
                                     Select the primary topic or category for your community
+                                    {loadingCategories && " (Loading categories...)"}
                                 </p>
                             </div>
 
@@ -138,71 +242,20 @@ export default function CreateCommunityPage() {
                                 </p>
                             </div>
 
-                            {/* Select Admin */}
+                            {/* Current User Info */}
                             <div className="space-y-2">
-                                <Label htmlFor="admin" className="text-sm font-medium">
-                                    Select Admin *
+                                <Label className="text-sm font-medium">
+                                    Community Administrator
                                 </Label>
-                                <Select value={formData.adminId} onValueChange={(value) => handleInputChange('adminId', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Choose a community administrator" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {admins.map((admin) => (
-                                            <SelectItem key={admin.id} value={admin.id.toString()}>
-                                                <div className="flex items-center space-x-2">
-                                                    <Users className="h-4 w-4" />
-                                                    <span>{admin.name}</span>
-                                                    <span className="text-xs text-muted-foreground">({admin.email})</span>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <p className="text-xs text-muted-foreground">
-                                    Select a user who will have administrative privileges for this community
-                                </p>
-                            </div>
-
-                            {/* Privacy Settings */}
-                            <div className="space-y-3">
-                                <Label className="text-sm font-medium">Community Privacy</Label>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div
-                                        className={`p-4 border rounded-lg cursor-pointer transition-all ${!formData.isPrivate
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-border hover:border-primary/50'
-                                            }`}
-                                        onClick={() => handleInputChange('isPrivate', false)}
-                                    >
-                                        <div className="flex items-start space-x-3">
-                                            <Globe className="h-5 w-5 mt-0.5 text-green-600" />
-                                            <div>
-                                                <h4 className="font-medium">Public Community</h4>
-                                                <p className="text-xs text-muted-foreground mt-1">
-                                                    Anyone can discover and join this community
-                                                </p>
-                                            </div>
-                                        </div>
+                                <div className="p-3 bg-muted/50 border rounded-lg">
+                                    <div className="flex items-center space-x-2">
+                                        <Users className="h-4 w-4 text-muted-foreground" />
+                                        <span className="font-medium">{user?.name || 'Current User'}</span>
+                                        <span className="text-xs text-muted-foreground">({user?.email || 'unknown@example.com'})</span>
                                     </div>
-
-                                    <div
-                                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.isPrivate
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-border hover:border-primary/50'
-                                            }`}
-                                        onClick={() => handleInputChange('isPrivate', true)}
-                                    >
-                                        <div className="flex items-start space-x-3">
-                                            <Lock className="h-5 w-5 mt-0.5 text-orange-600" />
-                                            <div>
-                                                <h4 className="font-medium">Private Community</h4>
-                                                <p className="text-xs text-muted-foreground mt-1">
-                                                    Invitation only, members must be approved
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        You will be automatically assigned as the administrator of this community
+                                    </p>
                                 </div>
                             </div>
 
@@ -215,7 +268,7 @@ export default function CreateCommunityPage() {
                                 </Link>
                                 <Button
                                     type="submit"
-                                    disabled={isLoading || !formData.name || !formData.category || !formData.description || !formData.adminId}
+                                    disabled={isLoading || !formData.name || !formData.community_category_id || loadingCategories}
                                     className="min-w-[140px]"
                                 >
                                     {isLoading ? (

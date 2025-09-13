@@ -130,11 +130,12 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true)
       setError(null)
-      
-      // Get current user ID (this should come from actual auth context in a real app)
-      const currentUserId = "USR-734-B" // Mock user ID - Alex Ryder
-      
+
+      // Get current user ID from auth context
+      const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user
+
       console.log('Submitting join request:', { communityId, currentUserId, message })
+      console.log('Real authenticated user:', user)
       
       try {
         // Try the join request admin system first (where admins can see requests)
@@ -284,13 +285,26 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true)
       setError(null)
-      
-      console.log('Fetching all join requests for admin')
-      
+
+      console.log('=== FETCHING ALL JOIN REQUESTS FOR ADMIN ===')
+      console.log('Current user from auth context:', user)
+      console.log('User ID:', user?.id)
+
+      // Show which communities this user is admin of
+      const userAdminCommunities = communities.filter(community =>
+        community.admins?.some((admin: any) => admin.id === user?.id)
+      )
+      console.log('Communities where user is admin:', userAdminCommunities.map(c => ({
+        id: c.id,
+        name: c.name,
+        adminIds: c.admins?.map((a: any) => a.id)
+      })))
+
       try {
         // Use the admin endpoint since it's working perfectly
         const adminResponse = await api.joinRequests.getAll()
         console.log('Admin join requests response:', adminResponse)
+        console.log('Expected to see requests for community IDs:', userAdminCommunities.map(c => c.id))
         
         // Handle different response formats
         let joinRequests: any[] = []

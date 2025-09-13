@@ -60,13 +60,42 @@ export default function MembershipRequestsPage() {
         fetchJoinRequests();
     }, [selectedCommunityId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Auto-refresh every 10 seconds to catch new requests
+    useEffect(() => {
+        const interval = setInterval(() => {
+            console.log('Auto-refreshing join requests...');
+            fetchJoinRequests();
+        }, 10000); // 10 seconds
+
+        return () => clearInterval(interval);
+    }, [selectedCommunityId]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const fetchJoinRequests = async () => {
         try {
             setError(null);
-            console.log('Fetching all join requests for admin');
+            console.log('=== FETCHING JOIN REQUESTS ===');
+            console.log('Selected community ID:', selectedCommunityId);
+
             const fetchedRequests = await getAllJoinRequests();
-            console.log('Fetched requests:', fetchedRequests);
-            
+            console.log('Total fetched requests:', fetchedRequests.length);
+            console.log('All requests:', fetchedRequests);
+
+            // Debug: Show what community IDs we got vs what we expected
+            const fetchedCommunityIds = [...new Set(fetchedRequests.map(req => req.community_id))];
+            console.log('Community IDs in fetched requests:', fetchedCommunityIds);
+
+            // Show which communities we should see requests for
+            const adminCommunities = communities.filter(community =>
+                community.admins?.some((admin: any) => admin.id === localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') || '{}').id : null)
+            );
+            console.log('Communities where current user is admin:', adminCommunities.map(c => ({ id: c.id, name: c.name })));
+            console.log('Expected community IDs:', adminCommunities.map(c => c.id));
+
+            // Log pending requests specifically
+            const pendingRequests = fetchedRequests.filter(req => req.status === 'pending');
+            console.log('Pending requests count:', pendingRequests.length);
+            console.log('Pending requests:', pendingRequests);
+
             // Filter by selected community if one is selected (but not "all")
             if (selectedCommunityId && selectedCommunityId !== 'all') {
                 const filteredRequests = fetchedRequests.filter(req => req.community_id === selectedCommunityId);
@@ -76,6 +105,8 @@ export default function MembershipRequestsPage() {
                 console.log('Showing all requests');
                 setRequests(fetchedRequests);
             }
+
+            console.log('=== FETCH COMPLETE ===');
         } catch (err) {
             console.error('Failed to fetch join requests:', err);
             setError('Failed to load join requests');
@@ -176,7 +207,14 @@ export default function MembershipRequestsPage() {
                         </SelectContent>
                     </Select>
                     <Button variant="outline" onClick={fetchJoinRequests} disabled={loading}>
-                        Refresh
+                        {loading ? 'Refreshing...' : 'Refresh'}
+                    </Button>
+                    <Button variant="outline" onClick={() => {
+                        console.log('Force refresh clicked - clearing all cache');
+                        setRequests([]);
+                        fetchJoinRequests();
+                    }}>
+                        Force Refresh
                     </Button>
                 </div>
             </div>
