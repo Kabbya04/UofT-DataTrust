@@ -38,15 +38,119 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log('Submitting form with data:', formData);
+
     if (!formData.email || !formData.password) {
       return;
     }
 
+    // Perform login first
     await login({
       email: formData.email,
       password: formData.password,
     });
+
+    // After successful login, test backend endpoints
+    setTimeout(async () => {
+      const token = localStorage.getItem('access_token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+      console.log('=== POST-LOGIN BACKEND TESTS ===');
+      console.log('Current user:', user);
+      console.log('Token available:', !!token);
+
+      if (token) {
+        try {
+          // Test 1: Community endpoint (working)
+          console.log('\n--- Testing Community Endpoint ---');
+          const communityResponse = await fetch('https://civic-data-trust-backend.onrender.com/api/v1/community/', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('Community endpoint status:', communityResponse.status);
+          console.log('Community endpoint result:', await communityResponse.json());
+
+          // Test 2: Join requests endpoint (should work now)
+          console.log('\n--- Testing Join Requests Endpoint ---');
+          const joinResponse = await fetch('https://civic-data-trust-backend.onrender.com/api/v1/community-join-request/?limit=100', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('Join requests endpoint status:', joinResponse.status);
+
+          if (joinResponse.ok) {
+            const joinData = await joinResponse.json();
+            console.log('Join requests endpoint result:', joinData);
+
+            // Filter for current user's requests
+            const userRequests = joinData.data?.filter((req: any) => req.user_id === user.id) || [];
+            console.log(`Current user (${user.id}) has ${userRequests.length} join requests:`, userRequests);
+          } else {
+            const errorText = await joinResponse.text();
+            console.log('Join requests endpoint error:', errorText);
+          }
+
+          // Test 3: Submit a test join request
+          console.log('\n--- Testing Join Request Submission ---');
+          const testCommunityId = '560eb047-cfa5-41ee-90b5-c758c4a09520'; // Tech community from earlier
+          const testMessage = `Test join request at ${new Date().toISOString()}`;
+
+          console.log('Submitting request:', {
+            community_id: testCommunityId,
+            user_id: user.id,
+            message: testMessage
+          });
+
+          const submitResponse = await fetch('https://civic-data-trust-backend.onrender.com/api/v1/community-join-request/', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              community_id: testCommunityId,
+              user_id: user.id,
+              message: testMessage
+            })
+          });
+          console.log('Submit join request status:', submitResponse.status);
+
+          if (submitResponse.ok) {
+            const submitResult = await submitResponse.json();
+            console.log('Submit join request result:', submitResult);
+
+            // Test 4: Immediately fetch again to see if it appears
+            console.log('\n--- Testing Immediate Fetch After Submit ---');
+            const refetchResponse = await fetch('https://civic-data-trust-backend.onrender.com/api/v1/community-join-request/?limit=100', {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (refetchResponse.ok) {
+              const refetchData = await refetchResponse.json();
+              const latestUserRequests = refetchData.data?.filter((req: any) => req.user_id === user.id) || [];
+              console.log(`After submit: Current user (${user.id}) has ${latestUserRequests.length} join requests:`, latestUserRequests);
+
+              // Find the one we just submitted
+              const justSubmitted = latestUserRequests.find((req: any) => req.message === testMessage);
+              console.log('Just submitted request found:', !!justSubmitted, justSubmitted);
+            }
+          } else {
+            const submitError = await submitResponse.text();
+            console.log('Submit join request error:', submitError);
+          }
+
+        } catch (error) {
+          console.error('Backend test error:', error);
+        }
+      }
+    }, 2000); // Wait 2 seconds for login to complete
   };
 
   return (

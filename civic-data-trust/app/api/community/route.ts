@@ -7,15 +7,23 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '10';
-    
+    const authHeader = request.headers.get('authorization');
+
     console.log('=== Community List Proxy Request ===');
     console.log('Backend URL:', `${API_BASE_URL}/community/?page=${page}&limit=${limit}`);
-    
+    console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+    };
+
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
     const response = await fetch(`${API_BASE_URL}/community/?page=${page}&limit=${limit}`, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers,
     });
 
     console.log('Backend response status:', response.status, response.statusText);

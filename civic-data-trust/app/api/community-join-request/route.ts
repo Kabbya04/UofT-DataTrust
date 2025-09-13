@@ -4,20 +4,27 @@ const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
     const authHeader = request.headers.get('authorization');
-    
+
+    // Build query string from search params
+    const queryString = searchParams.toString();
+    const backendUrl = `${API_BASE_URL}/community-join-request/${queryString ? `?${queryString}` : ''}`;
+
     console.log('=== Get All Join Requests Proxy ===');
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
-    
+    console.log('Query params:', queryString);
+    console.log('Backend URL:', backendUrl);
+
     const headers: Record<string, string> = {
       'Accept': 'application/json',
     };
-    
+
     if (authHeader) {
       headers['Authorization'] = authHeader;
     }
-    
-    const response = await fetch(`${API_BASE_URL}/community-join-request/`, {
+
+    const response = await fetch(backendUrl, {
       method: 'GET',
       headers,
     });
@@ -38,8 +45,26 @@ export async function GET(request: NextRequest) {
     
     if (!response.ok) {
       console.log('Backend error response:', data);
+
+      // Enhanced error handling for common issues
+      let errorMessage = data.detail || data.message || 'Failed to get join requests';
+
+      if (response.status === 500) {
+        console.log('=== 500 Error Details ===');
+        console.log('Full backend response:', data);
+        errorMessage = 'Backend server error - this might be a permissions issue or backend data problem';
+      } else if (response.status === 403) {
+        errorMessage = 'Access denied - your user role may not have permission to view join requests';
+      } else if (response.status === 404) {
+        errorMessage = 'Join requests endpoint not found on backend';
+      }
+
       return NextResponse.json(
-        { error: data.detail || data.message || 'Failed to get join requests' },
+        {
+          error: errorMessage,
+          backendStatus: response.status,
+          backendError: data
+        },
         { status: response.status }
       );
     }
