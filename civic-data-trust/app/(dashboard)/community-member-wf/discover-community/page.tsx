@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { RefreshCw, Search, Grid, List } from "lucide-react"
+import { ArrowClockwise, MagnifyingGlass, GridFour, List } from "phosphor-react"
 import Image from "next/image"
 import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
@@ -155,7 +155,7 @@ export default function DiscoverCommunityPage() {
               onClick={() => setViewMode(viewMode === 'sections' ? 'all' : 'sections')}
               className="flex items-center gap-2"
             >
-              {viewMode === 'sections' ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+              {viewMode === 'sections' ? <List className="h-4 w-4" /> : <GridFour className="h-4 w-4" />}
               {viewMode === 'sections' ? 'View All' : 'Sections'}
             </Button>
             <Button
@@ -165,7 +165,7 @@ export default function DiscoverCommunityPage() {
               disabled={isRefreshing || loading}
               className="flex items-center gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <ArrowClockwise className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
@@ -173,7 +173,7 @@ export default function DiscoverCommunityPage() {
 
         {/* Search Bar */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search communities by name, description, or category..."

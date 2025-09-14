@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Users, Database, TrendingUp, Clock, Settings, Plus } from "lucide-react"
+import { Users, Database, TrendUp, Clock, Gear, Plus } from "phosphor-react"
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
@@ -97,7 +97,7 @@ export default function MyCommunitiesPage() {
                           <Badge variant="secondary" className="mb-2">{community.community_category?.name || 'General'}</Badge>
                         </div>
                         <Button variant="ghost" size="sm">
-                          <Settings className="h-4 w-4" />
+                          <Gear className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardHeader>
@@ -137,7 +137,7 @@ export default function MyCommunitiesPage() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    {activity.type === 'post' && <TrendingUp className="h-4 w-4 text-blue-500" />}
+                    {activity.type === 'post' && <TrendUp className="h-4 w-4 text-blue-500" />}
                     {activity.type === 'dataset' && <Database className="h-4 w-4 text-foreground" />}
                     {activity.type === 'comment' && <Users className="h-4 w-4 text-orange-500" />}
                     {activity.type === 'member' && <Plus className="h-4 w-4 text-purple-500" />}

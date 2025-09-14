@@ -1,29 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-
-@theme {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --radius: var(--radius);
-}
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&display=swap');
 
 @layer utilities {
   .text-balance {
@@ -33,31 +9,31 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: 0 0% 94.5%; /* #F1F1F1 */
+    --foreground: 0 0% 10.2%; /* #1A1A1A */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 10.2%; /* #1A1A1A */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 220 70% 50%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 10.2%;
+    --primary: 0 0% 20.4%; /* #333333 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 34.9%; /* #595959 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 94.5%; /* #F1F1F1 */
+    --muted-foreground: 0 0% 34.9%; /* #595959 */
+    --accent: 0 0% 90.2%; /* #E6E6E6 */
+    --accent-foreground: 0 0% 10.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 26 83% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90.2%; /* #E6E6E6 */
+    --input: 0 0% 100%; /* #FFFFFF */
+    --ring: 0 0% 50.2%; /* #808080 */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 1rem; /* 16px border radius from Figma */
   }
 
   .dark {
@@ -96,11 +72,11 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-mono), 'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Consolas', 'Monaco', monospace;
+    font-family: var(--font-urbanist), 'Urbanist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0.025em;
+    letter-spacing: -0.01em;
   }
 
   h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select {
@@ -108,19 +84,28 @@
   }
 
   h1 {
+    font-family: var(--font-urbanist), 'Urbanist', sans-serif;
     font-weight: 700;
-    font-size: 2.25rem;
+    font-size: 2rem; /* 32px as seen in Figma */
+    line-height: 1.2;
   }
   h2 {
-    font-weight: 600;
-    font-size: 1.875rem;
+    font-family: var(--font-urbanist), 'Urbanist', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem; /* 24px */
+    line-height: 1.2;
   }
   h3 {
-    font-weight: 600;
-    font-size: 1.5rem;
+    font-family: var(--font-urbanist), 'Urbanist', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.2;
   }
   h4, h5, h6 {
-    font-weight: 500;
+    font-family: var(--font-urbanist), 'Urbanist', sans-serif;
+    font-weight: 600;
+    font-size: 1rem; /* 16px */
+    line-height: 1.2;
   }
 
   .font-sans {

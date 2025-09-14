@@ -3,7 +3,7 @@
 import { Badge } from "@/app/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { ClubIcon, CheckCircle, BarChart, Filter, Image as ImageIcon } from "lucide-react";
+import { ClubIcon, CheckCircle, BarChart, Filter, Image as ImageIcon, Circle, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Augmented mock data with credentials and execution steps
@@ -54,17 +54,51 @@ const projects = [
   },
 ];
 
-// A dedicated component for the execution timeline for better readability
+// Status icon component with proper Figma design
+const StatusIcon = ({ status }: { status: string }) => {
+    switch (status) {
+        case 'Completed':
+            return <CheckCircle2 className="h-4 w-4 text-civic-accent-green" />;
+        case 'In Progress':
+            return <Clock className="h-4 w-4 text-button-warning" />;
+        case 'Failed':
+            return <XCircle className="h-4 w-4 text-button-danger" />;
+        default:
+            return <Circle className="h-4 w-4 text-civic-gray-300" />;
+    }
+};
+
+// A dedicated component for the execution timeline following Figma high-fidelity design
 const ExecutionTimeline = ({ executions }: { executions: typeof projects[0]['executions'] }) => {
     return (
-        <div className="relative pl-6">
-            {/* The vertical line connecting the steps */}
-            <div className="absolute left-[0.2rem] top-2 h-[calc(100%-2rem)] w-px bg-border -translate-x-1/2"></div>
+        <div className="relative pl-8">
+            {/* The vertical line connecting the steps - Figma styled */}
+            <div className="absolute left-[0.75rem] top-3 h-[calc(100%-1.5rem)] w-px bg-civic-gray-200"></div>
             {executions.map((exec, index) => (
-                <div key={index} className="relative pb-6 last:pb-0">
-                    <div className="absolute left-[-0.5rem] top-1 h-4 w-4 rounded-full border-2 bg-background border-border -translate-x-1/2"></div>
-                    <p className="font-medium text-sm text-foreground">{exec.step}</p>
-                    <p className="text-xs text-muted-foreground">{exec.timestamp}</p>
+                <div key={index} className="relative pb-6 last:pb-2 flex items-start gap-4">
+                    {/* Status indicator with proper Figma design */}
+                    <div className="absolute left-[-0.125rem] top-0.5 h-6 w-6 rounded-full bg-white border-2 border-civic-gray-200 flex items-center justify-center shadow-sm">
+                        <StatusIcon status={exec.status} />
+                    </div>
+                    
+                    {/* Content section with Figma typography */}
+                    <div className="ml-8 flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                            <p className="font-bold text-figma-lg text-civic-gray-900">{exec.step}</p>
+                            <Badge 
+                                variant="outline" 
+                                className={cn(
+                                    "text-figma-sm font-medium rounded-lg px-2 py-1 border",
+                                    exec.status === 'Completed' && "bg-civic-accent-green/10 text-civic-accent-green border-civic-accent-green/20",
+                                    exec.status === 'In Progress' && "bg-button-warning/10 text-button-warning border-button-warning/20",
+                                    exec.status === 'Failed' && "bg-button-danger/10 text-button-danger border-button-danger/20"
+                                )}
+                            >
+                                {exec.status}
+                            </Badge>
+                        </div>
+                        <p className="text-figma-base text-civic-gray-500">{exec.timestamp}</p>
+                    </div>
                 </div>
             ))}
         </div>
@@ -80,42 +114,95 @@ export default function OverviewPage() {
         <h1 className="text-4xl font-bold text-mono-caps">Overview</h1>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Figma Design */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Projects</CardTitle><div className="p-2 bg-muted rounded-md"><ClubIcon className="h-5 w-5 text-muted-foreground" /></div></CardHeader><CardContent><div className="text-3xl font-bold">90,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Successful Projects</CardTitle><div className="p-2 bg-muted rounded-md"><CheckCircle className="h-5 w-5 text-muted-foreground" /></div></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Success Rate</CardTitle><div className="p-2 bg-muted rounded-md"><BarChart className="h-5 w-5 text-muted-foreground" /></div></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+        <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-figma-base font-medium text-civic-gray-500">Projects</CardTitle>
+            <div className="p-2 bg-civic-gray-100 rounded-lg">
+              <ClubIcon className="h-5 w-5 text-civic-gray-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-figma-3xl font-bold text-civic-gray-900">90,000</div>
+            <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-figma-base font-medium text-civic-gray-500">Successful Projects</CardTitle>
+            <div className="p-2 bg-civic-gray-100 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-civic-gray-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-figma-3xl font-bold text-civic-gray-900">50,000</div>
+            <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-figma-base font-medium text-civic-gray-500">Success Rate</CardTitle>
+            <div className="p-2 bg-civic-gray-100 rounded-lg">
+              <BarChart className="h-5 w-5 text-civic-gray-400" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-figma-3xl font-bold text-civic-gray-900">30,000</div>
+            <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Projects List with Tabs */}
+      {/* Projects List with Tabs - Figma Design */}
       <Tabs defaultValue="projects">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="projects">My Projects</TabsTrigger>
-            <TabsTrigger value="credentials">Credentials</TabsTrigger>
-            <TabsTrigger value="executions">Executions</TabsTrigger>
+        <div className="flex items-center justify-between mb-6">
+          <TabsList className="bg-civic-gray-100 border border-civic-gray-200 rounded-xl p-1">
+            <TabsTrigger value="projects" className="text-figma-base font-medium text-civic-gray-500 data-[state=active]:bg-white data-[state=active]:text-civic-gray-900 data-[state=active]:shadow-sm rounded-lg">My Projects</TabsTrigger>
+            <TabsTrigger value="credentials" className="text-figma-base font-medium text-civic-gray-500 data-[state=active]:bg-white data-[state=active]:text-civic-gray-900 data-[state=active]:shadow-sm rounded-lg">Credentials</TabsTrigger>
+            <TabsTrigger value="executions" className="text-figma-base font-medium text-civic-gray-500 data-[state=active]:bg-white data-[state=active]:text-civic-gray-900 data-[state=active]:shadow-sm rounded-lg">Executions</TabsTrigger>
           </TabsList>
-          <button className="p-2 rounded-md hover:bg-muted"><Filter className="h-5 w-5 text-muted-foreground" /></button>
+          <button className="p-2 rounded-lg hover:bg-civic-gray-100 transition-colors">
+            <Filter className="h-5 w-5 text-civic-gray-400" />
+          </button>
         </div>
         
         <TabsContent value="projects" className="space-y-4">
           {projects.map((project, index) => (
-            <Card key={index} className="p-4 flex items-center justify-between hover:border-primary transition-colors">
-              <div className="flex items-center gap-4"><div className="p-3 bg-muted rounded-lg"><ImageIcon className="h-6 w-6 text-muted-foreground" /></div><div><h3 className="font-semibold">{project.name}</h3><p className="text-sm text-muted-foreground">{project.date} &nbsp; {project.size}</p></div></div>
-              <Badge variant="outline">{project.tag}</Badge>
+            <Card key={index} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-civic-gray-100 rounded-lg">
+                  <ImageIcon className="h-6 w-6 text-civic-gray-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-figma-lg text-civic-gray-900">{project.name}</h3>
+                  <p className="text-figma-base text-civic-gray-500">{project.date} &nbsp; {project.size}</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="border-civic-gray-200 text-civic-gray-500 bg-white rounded-lg px-3 py-1 text-figma-base">
+                {project.tag}
+              </Badge>
             </Card>
           ))}
         </TabsContent>
 
         <TabsContent value="credentials" className="space-y-4">
           {projects.map((project, index) => (
-            <Card key={index} className="p-4 flex items-center justify-between hover:border-primary transition-colors">
-              <div className="flex items-center gap-4"><div className="p-3 bg-muted rounded-lg"><ImageIcon className="h-6 w-6 text-muted-foreground" /></div><div><h3 className="font-semibold">{project.name}</h3><p className="text-sm text-muted-foreground">{project.date} &nbsp; {project.size}</p></div></div>
+            <Card key={index} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-civic-gray-100 rounded-lg">
+                  <ImageIcon className="h-6 w-6 text-civic-gray-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-figma-lg text-civic-gray-900">{project.name}</h3>
+                  <p className="text-figma-base text-civic-gray-500">{project.date} &nbsp; {project.size}</p>
+                </div>
+              </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground mb-1">Data provided by</p>
-                <div className="flex items-center gap-2">
+                <p className="text-figma-sm text-civic-gray-400 mb-2">Data provided by</p>
+                <div className="flex items-center gap-2 flex-wrap justify-end">
                     {project.credentials.map((cred, i) => (
-                        <Badge key={i} variant="secondary" className="font-normal">{cred.name}</Badge>
+                        <Badge key={i} variant="secondary" className="bg-civic-gray-100 text-civic-gray-700 border-civic-gray-200 rounded-lg px-3 py-1 text-figma-sm font-normal">{cred.name}</Badge>
                     ))}
                 </div>
               </div>
@@ -123,11 +210,13 @@ export default function OverviewPage() {
           ))}
         </TabsContent>
 
-        <TabsContent value="executions" className="space-y-4">
+        <TabsContent value="executions" className="space-y-6">
             {projects.map((project, index) => (
-                <Card key={index} className="p-4 hover:border-primary transition-colors">
-                    <h3 className="font-semibold mb-1">{project.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{project.date}</p>
+                <Card key={index} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 p-8">
+                    <div className="mb-6">
+                        <h3 className="font-bold text-figma-xl text-civic-gray-900 mb-2">{project.name}</h3>
+                        <p className="text-figma-base text-civic-gray-500">{project.date}</p>
+                    </div>
                     <ExecutionTimeline executions={project.executions} />
                 </Card>
             ))}

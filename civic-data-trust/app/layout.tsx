@@ -1,14 +1,14 @@
 // layout.tsx - Next.js Font Optimization Approach
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Urbanist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider } from "./components/contexts/auth-context";
 
-const inter = Inter({
+const urbanist = Urbanist({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-urbanist',
   display: 'swap',
 });
 
@@ -31,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${urbanist.variable} ${jetbrainsMono.variable} font-urbanist antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

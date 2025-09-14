@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ChevronDown, Cog, Home, TrendingUp, Search, Users, LayoutDashboard,
-  MessageSquareWarning, FileClock, BarChart3, Shield, Sliders, BarChart2, Plus, Upload,
+  CaretDown, Gear, House, TrendUp, MagnifyingGlass, Users, GridFour,
+  Warning, Clock, ChartBar, Shield, Sliders, ChartBarHorizontal, Plus, ArrowCircleUp,
   Archive,
   FolderPlus,
   BookOpen
-} from 'lucide-react';
+} from 'phosphor-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { DATASET_TAGS, TAG_CATEGORIES } from '@/app/constants/dataset-tags';
@@ -130,10 +130,10 @@ const TextLink = ({ href, children }: { href: string, children: React.ReactNode 
     <Link
       href={href}
       className={cn(
-        "flex items-center space-x-2 px-3 py-2 rounded-lg text-base font-normal transition-colors",
+        "flex items-center space-x-2 px-5 py-3 rounded-2xl text-figma-lg font-normal transition-all duration-200 group",
         isActive
-          ? "bg-white shadow font-bold"
-          : " text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          ? "bg-white shadow-figma font-bold text-civic-gray-900"
+          : "text-civic-gray-500 hover:bg-white hover:shadow-figma hover:text-civic-gray-900"
       )}
     >
       {children}
@@ -165,16 +165,16 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
       {/* Main Navigation Links */}
       <div className="space-y-1 mb-4">
         <TextLink href={`/${rolePrefix}/home`}>
-          <Home className="h-4 w-4" />
+          <House className="h-4 w-4" />
           <span>Home</span>
         </TextLink>
         <TextLink href={`/${rolePrefix}/discover-community`}>
-          <Search className="h-4 w-4" />
+          <MagnifyingGlass className="h-4 w-4" />
           <span>Discover</span>
         </TextLink>
 
         <TextLink href={`/${rolePrefix}/popular`}>
-          <TrendingUp className="h-4 w-4" />
+          <TrendUp className="h-4 w-4" />
           <span>Popular</span>
         </TextLink>
         {
@@ -182,7 +182,7 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
             <TextLink href={`/${rolePrefix}/upload-dataset`} >
               <Button size="sm" 
               className="bg-primary hover:bg-primary/90 cursor-pointer">
-                <Upload className="h-4 w-4 mr-2" />
+                <ArrowCircleUp className="h-4 w-4 mr-2" />
                 Upload Dataset
               </Button>
             </TextLink>
@@ -191,15 +191,15 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
 
 
       </div>
-      <hr className="my-3 border-border" />
+      <hr className="my-6 border-civic-gray-200" />
 
       {/* Dataset Categories Section */}
       <div className="space-y-1">
-        <div className="flex items-center justify-between px-3 py-2">
-          <h3 className="text-lg font-semibold text-gray-400 uppercase tracking-wider">You Topics</h3>
+        <div className="flex items-center justify-between px-5 py-2">
+          <h3 className="text-xl font-bold text-civic-gray-400 uppercase tracking-wider">MY DATA</h3>
         </div>
         {/* Display grouped categories */}
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-96 overflow-y-auto space-y-1">
           {Object.entries(TAG_CATEGORIES).map(([categoryName, tags]) => {
             const visibleTags = tags.filter(tag =>
               tag.toLowerCase().includes(searchTags.toLowerCase())
@@ -209,43 +209,34 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
 
             return (
               <div key={categoryName}>
-                <TextLink href={`#`}
-                >
-                  <div className="flex items-center justify-between w-full"
-                    onClick={() => toggleCategory(categoryName)}>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-600">{categoryName}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-gray-600" />
-                  </div>
-                </TextLink>
-                {/* <button
+                <button
                   onClick={() => toggleCategory(categoryName)}
-                  className="w-full flex gap-2 items-center justify-between px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium text-left  "
+                  className="w-full flex items-center justify-between px-5 py-3 rounded-2xl text-figma-lg font-normal transition-all duration-200 text-civic-gray-500 hover:bg-white hover:shadow-figma hover:text-civic-gray-900"
                 >
-                  <span className="text-gray-600">{categoryName}</span>
-                  <div className="flex items-center gap-2">
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 transition-transform text-gray-600",
-                        openCategories[categoryName] && "rotate-180"
-                      )}
-                    />
-                  </div>
-                  
-                </button> */}
+                  <span>{categoryName}</span>
+                  <CaretDown className={cn(
+                    "h-4 w-4 text-civic-gray-400 transition-transform duration-200",
+                    openCategories[categoryName] && "rotate-180"
+                  )} />
+                </button>
                 {openCategories[categoryName] && (
-                  <div className="pl-6 mt-1 ">
-                    {visibleTags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`#`}
-                        // href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="block px-2 py-1 text-sm text-gray-500 hover:bg-muted rounded-md transition-colors"
-                      >
-                        {tag}
-                      </Link>
-                    ))}
+                  <div className="relative">
+                    {/* Ladder-style visual connection */}
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-civic-gray-300"></div>
+                    <div className="pl-6 space-y-1 max-h-48 overflow-y-auto">
+                      {visibleTags.map((tag, index) => (
+                        <div key={tag} className="relative">
+                          {/* Horizontal ladder line */}
+                          <div className="absolute left-2 top-4 w-4 h-0.5 bg-civic-gray-300"></div>
+                          <Link
+                            href={`#`}
+                            className="block px-6 py-2 text-figma-base text-civic-gray-500 hover:bg-white hover:shadow-figma rounded-2xl transition-all duration-200 ml-2"
+                          >
+                            {tag}
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -282,7 +273,7 @@ const SuperAdminNav = ({ rolePrefix }: { rolePrefix: string }) => {
     <div className="space-y-1 mb-4">
       <TextLink href={`/${rolePrefix}/dashboard`}>
         <div className="flex items-center space-x-2">
-          <LayoutDashboard className="h-4 w-4" />
+          <GridFour className="h-4 w-4" />
           <span>Dashboard</span>
         </div>
       </TextLink>
@@ -301,20 +292,20 @@ const SuperAdminNav = ({ rolePrefix }: { rolePrefix: string }) => {
       <TextLink href={`/${rolePrefix}/content-moderation`}>
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-2">
-            <MessageSquareWarning className="h-4 w-4" />
+            <Warning className="h-4 w-4" />
             <span>Content Moderation</span>
           </div>
         </div>
       </TextLink>
       <TextLink href={`/${rolePrefix}/analytics-reports`}>
         <div className="flex items-center space-x-2">
-          <FileClock className="h-4 w-4" />
+          <Clock className="h-4 w-4" />
           <span>Analytics Reports</span>
         </div>
       </TextLink>
       <TextLink href={`/${rolePrefix}/performance-monitoring`}>
         <div className="flex items-center space-x-2">
-          <BarChart3 className="h-4 w-4" />
+          <ChartBar className="h-4 w-4" />
           <span>Performance Monitoring</span>
         </div>
       </TextLink>
@@ -390,7 +381,7 @@ export function SidebarWf() {
           </TextLink>
 
         </div>
-        <hr className="my-3 border-border" />
+        <hr className="my-6 border-civic-gray-200" />
 
         {/* Dataset Tags Section - Same as GeneralNav */}
         <div className="space-y-1">
@@ -428,7 +419,7 @@ export function SidebarWf() {
                       <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                         {visibleTags.length}
                       </span>
-                      <ChevronDown
+                      <CaretDown
                         className={cn(
                           "h-4 w-4 transition-transform text-muted-foreground",
                           openCategories[categoryName] && "rotate-180"
@@ -437,16 +428,23 @@ export function SidebarWf() {
                     </div>
                   </button>
                   {openCategories[categoryName] && (
-                    <div className="pl-6 mt-1 space-y-1">
-                      {visibleTags.map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/researcher-wf/research/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="block px-2 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
+                    <div className="relative">
+                      {/* Ladder-style visual connection */}
+                      <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                      <div className="pl-6 mt-1 space-y-1">
+                        {visibleTags.map((tag, index) => (
+                          <div key={tag} className="relative">
+                            {/* Horizontal ladder line */}
+                            <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300"></div>
+                            <Link
+                              href={`/researcher-wf/research/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                              className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
+                            >
+                              {tag}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -466,7 +464,7 @@ export function SidebarWf() {
         <div className="space-y-1 mb-4">
           <ProjectAdminTextLink href={`/${rolePrefix}/dashboard`}>
             <div className="flex items-center space-x-2">
-              <LayoutDashboard className="h-4 w-4" />
+              <GridFour className="h-4 w-4" />
               <span>Dashboard</span>
             </div>
           </ProjectAdminTextLink>
@@ -486,7 +484,7 @@ export function SidebarWf() {
           <ProjectAdminTextLink href={`/${rolePrefix}/post-review`}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-2">
-                <MessageSquareWarning className="h-4 w-4" />
+                <Warning className="h-4 w-4" />
                 <span>Post Review</span>
               </div>
               <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">320</span>
@@ -494,13 +492,13 @@ export function SidebarWf() {
           </ProjectAdminTextLink>
           <ProjectAdminTextLink href={`/${rolePrefix}/community-audit-logs`}>
             <div className="flex items-center space-x-2">
-              <FileClock className="h-4 w-4" />
+              <Clock className="h-4 w-4" />
               <span>Community Audit Logs</span>
             </div>
           </ProjectAdminTextLink>
           <ProjectAdminTextLink href={`/${rolePrefix}/community-analytics`}>
             <div className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4" />
+              <ChartBar className="h-4 w-4" />
               <span>Community Analytics</span>
             </div>
           </ProjectAdminTextLink>
@@ -515,9 +513,9 @@ export function SidebarWf() {
 
   return (
     // The sidebar itself is a flex column that does NOT scroll
-    <div className="w-64 bg-gray-100 flex flex-col h-full">
+    <div className="w-64 bg-civic-gray-100 flex flex-col h-full">
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-6">
         {isResearcherWf && isResearcherResearchSection && <ResearcherResearchNav />}
         {isResearcherWf && !isResearcherResearchSection && <GeneralNav rolePrefix="researcher-wf" />}
         {isCommunityMemberWf && <GeneralNav rolePrefix="community-member-wf" />}
@@ -525,9 +523,9 @@ export function SidebarWf() {
         {isSuperAdminWf && <SuperAdminNav rolePrefix="super-admin-wf" />}
       </div>
 
-      <div className="p-4 border-t border-border">
+      <div className="p-6 border-t border-civic-gray-200">
         <TextLink href={getSettingsLink()}>
-          <Cog className="h-4 w-4" />
+          <Gear className="h-5 w-5 text-civic-gray-400" />
           <span>Settings</span>
         </TextLink>
       </div>

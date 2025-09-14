@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
-import { FileText, ImageIcon, Video, Music } from "lucide-react"
+import { FileText, Image, VideoCamera, MusicNote } from "phosphor-react"
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 
 export default function MyProfilePage() {
@@ -17,11 +17,11 @@ export default function MyProfilePage() {
 
   const myFiles = [
     { type: "document", icon: FileText },
-    { type: "image", icon: ImageIcon },
-    { type: "video", icon: Video },
+    { type: "image", icon: Image },
+    { type: "video", icon: VideoCamera },
     { type: "document", icon: FileText },
-    { type: "image", icon: ImageIcon },
-    { type: "audio", icon: Music },
+    { type: "image", icon: Image },
+    { type: "audio", icon: MusicNote },
   ]
 
   const posts = [

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card } from "../ui/card"
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { MoreHorizontal, Play } from "lucide-react"
+import { DotsThree, Play } from "phosphor-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 
@@ -61,7 +61,7 @@ export default function ExpandableContentCard({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
+                  <DotsThree className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

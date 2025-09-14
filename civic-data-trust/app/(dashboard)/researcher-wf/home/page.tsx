@@ -3,73 +3,113 @@
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { PlayCircle, MoreHorizontal } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
+import ExpandableContentCard from "@/app/components/dashboard/expandable-content-card";
 
 const communityData = [
   { name: "Toronto Health Community", members: 124, datasets: 18, field: "Healthcare data & research" },
   { name: "Urban Mobility Project", members: 88, datasets: 12, field: "Transportation data" },
+  { name: "AI Research Collective", members: 210, datasets: 45, field: "AI model datasets" },
+];
+
+const trendingPosts = [
+  {
+    id: "1",
+    title: "Lorem Ipsum Dolor Sit Amet",
+    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    timestamp: "1 hour ago",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
+    videoThumbnail: "/placeholder.svg",
+  },
+  {
+    id: "2", 
+    title: "Lorem Ipsum Dolor Sit Amet",
+    author: { name: "Darrell Steward", avatar: "/placeholder.svg", username: "darrellsteward" },
+    timestamp: "1 hour ago",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
+    videoThumbnail: "/placeholder.svg",
+  },
+  {
+    id: "3",
+    title: "Lorem Ipsum Dolor Sit Amet", 
+    author: { name: "Robert Fox", avatar: "/placeholder.svg", username: "robertfox" },
+    timestamp: "1 hour ago",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
+    videoThumbnail: "/placeholder.svg",
+  },
+];
+
+const latestPosts = [
+  {
+    id: "4",
+    title: "Lorem Ipsum Dolor Sit Amet",
+    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    timestamp: "1 hour ago", 
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    videoThumbnail: "/placeholder.svg",
+  },
+  {
+    id: "5",
+    title: "Lorem Ipsum Dolor Sit Amet",
+    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    timestamp: "1 hour ago",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    videoThumbnail: "/placeholder.svg",
+  },
+  {
+    id: "6",
+    title: "Lorem Ipsum Dolor Sit Amet",
+    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    timestamp: "1 hour ago",
+    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    videoThumbnail: "/placeholder.svg",
+  },
 ];
 
 export default function ResearcherHomePage() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Main Content */}
-      <div className="lg:col-span-2 space-y-8">
-        {/* Top Grid */}
+    <div className="space-y-8 font-urbanist">
+      {/* Trending Now Section */}
+      <div>
+        <h2 className="text-figma-3xl font-bold text-civic-gray-900 mb-6">Trending Now</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => (
-            <Card key={i}>
-              <CardHeader className="flex-row items-start justify-between">
-                  <div className="w-12 h-12 bg-muted rounded-md"></div>
-                  <MoreHorizontal className="h-5 w-5 text-muted-foreground"/>
-              </CardHeader>
-              <CardContent>
-                <h3 className="font-semibold">Title</h3>
-                <p className="text-sm text-muted-foreground mt-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-              </CardContent>
-            </Card>
+          {trendingPosts.map((post) => (
+            <ExpandableContentCard key={post.id} {...post} />
           ))}
-        </div>
-
-        {/* Latest Section */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Latest (Based on your interest)</h2>
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map(i => (
-              <Card key={i} className="flex flex-col md:flex-row items-center gap-6 p-4">
-                <div className="w-full md:w-48 h-32 bg-muted rounded-md flex-shrink-0 flex items-center justify-center">
-                    <PlayCircle className="h-12 w-12 text-muted-foreground/50"/>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">Title</h3>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.</p>
-                </div>
-                <Button variant="outline">Access for Research</Button>
-              </Card>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Right Sidebar */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Popular Communities</h2>
-        <div className="space-y-4">
-          {communityData.map((community, i) => (
-             <Card key={i}>
-               <CardHeader>
-                 <CardTitle>{community.name}</CardTitle>
-               </CardHeader>
-               <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{community.members} members</p>
-                  <p className="text-sm text-muted-foreground">{community.datasets} datasets</p>
-                  <p className="text-sm text-muted-foreground">{community.field}</p>
-                  <div className="flex items-center gap-2 pt-2">
-                    <Button variant="outline" className="w-full">View Details</Button>
-                    <Button className="w-full">Join Community</Button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Latest Contents Section */}
+        <div className="lg:col-span-2 space-y-6">
+          <h2 className="text-figma-3xl font-bold text-civic-gray-900">Latest Contents</h2>
+          <div className="space-y-6">
+            {latestPosts.map((post) => (
+              <ExpandableContentCard key={post.id} {...post} />
+            ))}
+          </div>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="space-y-6">
+          <h2 className="text-figma-3xl font-bold text-civic-gray-900">Popular Communities</h2>
+          <div className="space-y-4">
+            {communityData.map((community, i) => (
+              <Card key={i} className="bg-white border border-civic-gray-200 rounded-lg shadow-figma hover:shadow-figma-card transition-all duration-200">
+                <div className="flex gap-4 p-4">
+                  <div className="w-[119px] h-[107px] bg-gradient-to-br from-green-400 to-blue-500 rounded-md flex-shrink-0"></div>
+                  <div className="flex-1 space-y-3">
+                    <h3 className="font-bold text-figma-lg text-civic-gray-900">{community.name}</h3>
+                    <div className="space-y-1.5 text-figma-base text-civic-gray-500">
+                      <p>{community.members} members</p>
+                      <p>{community.datasets} datasets</p>
+                      <p>{community.field}</p>
+                    </div>
                   </div>
-               </CardContent>
-             </Card>
-          ))}
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -24,11 +24,16 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
   };
 
   const RoleCard = ({ role, title, description, icon: Icon }: { role: Role; title: string; description: string; icon: React.ElementType; }) => (
-    <Card className="cursor-pointer transition-all hover:border-primary hover:shadow-lg hover:-translate-y-1" onClick={() => handleRoleSelect(role)}>
-      <CardHeader>
+    <Card className="cursor-pointer transition-all hover:border-civic-gray-400 hover:shadow-figma-card hover:-translate-y-1 bg-white border-civic-gray-200 rounded-2xl" onClick={() => handleRoleSelect(role)}>
+      <CardHeader className="p-4">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-primary/10 rounded-lg"><Icon className="w-6 h-6 text-primary" /></div>
-          <div><CardTitle>{title}</CardTitle><CardDescription className="mt-1">{description}</CardDescription></div>
+          <div className="p-3 bg-civic-gray-100 rounded-lg">
+            <Icon className="w-6 h-6 text-civic-gray-900" />
+          </div>
+          <div>
+            <CardTitle className="text-figma-lg font-bold text-civic-gray-900 font-urbanist">{title}</CardTitle>
+            <CardDescription className="mt-1 text-figma-base text-civic-gray-500 font-urbanist">{description}</CardDescription>
+          </div>
         </div>
       </CardHeader>
     </Card>
@@ -37,10 +42,10 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
   return (
     // Step 3: Pass the props to the underlying Dialog component
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] bg-white border-civic-gray-200 shadow-figma">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Select Your Role</DialogTitle>
-          <DialogDescription>Choose a role to view the corresponding dashboard experience.</DialogDescription>
+          <DialogTitle className="text-figma-2xl font-bold text-civic-gray-900 font-urbanist">Select Your Role</DialogTitle>
+          <DialogDescription className="text-figma-base text-civic-gray-500 font-urbanist">Choose a role to view the corresponding dashboard experience.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <RoleCard role="super-admin-wf/dashboard" title="Super Admin" description="Full platform oversight, user management, and global analytics." icon={Star}/>

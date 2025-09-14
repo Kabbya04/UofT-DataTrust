@@ -1,4 +1,4 @@
-import { LogOut, MoveUpRight, User, Users, FileSearch, UserCheck } from "lucide-react"
+import { SignOut, ArrowSquareOut, User, Users, FileText, CheckCircle } from "phosphor-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card } from "../ui/card"
@@ -66,12 +66,12 @@ export default function Profile01({
     {
       label: "Audit Logs",
       href: "/community-member-wf/audit-logs",
-      icon: <FileSearch className="w-4 h-4" />,
+      icon: <FileText className="w-4 h-4" />,
     },
     {
       label: "Researcher Access Requests",
       href: "/community-member-wf/researcher-access-requests",
-      icon: <UserCheck className="w-4 h-4" />,
+      icon: <CheckCircle className="w-4 h-4" />,
     },
   ]
 
@@ -110,7 +110,7 @@ export default function Profile01({
                 </div>
                 <div className="flex items-center">
                   {item.value && <span className="text-sm   mr-2">{item.value}</span>}
-                  {item.external && <MoveUpRight className="w-4 h-4" />}
+                  {item.external && <ArrowSquareOut className="w-4 h-4" />}
                 </div>
               </Link>
             ))}
@@ -122,7 +122,7 @@ export default function Profile01({
                                   rounded-lg transition-colors duration-200"
             > 
               <div className="flex items-center gap-2">
-                <LogOut className="w-4 h-4" />
+                <SignOut className="w-4 h-4" />
                 <span className="text-sm font-medium">Logout</span>
               </div>
             </button>

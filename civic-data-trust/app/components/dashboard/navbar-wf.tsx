@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import Image from "next/image"
 import { usePathname } from 'next/navigation';
-import { Search, X, ChevronDown, Bell } from 'lucide-react';
+import { MagnifyingGlass, X, CaretDown, Bell } from 'phosphor-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
@@ -20,8 +20,8 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={cn(
-        "px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors",
-        isActive && "text-gray-900 font-semibold"
+        "px-5 py-2 text-figma-lg font-normal text-civic-gray-500 hover:text-civic-gray-900 transition-colors",
+        isActive && "text-civic-gray-900 font-bold"
       )}
     >
       {children}
@@ -56,9 +56,9 @@ export function NavbarWf() {
   }
 
   return (
-    <header className="h-16 flex-shrink-0 bg-gray-100 flex items-center px-6 justify-between">
+    <header className="h-16 flex-shrink-0 bg-civic-gray-100 flex items-center px-6 justify-between">
       <div className=' flex items-center'>
-        <Link href={getHomeLink()} className="font-semibold text-lg  text-gray-500 ">LOGO</Link>
+        <Link href={getHomeLink()} className="font-bold text-2xl text-civic-gray-500 uppercase tracking-wide">LOGO</Link>
       </div>
 
 
@@ -78,18 +78,18 @@ export function NavbarWf() {
           </>)}
         </nav>
         <div className="relative lg:w-90">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <MagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-civic-gray-400" />
           <Input
             placeholder="Search anything"
-            className="pl-10 pr-4 py-2 bg-white border border-white rounded-4xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="pl-12 pr-6 py-3 bg-white border border-white rounded-4xl text-figma-base text-civic-gray-500 placeholder-civic-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-gray-400 focus:border-transparent shadow-sm"
           />
         </div>
 
         <div className="flex items-center gap-3">
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-2 cursor-pointer py-2 bg-white border border-transparent hover:border-gray-300 px-3 rounded-4xl">
-              <span className="text-sm text-gray-600">English</span>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
+            <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-2 cursor-pointer py-3 bg-white border border-transparent hover:border-civic-gray-300 px-4 rounded-4xl transition-all duration-200 shadow-sm">
+              <span className="text-figma-base text-civic-gray-500">English</span>
+              <CaretDown className="h-4 w-4 text-civic-gray-400" />
             </DropdownMenuTrigger>
           </DropdownMenu>
 
@@ -97,22 +97,25 @@ export function NavbarWf() {
           <NotificationButton />
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-2 cursor-pointer bg-white border border-transparent hover:border-gray-300 px-2 py-1 rounded-4xl">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/profile.jpg" alt={user?.name || 'User'} />
-                <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-medium">
-                  {user ? getUserInitials(user.name) : 'JD'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium text-gray-900 hidden sm:block">
+            <DropdownMenuTrigger className="focus:outline-none flex flex-row items-center gap-3 cursor-pointer bg-white border border-transparent hover:border-civic-gray-300 px-2 py-2 rounded-4xl transition-all duration-200 shadow-sm">
+              <div className="relative">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/profile.jpg" alt={user?.name || 'User'} />
+                  <AvatarFallback className="bg-civic-accent-green text-white text-xs font-medium">
+                    {user ? getUserInitials(user.name) : 'JD'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-civic-accent-green rounded-full border-2 border-white"></div>
+              </div>
+              <span className="text-figma-base font-medium text-civic-gray-900 hidden sm:block">
                 {user?.name || 'Jane Doe'}
               </span>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
+              <CaretDown className="h-4 w-4 text-civic-gray-400" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
               sideOffset={8}
-              className="w-[280px] sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg"
+              className="w-[280px] sm:w-80 bg-white border border-civic-gray-200 rounded-2xl shadow-figma-card"
             >
               <Profile avatar="/profile.jpg" />
             </DropdownMenuContent>

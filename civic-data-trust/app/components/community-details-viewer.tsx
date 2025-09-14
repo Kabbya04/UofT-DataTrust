@@ -391,12 +391,12 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
             <div className="absolute bottom-6 left-6 text-white max-w-2xl">
               <h1 className="text-3xl sm:text-4xl font-bold mb-3 drop-shadow-lg">{community.name}</h1>
               <div className="flex flex-wrap items-center gap-4 mb-2">
-                <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                <div className="flex items-center bg-white rounded-full px-3 py-1">
                   <Users className="h-4 w-4 mr-2" />
                   <span className="font-semibold">{community.memberCount?.toLocaleString() || '0'}</span>
                   <span className="hidden sm:inline ml-1">members</span>
                 </div>
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                <Badge variant="secondary" className="bg-white text-gray-800 border-white/30">
                   {community.community_category?.name || 'General'}
                 </Badge>
               </div>
@@ -410,7 +410,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
                 disabled={isJoining}
                 className={`min-w-[140px] transition-all duration-300 hover:scale-105 ${
                   community.isJoined
-                    ? "bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                    ? "bg-white text-gray-800 border-white hover:bg-gray-100"
                     : "shadow-lg hover:shadow-xl"
                 }`}
               >
@@ -431,7 +431,7 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-12 bg-muted/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-4 h-12 bg-white border">
             <TabsTrigger
               value="overview"
               className="transition-all duration-200 data-[state=active]:bg-background data-[state=active]:shadow-sm"

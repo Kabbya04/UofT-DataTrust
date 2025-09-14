@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from 'next/link';
-import { TrendingUp, Clock, Users, Database, Flame, ChevronUp, ChevronDown, MessageSquare, Share2, Bookmark, Eye, ArrowUp, BarChart3 } from "lucide-react"
+import { TrendUp, Clock, Users, Database, Flame, CaretUp, CaretDown, ChatCircle, ShareNetwork, Bookmark, Eye, ArrowUp, ChartBar } from "phosphor-react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
@@ -17,9 +17,9 @@ function PopularPostCard({ post, rank, onVote, getUserIdFromName }: { post: any,
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'rising': return <TrendingUp className="h-3 w-3 text-foreground" />;
-      case 'falling': return <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />;
-      default: return <TrendingUp className="h-3 w-3 text-muted-foreground rotate-90" />;
+      case 'rising': return <TrendUp className="h-3 w-3 text-foreground" />;
+      case 'falling': return <TrendUp className="h-3 w-3 text-red-500 rotate-180" />;
+      default: return <TrendUp className="h-3 w-3 text-muted-foreground rotate-90" />;
     }
   };
 
@@ -29,9 +29,9 @@ function PopularPostCard({ post, rank, onVote, getUserIdFromName }: { post: any,
         <div className="flex gap-3">
           <div className="flex flex-col items-center gap-1 min-w-[50px]">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><span className="text-sm font-bold text-primary">#{rank}</span></div>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-primary" onClick={() => onVote(post.id, 'up')}><ChevronUp className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-primary" onClick={() => onVote(post.id, 'up')}><CaretUp className="h-4 w-4" /></Button>
             <span className={`text-xs font-medium`}>{netScore > 999 ? `${(netScore / 1000).toFixed(1)}k` : netScore}</span>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-destructive" onClick={() => onVote(post.id, 'down')}><ChevronDown className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:text-destructive" onClick={() => onVote(post.id, 'down')}><CaretDown className="h-4 w-4" /></Button>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2 text-sm">
@@ -47,7 +47,7 @@ function PopularPostCard({ post, rank, onVote, getUserIdFromName }: { post: any,
             <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{post.content}</p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-1"><Eye className="h-3 w-3" />{post.views.toLocaleString()} views</div>
-              <div className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{post.comments} comments</div>
+              <div className="flex items-center gap-1"><ChatCircle className="h-3 w-3" />{post.comments} comments</div>
               <div className="flex items-center gap-1">{getTrendIcon(post.trend)}{post.trend}</div>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function PopularPage() {
             <TabsList>
               <TabsTrigger value="hot"><Flame className="h-4 w-4 mr-2" />Hot</TabsTrigger>
               <TabsTrigger value="top"><ArrowUp className="h-4 w-4 mr-2" />Top</TabsTrigger>
-              <TabsTrigger value="rising"><BarChart3 className="h-4 w-4 mr-2" />Rising</TabsTrigger>
+              <TabsTrigger value="rising"><ChartBar className="h-4 w-4 mr-2" />Rising</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

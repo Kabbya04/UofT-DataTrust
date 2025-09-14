@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Play, FileText, Download, Eye, Calendar, Users, Award, Star } from "lucide-react"
+import { Play, FileText, Download, Eye, Calendar, Users, Medal, Star } from "phosphor-react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
@@ -22,7 +22,7 @@ const mockUserDatasets = {
     ]
 };
 const achievements = [
-    { id: 1, name: "Data Pioneer", icon: Award, description: "First dataset uploaded" },
+    { id: 1, name: "Data Pioneer", icon: Medal, description: "First dataset uploaded" },
     { id: 2, name: "Community Builder", icon: Users, description: "Joined 5+ communities" },
     { id: 3, name: "Top Contributor", icon: Star, description: "100+ contributions" },
 ];

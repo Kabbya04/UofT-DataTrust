@@ -108,7 +108,7 @@ export function CommunityDiscoveryPortal() {
           {filteredCommunities.map((community) => (
             <Card
               key={community.id}
-              className="group hover:shadow-xl  hover:-translate-y-1 transition-all duration-300 border border-primary shadow-2xl shadow-neutral-600 hover:shadow-neutral-300 bg-card/50 backdrop-blur-lg cursor-pointer flex flex-col h-full"
+              className="group hover:shadow-xl  hover:-translate-y-1 transition-all duration-300 border border-primary shadow-2xl shadow-neutral-600 hover:shadow-neutral-300 bg-white cursor-pointer flex flex-col h-full"
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start gap-3">

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { PlayCircle, Image as ImageIcon } from "lucide-react";
+import { PlayCircle, Image as ImageIcon } from "phosphor-react";
 import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 import Image from "next/image";
@@ -80,7 +80,7 @@ export default function CommunityMemberHomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Latest Section */}
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Latest (Based on your interest)</h2>
+            <h2 className="text-2xl font-bold mb-4">Latest Contents</h2>
             <div className="space-y-4">
               {posts.map((post) => (
                 <ExpandableContentCard key={post.id} {...post} />
@@ -124,14 +124,14 @@ export default function CommunityMemberHomePage() {
                         {community.coverImage ? (
                           <Image
                             src={community.coverImage}
-                            alt={community.name || "Community cover image"}
+                            alt={community.name}
                             layout="fill"
                             objectFit="cover"
                           />
                         ) : (
                           <Image
                             src="/placeholder.svg"
-                            alt="Placeholder image"
+                            alt="Community placeholder"
                             layout="fill"
                             objectFit="cover"
                           />
