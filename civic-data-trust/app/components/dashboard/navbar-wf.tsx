@@ -90,7 +90,7 @@ export function NavbarWf() {
                 <AvatarFallback>{user ? getUserInitials(user.name) : 'U'}</AvatarFallback>
               </Avatar>
               <div className="hidden sm:block cursor-pointer">
-                <button className="text-sm font-semibold">{user?.name || 'Loading...'}</button>
+                <span className="text-sm font-semibold">{user?.name || 'Loading...'}</span>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent

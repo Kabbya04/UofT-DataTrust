@@ -10,7 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { Label } from "@/app/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Progress } from "@/app/components/ui/progress";
-import { Upload, FileText, X, Eye, EyeOff, FolderSearch, HelpCircle, Image as LucideImage } from "lucide-react";
+import { Upload, FileText, X, Eye, EyeOff, FolderSearch, HelpCircle, Image as LucideImage, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DATASET_TAGS, DatasetTag } from "@/app/constants/dataset-tags";
@@ -53,6 +53,15 @@ export default function UploadDatasetPage() {
     const [showSecretKey, setShowSecretKey] = useState(false);
     const [activeS3Source, setActiveS3Source] = useState('AWS S3');
     const [searchTags, setSearchTags] = useState("");
+
+    // Upload state
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [datasetName, setDatasetName] = useState('');
+    const [datasetDescription, setDatasetDescription] = useState('');
+    const [datasetType, setDatasetType] = useState('');
     const handleTagToggle = (tag: DatasetTag) => {
         setSelectedTags(prev =>
             prev.includes(tag)
@@ -90,6 +99,119 @@ export default function UploadDatasetPage() {
         setThumbnailFile(null);
     };
 
+    const testBackendDirectly = async () => {
+        console.log('=== Testing Backend Directly ===');
+
+        // Create a small test file
+        const testContent = 'This is a test file for dataset upload.';
+        const testFile = new File([testContent], 'test.txt', { type: 'text/plain' });
+
+        const formData = new FormData();
+        formData.append('file', testFile);
+
+        const token = localStorage.getItem('access_token');
+
+        try {
+            const response = await fetch('/api/datasets/create', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+            console.log('Direct backend test result:', result);
+
+            if (response.ok) {
+                console.log('✅ Backend test successful!');
+            } else {
+                console.error('❌ Backend test failed:', result);
+            }
+        } catch (error) {
+            console.error('Backend test error:', error);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (selectedFiles.length === 0) {
+            setUploadError('Please select at least one file to upload.');
+            return;
+        }
+
+        if (!datasetName.trim()) {
+            setUploadError('Please enter a dataset name.');
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadError(null);
+        setUploadSuccess(null);
+        setUploadProgress(0);
+
+        try {
+            console.log('=== Starting Dataset Upload ===');
+            console.log('Files to upload:', selectedFiles.length);
+            console.log('Dataset name:', datasetName);
+            console.log('Selected tags:', selectedTags);
+
+            const uploadResults = [];
+
+            // Upload each file separately (since the API only accepts one file at a time)
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                console.log(`Uploading file ${i + 1}/${selectedFiles.length}:`, file.name);
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const token = localStorage.getItem('access_token');
+                const headers: Record<string, string> = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/datasets/create', {
+                    method: 'POST',
+                    headers,
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || `Failed to upload ${file.name}`);
+                }
+
+                console.log(`File ${file.name} uploaded successfully:`, result);
+                uploadResults.push({ file: file.name, id: result.id });
+
+                // Update progress
+                setUploadProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
+            }
+
+            console.log('All files uploaded successfully:', uploadResults);
+            setUploadSuccess(`Successfully uploaded ${selectedFiles.length} file(s)!`);
+
+            // Reset form after successful upload
+            setTimeout(() => {
+                setSelectedFiles([]);
+                setDatasetName('');
+                setDatasetDescription('');
+                setDatasetType('');
+                setSelectedTags([]);
+                setThumbnailFile(null);
+                setUploadProgress(0);
+            }, 3000);
+
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            setUploadError(error.message || 'Failed to upload dataset. Please try again.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto p-4">
             <Tabs defaultValue="upload" className="w-full">
@@ -104,19 +226,32 @@ export default function UploadDatasetPage() {
                         <CardHeader><CardTitle>Upload Your Dataset</CardTitle></CardHeader>
                         <CardContent className="space-y-6">
                             <div
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
+                                onDragOver={!isUploading ? handleDragOver : undefined}
+                                onDragLeave={!isUploading ? handleDragLeave : undefined}
+                                onDrop={!isUploading ? handleDrop : undefined}
                                 className={cn(
                                     "border-2 border-dashed rounded-lg p-12 text-center transition-colors",
+                                    isUploading ? "border-muted bg-muted/50 cursor-not-allowed" :
                                     isDragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                                 )}
                             >
-                                <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4 text-muted-foreground">
+                                <label htmlFor="file-upload" className={cn(
+                                    "flex flex-col items-center gap-4 text-muted-foreground",
+                                    isUploading ? "cursor-not-allowed" : "cursor-pointer"
+                                )}>
                                     <Upload className="h-12 w-12" />
-                                    <p className="text-lg font-medium text-foreground">Drag and drop files here, or click to browse</p>
+                                    <p className="text-lg font-medium text-foreground">
+                                        {isUploading ? "Upload in progress..." : "Drag and drop files here, or click to browse"}
+                                    </p>
                                     <p>Max file size: 5GB</p>
-                                    <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileSelect} />
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        onChange={handleFileSelect}
+                                        disabled={isUploading}
+                                    />
                                 </label>
                             </div>
 
@@ -175,10 +310,68 @@ export default function UploadDatasetPage() {
                                 </div>
                             </div>
 
+                            {/* Upload Status Messages */}
+                            {uploadSuccess && (
+                                <div className="flex items-center gap-2 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-600">
+                                    <CheckCircle className="h-5 w-5" />
+                                    <span>{uploadSuccess}</span>
+                                </div>
+                            )}
+
+                            {uploadError && (
+                                <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <span>{uploadError}</span>
+                                </div>
+                            )}
+
+                            {/* Upload Progress */}
+                            {isUploading && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span>Uploading dataset...</span>
+                                        <span>{uploadProgress}%</span>
+                                    </div>
+                                    <Progress value={uploadProgress} className="h-2" />
+                                </div>
+                            )}
+
                             <div className="space-y-4">
-                                <div><Label htmlFor="dataset-name">Name</Label><Input id="dataset-name" placeholder="E.g., Quarterly Sales Figures" /></div>
-                                <div><Label htmlFor="dataset-description">Description (Optional)</Label><Textarea id="dataset-description" placeholder="A brief description of what this dataset contains." /></div>
-                                <div><Label htmlFor="dataset-type">Dataset Type</Label><Select><SelectTrigger id="dataset-type"><SelectValue placeholder="Select a type..." /></SelectTrigger><SelectContent><SelectItem value="image">Image</SelectItem><SelectItem value="video">Video</SelectItem><SelectItem value="tabular">Tabular (CSV, Excel)</SelectItem><SelectItem value="text">Text</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
+                                <div>
+                                    <Label htmlFor="dataset-name">Name *</Label>
+                                    <Input
+                                        id="dataset-name"
+                                        placeholder="E.g., Quarterly Sales Figures"
+                                        value={datasetName}
+                                        onChange={(e) => setDatasetName(e.target.value)}
+                                        disabled={isUploading}
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="dataset-description">Description (Optional)</Label>
+                                    <Textarea
+                                        id="dataset-description"
+                                        placeholder="A brief description of what this dataset contains."
+                                        value={datasetDescription}
+                                        onChange={(e) => setDatasetDescription(e.target.value)}
+                                        disabled={isUploading}
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="dataset-type">Dataset Type</Label>
+                                    <Select value={datasetType} onValueChange={setDatasetType} disabled={isUploading}>
+                                        <SelectTrigger id="dataset-type">
+                                            <SelectValue placeholder="Select a type..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="image">Image</SelectItem>
+                                            <SelectItem value="video">Video</SelectItem>
+                                            <SelectItem value="tabular">Tabular (CSV, Excel)</SelectItem>
+                                            <SelectItem value="text">Text</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
                                 {/* New Thumbnail Upload Section */}
                                 <div>
@@ -230,9 +423,38 @@ export default function UploadDatasetPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-2">
-                                <Button variant="outline">Cancel</Button>
-                                <Button className="bg-primary hover:bg-primary/90">Upload</Button>
+                            <div className="flex justify-between">
+                                <Button
+                                    variant="outline"
+                                    onClick={testBackendDirectly}
+                                    disabled={isUploading}
+                                    className="text-xs"
+                                >
+                                    🔧 Test Backend
+                                </Button>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => router.push('/community-member-wf/data-usage')}
+                                        disabled={isUploading}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        className="bg-primary hover:bg-primary/90 min-w-[100px]"
+                                        onClick={handleUpload}
+                                        disabled={isUploading || selectedFiles.length === 0 || !datasetName.trim()}
+                                    >
+                                        {isUploading ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                Uploading...
+                                            </>
+                                        ) : (
+                                            'Upload'
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
