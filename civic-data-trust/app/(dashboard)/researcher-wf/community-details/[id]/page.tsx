@@ -49,8 +49,6 @@ interface PostWithDataset extends CommunityPost {
   dataset?: Dataset;
 }
 
-// No more mock data - will fetch from API
-
 // Updated interface for Next.js 15
 interface CommunityDetailsPageProps {
   params: Promise<{ id: string }>
@@ -89,8 +87,13 @@ function PostCard({ post }: PostCardProps) {
             </p>
             {post.dataset && (
               <div className="mt-2 pt-2 border-t border-muted/30">
-                <p className="text-xs font-medium text-foreground mb-1">Dataset: {post.dataset.name}</p>
+                <p className="text-xs font-medium text-foreground mb-1">Research Dataset: {post.dataset.name}</p>
                 <p className="text-xs text-muted-foreground line-clamp-1">{post.dataset.description}</p>
+                <div className="mt-2">
+                  <Button size="sm" variant="outline" className="text-xs h-6">
+                    Access for Research
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -117,14 +120,14 @@ function PopularPostItem({ post }: { post: PostWithDataset }) {
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground line-clamp-1">{post.title}</p>
         <p className="text-xs text-muted-foreground">
-          {post.dataset ? post.dataset.name : (post.user?.name || `User ${post.user_id.slice(0, 8)}...`)}
+          {post.dataset ? `Dataset: ${post.dataset.name}` : (post.user?.name || `Researcher ${post.user_id.slice(0, 8)}...`)}
         </p>
       </div>
     </div>
   )
 }
 
-export default function CommunityDetailsPage({ params }: CommunityDetailsPageProps) {
+export default function ResearcherCommunityDetailsPage({ params }: CommunityDetailsPageProps) {
   const { communities, toggleJoinStatus } = useCommunity();
   const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(false)
@@ -185,9 +188,9 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
               post.community_id === communityId
             );
 
-            console.log('=== Dataset Count Debug ===');
+            console.log('=== Research Dataset Count Debug ===');
             console.log('Community ID:', communityId);
-            console.log('All posts in community:', communityPosts);
+            console.log('All posts in research community:', communityPosts);
 
             // Now check which posts are approved
             const requestsResponse = await fetch('/api/community-post-request/', {
@@ -214,7 +217,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                 approvedPostIds.includes(post.id)
               );
 
-              console.log('Approved posts in this community:', approvedCommunityPosts);
+              console.log('Approved posts in this research community:', approvedCommunityPosts);
 
               // Get unique dataset IDs from approved community posts only
               const datasetIds = [...new Set(
@@ -223,8 +226,8 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                   .map((post: CommunityPost) => post.dataset_id)
               )];
 
-              console.log('Dataset IDs from approved posts:', datasetIds);
-              console.log('Final dataset count:', datasetIds.length);
+              console.log('Research dataset IDs from approved posts:', datasetIds);
+              console.log('Final research dataset count:', datasetIds.length);
 
               setDatasetCount(datasetIds.length);
             } else {
@@ -239,7 +242,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           }
         }
       } catch (error) {
-        console.error('Error fetching dataset count:', error);
+        console.error('Error fetching research dataset count:', error);
       } finally {
         setIsLoadingDatasetCount(false);
       }
@@ -263,7 +266,6 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
         }
 
         // Get all posts and filter by community_id on the frontend
-        // In the future, you might want to add a community filter to the backend endpoint
         const response = await fetch('/api/community-post/?pageNumber=1&limit=50', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -273,20 +275,20 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch posts');
+          throw new Error(errorData.error || 'Failed to fetch research posts');
         }
 
         const result = await response.json();
-        console.log('Community posts API response:', result);
+        console.log('Research community posts API response:', result);
 
         // Handle the nested response structure - API returns { data: [...] }
         const allPosts = result.data || result || [];
-        console.log('Extracted allPosts:', allPosts);
+        console.log('Extracted research allPosts:', allPosts);
 
         // Ensure it's an array
         if (!Array.isArray(allPosts)) {
-          console.error('allPosts is not an array:', typeof allPosts, allPosts);
-          throw new Error('Invalid posts data format');
+          console.error('Research allPosts is not an array:', typeof allPosts, allPosts);
+          throw new Error('Invalid research posts data format');
         }
 
         // Filter posts for this specific community
@@ -307,21 +309,21 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           const requestsResult = await requestsResponse.json();
           const requests = requestsResult.data || requestsResult || [];
 
-          console.log('All post requests:', requests);
-          console.log('Community posts:', communityPosts);
+          console.log('All research post requests:', requests);
+          console.log('Research community posts:', communityPosts);
 
           // Only show posts that have been approved
           const approvedPostIds = requests
             .filter((request: any) => request.status === 'approved')
             .map((request: any) => request.post_id);
 
-          console.log('Approved post IDs:', approvedPostIds);
+          console.log('Approved research post IDs:', approvedPostIds);
 
           const filteredPosts = communityPosts.filter((post: CommunityPost) =>
             approvedPostIds.includes(post.id)
           );
 
-          console.log('Final filtered posts to show:', filteredPosts);
+          console.log('Final filtered research posts to show:', filteredPosts);
 
           // Fetch dataset information for each post
           const postsWithDatasets = await Promise.all(
@@ -348,7 +350,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                   return { ...post, dataset };
                 }
               } catch (error) {
-                console.error(`Failed to fetch dataset ${post.dataset_id}:`, error);
+                console.error(`Failed to fetch research dataset ${post.dataset_id}:`, error);
               }
 
               return { ...post, dataset: undefined };
@@ -358,7 +360,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           setCommunityPosts(postsWithDatasets);
         } else {
           // If we can't fetch requests, show all posts (fallback)
-          console.warn('Failed to fetch post requests, showing all posts');
+          console.warn('Failed to fetch research post requests, showing all posts');
 
           // Still fetch dataset information for fallback posts
           const postsWithDatasets = await Promise.all(
@@ -382,7 +384,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                   return { ...post, dataset };
                 }
               } catch (error) {
-                console.error(`Failed to fetch dataset ${post.dataset_id}:`, error);
+                console.error(`Failed to fetch research dataset ${post.dataset_id}:`, error);
               }
 
               return { ...post, dataset: undefined };
@@ -392,8 +394,8 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
           setCommunityPosts(postsWithDatasets);
         }
       } catch (error) {
-        console.error('Error fetching community posts:', error);
-        setPostsError(error instanceof Error ? error.message : 'Failed to load posts');
+        console.error('Error fetching research community posts:', error);
+        setPostsError(error instanceof Error ? error.message : 'Failed to load research posts');
       } finally {
         setIsLoadingPosts(false);
       }
@@ -403,13 +405,13 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
   }, [communityId]);
 
   const community = communities.find(c => c.id.toString() === communityId) || {
-    id: parseInt(communityId || "1"), 
-    name: "Toronto Health Community",
-    description: "Tincidunt cursque ipsum sit sit urna arci molestaque tincidunt et commodo. Praesent massa elit faucibus odio elit in adipiscing nec ipsum ut. Vestibulum ipsum sit.",
-    memberCount: 123, 
-    category: "Healthcare", 
-    isJoined: false, 
-    tags: ["Healthcare", "Research", "Data"]
+    id: parseInt(communityId || "1"),
+    name: "Research Data Community",
+    description: "Collaborate with researchers and access datasets for academic research purposes. Share findings and discover new research opportunities through data collaboration.",
+    memberCount: 123,
+    category: "Research",
+    isJoined: false,
+    tags: ["Research", "Academic", "Data", "Collaboration"]
   };
 
   const handleAddToFavorite = () => {
@@ -424,14 +426,13 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
     if (community.isJoined) {
       toggleJoinStatus(community.id);
     } else {
-      router.push(`/community-member-wf/join-community?communityId=${community.id}`);
+      router.push(`/researcher-wf/join-community?communityId=${community.id}`);
     }
   };
 
-
   // Show loading state while params are being resolved
   if (!communityId) {
-    return <div>Loading...</div>;
+    return <div>Loading research community...</div>;
   }
 
   return (
@@ -446,9 +447,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
             </div>
 
             <div className="flex items-center gap-2 pb-2">
-              {community.isJoined && <Button variant="outline" size="sm" onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}>Create Post</Button>}
-              
-              <Button variant={community.isJoined ? "outline" : "default"} size="sm" onClick={handleJoinToggle}>{community.isJoined ? "Joined" : "Join"}</Button>
+              <Button variant={community.isJoined ? "outline" : "default"} size="sm" onClick={handleJoinToggle}>{community.isJoined ? "Joined" : "Join Research Community"}</Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -474,14 +473,21 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
       <div className="flex gap-6">
         <div className="flex-1">
           <div className="mb-6">
-            <h2 className="font-semibold text-foreground mb-2">Description</h2>
+            <h2 className="font-semibold text-foreground mb-2">Research Community Description</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">{community.description}</p>
           </div>
           <div className={`transition-all duration-300 ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>
+            {!community.isJoined && (
+              <div className="mb-4 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground text-center">
+                  Join this research community to access datasets and collaborate with other researchers
+                </p>
+              </div>
+            )}
             {isLoadingPosts ? (
               <div className="flex items-center justify-center p-8">
                 <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                <span>Loading community posts...</span>
+                <span>Loading research data...</span>
               </div>
             ) : postsError ? (
               <div className="p-6 border border-red-200 rounded-lg bg-red-50">
@@ -496,14 +502,8 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
               </div>
             ) : communityPosts.length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-muted-foreground mb-4">No posts in this community yet.</p>
-                {community.isJoined && (
-                  <Button
-                    onClick={() => router.push(`/community-member-wf/upload-files?communityId=${community.id}`)}
-                  >
-                    Create First Post
-                  </Button>
-                )}
+                <p className="text-muted-foreground mb-4">No research data available in this community yet.</p>
+                <p className="text-sm text-muted-foreground">Check back later for new datasets and research opportunities.</p>
               </div>
             ) : (
               communityPosts.map((post) => (<PostCard key={post.id} post={post} />))
@@ -513,14 +513,14 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
         <div className={`w-80" ${!community.isJoined ? "opacity-90 blur-xs pointer-events-none" : ""}`}>
           <div className="top-6 space-y-6">
             <Card className="p-4">
-              <h3 className="font-semibold text-foreground mb-4">Stats</h3>
+              <h3 className="font-semibold text-foreground mb-4">Research Community Stats</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Members</span></div><span className="font-semibold text-foreground">{community.memberCount}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Researchers</span></div><span className="font-semibold text-foreground">{community.memberCount}</span></div>
                 <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Database className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Datasets</span></div><span className="font-semibold text-foreground">{isLoadingDatasetCount ? '...' : datasetCount}</span></div>
               </div>
             </Card>
             <Card className="p-4">
-              <h3 className="font-semibold text-foreground mb-4">Popular Posts</h3>
+              <h3 className="font-semibold text-foreground mb-4">Popular Research Data</h3>
               <div className="space-y-2">
                 {isLoadingPosts ? (
                   <div className="flex items-center justify-center p-4">
@@ -528,7 +528,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
                     <span className="text-sm">Loading...</span>
                   </div>
                 ) : communityPosts.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center p-4">No posts yet</p>
+                  <p className="text-xs text-muted-foreground text-center p-4">No research data yet</p>
                 ) : (
                   // Show first 5 posts as "popular"
                   communityPosts.slice(0, 5).map((post) => (<PopularPostItem key={post.id} post={post} />))
