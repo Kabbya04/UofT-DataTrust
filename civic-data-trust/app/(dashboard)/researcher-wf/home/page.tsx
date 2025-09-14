@@ -4,38 +4,40 @@ import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { PlayCircle, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
+import Image from "next/image";
 import ExpandableContentCard from "@/app/components/dashboard/expandable-content-card";
+import { getCommunityImage, getUserAvatar, getDatasetThumbnail } from "@/app/utils/image-mapping";
 
 const communityData = [
-  { name: "Toronto Health Community", members: 124, datasets: 18, field: "Healthcare data & research" },
-  { name: "Urban Mobility Project", members: 88, datasets: 12, field: "Transportation data" },
-  { name: "AI Research Collective", members: 210, datasets: 45, field: "AI model datasets" },
+  { id: "health", name: "Toronto Health Community", members: 124, datasets: 18, field: "Healthcare data & research" },
+  { id: "mobility", name: "Urban Mobility Project", members: 88, datasets: 12, field: "Transportation data" },
+  { id: "ai", name: "AI Research Collective", members: 210, datasets: 45, field: "AI model datasets" },
 ];
 
 const trendingPosts = [
   {
     id: "1",
     title: "Lorem Ipsum Dolor Sit Amet",
-    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    author: { name: "Ronald Richards", avatar: getUserAvatar("ronald-richards"), username: "ronaldrichards" },
     timestamp: "1 hour ago",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("trending-1"),
   },
   {
     id: "2", 
     title: "Lorem Ipsum Dolor Sit Amet",
-    author: { name: "Darrell Steward", avatar: "/placeholder.svg", username: "darrellsteward" },
+    author: { name: "Darrell Steward", avatar: getUserAvatar("darrell-steward"), username: "darrellsteward" },
     timestamp: "1 hour ago",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("trending-2"),
   },
   {
     id: "3",
     title: "Lorem Ipsum Dolor Sit Amet", 
-    author: { name: "Robert Fox", avatar: "/placeholder.svg", username: "robertfox" },
+    author: { name: "Robert Fox", avatar: getUserAvatar("robert-fox"), username: "robertfox" },
     timestamp: "1 hour ago",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("trending-3"),
   },
 ];
 
@@ -43,26 +45,26 @@ const latestPosts = [
   {
     id: "4",
     title: "Lorem Ipsum Dolor Sit Amet",
-    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    author: { name: "Ronald Richards", avatar: getUserAvatar("ronald-richards"), username: "ronaldrichards" },
     timestamp: "1 hour ago", 
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("latest-1"),
   },
   {
     id: "5",
     title: "Lorem Ipsum Dolor Sit Amet",
-    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    author: { name: "Ronald Richards", avatar: getUserAvatar("ronald-richards"), username: "ronaldrichards" },
     timestamp: "1 hour ago",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("latest-2"),
   },
   {
     id: "6",
     title: "Lorem Ipsum Dolor Sit Amet",
-    author: { name: "Ronald Richards", avatar: "/placeholder.svg", username: "ronaldrichards" },
+    author: { name: "Ronald Richards", avatar: getUserAvatar("ronald-richards"), username: "ronaldrichards" },
     timestamp: "1 hour ago",
     content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
-    videoThumbnail: "/placeholder.svg",
+    videoThumbnail: getDatasetThumbnail("latest-3"),
   },
 ];
 
@@ -97,7 +99,16 @@ export default function ResearcherHomePage() {
             {communityData.map((community, i) => (
               <Card key={i} className="bg-white border border-civic-gray-200 rounded-lg shadow-figma hover:shadow-figma-card transition-all duration-200">
                 <div className="flex gap-4 p-4">
-                  <div className="w-[119px] h-[107px] bg-gradient-to-br from-green-400 to-blue-500 rounded-md flex-shrink-0"></div>
+                  <div className="relative w-[119px] h-[107px] rounded-md flex-shrink-0 overflow-hidden">
+                    <Image
+                      src={getCommunityImage(community.id)}
+                      alt={community.name}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      sizes="119px"
+                      priority={false}
+                    />
+                  </div>
                   <div className="flex-1 space-y-3">
                     <h3 className="font-bold text-figma-lg text-civic-gray-900">{community.name}</h3>
                     <div className="space-y-1.5 text-figma-base text-civic-gray-500">

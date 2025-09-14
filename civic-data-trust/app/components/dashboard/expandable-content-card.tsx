@@ -4,9 +4,10 @@ import { useState } from "react"
 import { Card } from "../ui/card"
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { DotsThree, Play } from "phosphor-react"
+import { DotsThree } from "phosphor-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 interface ContentCardProps {
   id: string
@@ -45,10 +46,14 @@ export default function ExpandableContentCard({
     <Card className="w-full bg-transparent ">
       {/* Video Thumbnail */}
       {videoThumbnail && (
-        <div className="relative bg-gray-300 h-48 flex items-center justify-center rounded-lg">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-            <Play className="w-8 h-8 text-gray-600 ml-1" />
-          </div>
+        <div className="relative bg-gray-300 h-48 flex items-center justify-center rounded-lg overflow-hidden">
+          <Image
+            src={videoThumbnail}
+            alt={title}
+            fill
+            style={{ objectFit: "cover" }}
+            className="absolute inset-0"
+          />
         </div>
       )}
 

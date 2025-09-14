@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Image as ImageIcon } from "lucide-react"
+import Image from "next/image"
 import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { useCommunity } from "@/app/components/contexts/community-context"
+import { getCommunityImage } from "@/app/utils/image-mapping"
 
 const categoryTabs = ['All', 'Internet', 'Games', 'Technology', 'Movies', 'Television', 'Medicine', 'Travel', 'Business']
 
@@ -27,8 +29,15 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
   return (
     <Card className="p-2 hover:shadow-lg w-fit transition-all duration-200 border border-border bg-card">
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+        <div className="relative w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
+          <Image
+            src={getCommunityImage(community.id)}
+            alt={community.name}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="48px"
+            priority={false}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-sm text-foreground mb-1 cursor-pointer hover:text-primary transition-colors" onClick={() => onViewDetails(community.id)}>

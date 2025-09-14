@@ -222,15 +222,15 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
                 {openCategories[categoryName] && (
                   <div className="relative">
                     {/* Ladder-style visual connection */}
-                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-civic-gray-300"></div>
-                    <div className="pl-6 space-y-1 max-h-48 overflow-y-auto">
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                    <div className="pl-6 mt-1 space-y-1">
                       {visibleTags.map((tag, index) => (
                         <div key={tag} className="relative">
                           {/* Horizontal ladder line */}
-                          <div className="absolute left-2 top-4 w-4 h-0.5 bg-civic-gray-300"></div>
+                          <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300"></div>
                           <Link
-                            href={`#`}
-                            className="block px-6 py-2 text-figma-base text-civic-gray-500 hover:bg-white hover:shadow-figma rounded-2xl transition-all duration-200 ml-2"
+                            href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
                           >
                             {tag}
                           </Link>

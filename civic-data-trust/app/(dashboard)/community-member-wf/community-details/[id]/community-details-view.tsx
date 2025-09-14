@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Play, MoreHorizontal, Users, Database, FileText } from "lucide-react";
+import { MoreHorizontal, Users, Database, FileText } from "lucide-react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
@@ -23,7 +23,6 @@ function PostCard({ post }: { post: typeof mockCommunityPosts[0] }) {
       <CardContent className="p-4">
         <div className="flex gap-4">
           <div className="w-32 h-20 bg-muted rounded flex items-center justify-center flex-shrink-0">
-            {post.type === 'video' && (<div className="bg-background/90 rounded-full p-2"><Play className="h-4 w-4 text-primary fill-current" /></div>)}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm text-foreground mb-1 line-clamp-1">{post.title}</h3>

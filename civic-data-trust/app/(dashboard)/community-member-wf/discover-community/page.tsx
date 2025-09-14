@@ -8,6 +8,7 @@ import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { useCommunity } from "@/app/components/contexts/community-context"
+import { getCommunityImage } from "@/app/utils/image-mapping"
 
 const categoryTabs = ['All', 'Education', 'Data Science', 'Technology', 'Games', 'Movies', 'Television', 'Medicine', 'Travel', 'Business', 'Internet']
 
@@ -32,7 +33,7 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
       <div className="flex gap-4 items-start border border-border rounded-lg p-3 mb-3">
         <div className="relative w-[40%] bg-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: "16/9", minHeight: 80 }}>
           <Image
-            src={community.coverImage || "/placeholder.svg"}
+            src={community.coverImage || getCommunityImage(community.id)}
             alt={community.name || "Community cover image"}
             fill
             style={{ objectFit: "cover" }}

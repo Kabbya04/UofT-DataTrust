@@ -13,12 +13,11 @@ const projects = [
   { name: "AI Model Training", date: "2 Jun 2025", size: "12.8 MB", tag: "Technology" },
 ];
 
-// Improved data with realistic categories and proper color scheme from Figma
+// Updated data to match admin dashboard color scheme
 const donutChartData = [
-  { name: 'Healthcare', value: 45, fill: '#D4A574' },
-  { name: 'Technology', value: 30, fill: '#B8946B' },
-  { name: 'Finance', value: 15, fill: '#9C8362' },
-  { name: 'Education', value: 10, fill: '#807159' }
+  { name: 'Active', value: 65, fill: '#3B82F6' },
+  { name: 'Pending', value: 25, fill: '#60A5FA' },
+  { name: 'Inactive', value: 10, fill: '#E5E7EB' }
 ];
 
 const lineChartData = [
@@ -102,7 +101,7 @@ export default function StatisticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Data Usage Category</CardTitle>
+                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Project Status Distribution</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px] p-6">
                         <ResponsiveContainer width="100%" height="100%">
@@ -149,7 +148,7 @@ export default function StatisticsPage() {
                 </Card>
                 <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Data Usage Trends</CardTitle>
+                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Research Activity Trends</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px] p-6">
                         <ResponsiveContainer width="100%" height="100%">
@@ -172,10 +171,10 @@ export default function StatisticsPage() {
                                 <Line 
                                     type="monotone" 
                                     dataKey="usage" 
-                                    stroke="#D4A574" 
+                                    stroke="#3B82F6" 
                                     strokeWidth={3} 
-                                    dot={{ fill: '#D4A574', strokeWidth: 2, r: 4 }}
-                                    activeDot={{ r: 6, stroke: '#D4A574', strokeWidth: 2, fill: '#FFFFFF' }}
+                                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2, fill: '#FFFFFF' }}
                                 />
                                 <Tooltip 
                                     contentStyle={{

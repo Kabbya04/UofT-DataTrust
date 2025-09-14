@@ -406,7 +406,20 @@ function ActionRow({ label, action }: { label: string; action: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-md">{label}</span>
-      <Button variant='default' size="sm" className={`${action == 'export' && 'bg-green-500'} ${action == 'clear' && 'bg-yellow-500'} ${action == 'delete' && 'bg-red-500'} w-32 text-white uppercase `}>{action}</Button>
+      <Button 
+        variant='default' 
+        size="sm" 
+        className={`${
+          action == 'download' ? 'text-white uppercase' : 
+          action == 'export' ? 'bg-green-500 text-white uppercase' : 
+          action == 'clear' ? 'bg-yellow-500 text-white uppercase' : 
+          action == 'delete' ? 'bg-red-500 text-white uppercase' : 
+          'text-white uppercase'
+        } w-32`}
+        style={action == 'download' ? { background: '#2196F3' } : {}}
+      >
+        {action}
+      </Button>
     </div>
   )
 }

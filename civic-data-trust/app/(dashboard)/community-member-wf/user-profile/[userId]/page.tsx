@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Play, FileText, Download, Eye, Calendar, Users, Medal, Star } from "phosphor-react"
+import { FileText, Download, Eye, Calendar, Users, Medal, Star } from "phosphor-react"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Badge } from "@/app/components/ui/badge"
@@ -74,7 +74,7 @@ export default function UserProfilePage({ params }: PageProps) {
                             <Card key={dataset.id} className="border border-border hover:shadow-md transition-shadow">
                                 <CardContent className="p-0">
                                     <div className="flex">
-                                        <div className="w-64 h-40 bg-muted flex items-center justify-center relative overflow-hidden rounded-l-lg"><div className="bg-background/90 rounded-full p-3"><Play className="h-8 w-8 text-primary fill-current" /></div></div>
+                                        <div className="w-64 h-40 bg-muted flex items-center justify-center relative overflow-hidden rounded-l-lg"></div>
                                         <div className="flex-1 p-4">
                                             <div className="flex items-start justify-between mb-2">
                                                 <div className="flex-1"><div className="flex items-center gap-2 mb-1"><h3 className="font-semibold text-foreground text-lg">{dataset.title}</h3><Badge variant="secondary" className="text-xs">{dataset.status}</Badge></div><p className="text-sm text-muted-foreground mb-3 line-clamp-2">{dataset.description}</p></div>

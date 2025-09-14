@@ -10,6 +10,7 @@ import { Badge } from "../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/dropdown-menu"
 import { useCommunity } from "../components/contexts/community-context"
+import { getCommunityImage } from "../utils/image-mapping"
 
 const categories = ["All", "Technology", "Environment", "Business", "Arts", "Lifestyle"]
 
@@ -113,7 +114,7 @@ export function CommunityDiscoveryPortal() {
               <CardHeader className="pb-4">
                 <div className="flex items-start gap-3">
                   <Avatar className="h-12 w-12 ring-2 ring-background group-hover:ring-primary/20 transition-all duration-300">
-                    <AvatarImage src={community.coverImage || "/placeholder.svg"} alt={community.name} />
+                    <AvatarImage src={community.coverImage || getCommunityImage(community.id)} alt={community.name} />
                     <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                       {community.name
                         .split(" ")

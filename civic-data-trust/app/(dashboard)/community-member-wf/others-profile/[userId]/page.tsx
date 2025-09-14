@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "../../../../components/ui/tabs"
 import { Search, Bell, Settings } from "lucide-react"
 import { Input } from "../../../../components/ui/input"
 import ExpandableContentCard from "../../../../components/dashboard/expandable-content-card"
+import { getUserAvatar, getDatasetThumbnail } from "../../../../utils/image-mapping"
 
 interface OthersProfilePageProps {
     params: Promise<{ userId: string }>
@@ -35,7 +36,7 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
     const userData = {
         name: "Jane Doe",
         username: "janedoe",
-        avatar: "/placeholder.svg?height=100&width=100",
+        avatar: getUserAvatar("jane-doe"),
         isFollowing: false,
         stats: {
             communities: 12,
@@ -57,7 +58,7 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
             timestamp: "1 hour ago",
             content:
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            videoThumbnail: "/placeholder.svg?height=200&width=400",
+            videoThumbnail: getDatasetThumbnail("jane-post-1"),
             communityName: "Community Name",
         },
         {
@@ -71,7 +72,7 @@ export default function OthersProfilePage({ params }: OthersProfilePageProps) {
             timestamp: "2 hours ago",
             content:
                 "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
-            videoThumbnail: "/placeholder.svg?height=200&width=400",
+            videoThumbnail: getDatasetThumbnail("jane-post-2"),
             communityName: "Community Name",
         },
     ]

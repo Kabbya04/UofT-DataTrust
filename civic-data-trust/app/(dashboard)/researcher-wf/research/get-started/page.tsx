@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/ca
 import { Button } from "@/app/components/ui/button";
 import { Badge } from "@/app/components/ui/badge";
 import { Play, PlayCircle, Clock, BookOpen, Video, ChevronRight, Download, ExternalLink } from "lucide-react";
+import Image from "next/image";
+import { getDatasetThumbnail } from "@/app/utils/image-mapping";
 
 const tutorialVideos = [
     {
@@ -12,7 +14,7 @@ const tutorialVideos = [
         title: "Platform Overview",
         description: "Get familiar with the research platform interface and main features",
         duration: "5:30",
-        thumbnail: "/api/placeholder/400/225",
+        thumbnail: getDatasetThumbnail("tutorial-overview"),
         isCompleted: false,
         category: "Basics"
     },
@@ -21,7 +23,7 @@ const tutorialVideos = [
         title: "Uploading Your First Dataset",
         description: "Learn how to upload, organize, and archive your research data",
         duration: "8:15",
-        thumbnail: "/api/placeholder/400/225",
+        thumbnail: getDatasetThumbnail("tutorial-upload"),
         isCompleted: false,
         category: "Data Management"
     },
@@ -30,7 +32,7 @@ const tutorialVideos = [
         title: "Creating Research Projects",
         description: "Step-by-step guide to creating and configuring research projects",
         duration: "12:45",
-        thumbnail: "/api/placeholder/400/225",
+        thumbnail: getDatasetThumbnail("tutorial-projects"),
         isCompleted: false,
         category: "Projects"
     },
@@ -39,7 +41,7 @@ const tutorialVideos = [
         title: "Working with Plugins",
         description: "Understanding and utilizing research plugins for data analysis",
         duration: "15:20",
-        thumbnail: "/api/placeholder/400/225",
+        thumbnail: getDatasetThumbnail("tutorial-plugins"),
         isCompleted: false,
         category: "Advanced"
     }
@@ -97,10 +99,17 @@ export default function GetStartedPage() {
                             <div className="relative aspect-video bg-muted rounded-t-lg overflow-hidden">
                                 {!isPlaying ? (
                                     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                        <Image
+                                            src={selectedVideo.thumbnail}
+                                            alt={selectedVideo.title}
+                                            fill
+                                            style={{ objectFit: "cover" }}
+                                            className="absolute inset-0"
+                                        />
                                         <Button
                                             size="lg"
                                             onClick={handlePlayVideo}
-                                            className="bg-white/90 hover:bg-white text-gray-800 shadow-lg"
+                                            className="bg-white/90 hover:bg-white text-gray-800 shadow-lg relative z-10"
                                         >
                                             <Play className="h-6 w-6 mr-2" />
                                             Play Video
@@ -196,8 +205,17 @@ export default function GetStartedPage() {
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="relative">
-                                            <div className="w-16 h-10 bg-muted rounded overflow-hidden flex items-center justify-center">
-                                                <Play className="h-4 w-4 text-muted-foreground" />
+                                            <div className="w-16 h-10 bg-muted rounded overflow-hidden">
+                                                <Image
+                                                    src={video.thumbnail}
+                                                    alt={video.title}
+                                                    fill
+                                                    style={{ objectFit: "cover" }}
+                                                    sizes="64px"
+                                                />
+                                            </div>
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <Play className="h-4 w-4 text-white drop-shadow-lg" />
                                             </div>
                                             {video.isCompleted && (
                                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">

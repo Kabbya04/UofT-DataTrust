@@ -7,6 +7,7 @@ import { PlayCircle, Image as ImageIcon } from "phosphor-react";
 import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 import Image from "next/image";
+import { getCommunityImage, getUserAvatar, getDatasetThumbnail } from "@/app/utils/image-mapping";
 export default function CommunityMemberHomePage() {
   const router = useRouter();
   const { communities, loading, error } = useCommunity();
@@ -17,39 +18,39 @@ export default function CommunityMemberHomePage() {
       title: "Title Goes Here",
       author: {
         name: "Jhon Doe",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: getUserAvatar("jhon-doe"),
         username: "jhondoe",
       },
       timestamp: "1 hour ago",
       content:
         "urna ex enim, commodo amet, faucibus tincidunt urna tortor, luctus odio sed elit, amet, consectetur risus est. ipsum Praesent Nullam leo. tortor, laoreet nulla, commodo nisl lacus faucibus non. eu quam eu orci nec quis elit amet, turpis. Quisque felis, Nunc in lobortis, facilisis ullamcorper ipsum Ut hendrerit laoreet varius luctus odio dolor lacus laoreet sit tincidunt elit risus dui. sodales. venenatis felis, non convallis. ipsum venenatis viverra est. commodo elit. Sed",
-      videoThumbnail: "/placeholder.svg?height=200&width=400",
+      videoThumbnail: getDatasetThumbnail("home-post-1"),
     },
     {
       id: "2",
       title: "Another Post Title",
       author: {
         name: "Jane Smith",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: getUserAvatar("jane-smith"),
         username: "janesmith",
       },
       timestamp: "2 hours ago",
       content:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      videoThumbnail: "/placeholder.svg?height=200&width=400",
+      videoThumbnail: getDatasetThumbnail("home-post-2"),
     },
     {
       id: "3",
       title: "Another Post Title",
       author: {
         name: "Jane Smith",
-        avatar: "/placeholder.svg?height=40&width=40",
+        avatar: getUserAvatar("jane-smith"),
         username: "janesmith",
       },
       timestamp: "2 hours ago",
       content:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-      videoThumbnail: "/placeholder.svg?height=200&width=400",
+      videoThumbnail: getDatasetThumbnail("home-post-3"),
     },
   ]
 
@@ -121,21 +122,12 @@ export default function CommunityMemberHomePage() {
                         style={{ width: "100%", height: "auto" }}
                       /> */}
                       <div className="relative w-[40%]  bg-gray-200 rounded-lg overflow-hidden">
-                        {community.coverImage ? (
-                          <Image
-                            src={community.coverImage}
-                            alt={community.name}
-                            layout="fill"
-                            objectFit="cover"
-                          />
-                        ) : (
-                          <Image
-                            src="/placeholder.svg"
-                            alt="Community placeholder"
-                            layout="fill"
-                            objectFit="cover"
-                          />
-                        )}
+                        <Image
+                          src={community.coverImage || getCommunityImage(community.id)}
+                          alt={community.name}
+                          layout="fill"
+                          objectFit="cover"
+                        />
                       </div>
                       <CardContent className=" w-[60%] p-0">
                         <h3 className="font-semibold text-lg ">{community.name}</h3>

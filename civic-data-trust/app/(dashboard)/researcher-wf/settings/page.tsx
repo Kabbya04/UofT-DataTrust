@@ -155,11 +155,11 @@ function DisplayPreferences() {
                     <ToggleRow label="Public Research Data Download" />
                     <ToggleRow label="Public Research Data Modification" />
                 </CardContent></Card>
-                <Card><CardHeader><CardTitle>Data Management</CardTitle></CardHeader><CardContent className="space-y-2">
-                    <div className="flex items-center justify-between"><p>Download my research data</p><Button size="sm" variant="outline">Download</Button></div>
-                    <div className="flex items-center justify-between"><p>Export Activity History</p><Button size="sm" variant="outline">Export</Button></div>
-                    <div className="flex items-center justify-between"><p>Clear cache</p><Button size="sm" variant="outline">Clear</Button></div>
-                    <div className="flex items-center justify-between"><p>Delete account</p><Button size="sm" variant="destructive">Delete</Button></div>
+                <Card><CardHeader><CardTitle>Data Management</CardTitle></CardHeader><CardContent className="space-y-4 px-10">
+                    <div className="flex items-center justify-between"><span className="text-md">Download my research data</span><Button size="sm" className="w-32 text-white uppercase" style={{ background: '#2196F3' }}>download</Button></div>
+                    <div className="flex items-center justify-between"><span className="text-md">Export Activity History</span><Button size="sm" className="bg-green-500 w-32 text-white uppercase">export</Button></div>
+                    <div className="flex items-center justify-between"><span className="text-md">Clear cache</span><Button size="sm" className="bg-yellow-500 w-32 text-white uppercase">clear</Button></div>
+                    <div className="flex items-center justify-between"><span className="text-md">Delete account</span><Button size="sm" className="bg-red-500 w-32 text-white uppercase">delete</Button></div>
                 </CardContent></Card>
             </div>
             <Button>Save Changes</Button>
