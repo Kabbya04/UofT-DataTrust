@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "../ui/card"
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { MoreHorizontal, Play } from "lucide-react"
+import { MoreHorizontal, Play, Heart, Eye, MessageCircle, TrendingUp } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
+import { usePostEngagement } from "../../hooks/usePostEngagement"
 
 interface ContentCardProps {
   id: string
@@ -20,6 +21,7 @@ interface ContentCardProps {
   content: string
   videoThumbnail?: string
   communityName?: string
+  showEngagement?: boolean
 }
 
 export default function ExpandableContentCard({
@@ -30,9 +32,11 @@ export default function ExpandableContentCard({
   content,
   videoThumbnail,
   communityName,
+  showEngagement = true,
 }: ContentCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const router = useRouter()
+  const { likesCount, viewsCount, isLiked, toggleLike, addView, loading } = usePostEngagement(id)
 
   const shortContent = content.slice(0, 150) + "..."
   const shouldShowToggle = content.length > 150
@@ -40,6 +44,25 @@ export default function ExpandableContentCard({
   const handleProfileClick = () => {
     router.push(`/community-member-wf/others-profile/${id}`);
   }
+
+  useEffect(() => {
+    console.log('🎯 ExpandableContentCard mounted for post:', id)
+    if (id) {
+      // Add view tracking (non-critical, won't break if it fails)
+      addView().catch(error => {
+        console.log('⚠️ View tracking failed (non-critical):', error)
+      });
+    }
+  }, [id])
+
+  useEffect(() => {
+    console.log('📊 Engagement data updated for post:', id, {
+      likesCount,
+      viewsCount,
+      isLiked,
+      loading
+    })
+  }, [id, likesCount, viewsCount, isLiked, loading])
 
   return (
     <Card className="w-full bg-transparent border border-primary">
@@ -110,6 +133,45 @@ export default function ExpandableContentCard({
           >
             {isExpanded ? "See Less" : "See More"}
           </Button>
+        )}
+
+        {/* Engagement stats */}
+        {showEngagement && (
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  console.log('❤️ Like button clicked for post:', id)
+                  console.log('🔄 Current like state:', isLiked)
+                  toggleLike()
+                }}
+                disabled={loading}
+                className={`flex items-center gap-1 hover:text-red-500 transition-colors ${
+                  isLiked ? 'text-red-500' : 'text-gray-500'
+                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                <span className="text-sm">{likesCount}</span>
+              </button>
+
+              <div className="flex items-center gap-1 text-gray-500">
+                <Eye className="w-4 h-4" />
+                <span className="text-sm">{viewsCount}</span>
+              </div>
+
+              <div className="flex items-center gap-1 text-gray-500">
+                <MessageCircle className="w-4 h-4" />
+                <span className="text-sm">0</span>
+              </div>
+            </div>
+
+            {likesCount > 10 && (
+              <div className="flex items-center gap-1 text-orange-500">
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-xs">Trending</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </Card>
