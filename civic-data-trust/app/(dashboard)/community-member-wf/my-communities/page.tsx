@@ -8,11 +8,13 @@ import { Badge } from "@/app/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { useCommunity } from "@/app/components/contexts/community-context"
 import { useState, useEffect } from "react"
+import { api } from "@/app/lib/api"
 
 export default function MyCommunitiesPage() {
   const { communities, loading, error } = useCommunity()
   const router = useRouter()
   const [datasetCounts, setDatasetCounts] = useState<{[key: string]: number}>({})
+  const [memberCounts, setMemberCounts] = useState<{[key: string]: number}>({})
   const [isLoadingCounts, setIsLoadingCounts] = useState<boolean>(false)
   const [recommendedCommunities, setRecommendedCommunities] = useState<any[]>([])
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(false)
@@ -25,9 +27,9 @@ export default function MyCommunitiesPage() {
   console.log('MyCommunitiesPage - Loading:', loading)
   console.log('MyCommunitiesPage - Error:', error)
 
-  // Fetch dataset counts for joined communities
+  // Fetch dataset and member counts for joined communities
   useEffect(() => {
-    const fetchDatasetCounts = async () => {
+    const fetchCounts = async () => {
       if (joinedCommunities.length === 0 || loading) return;
 
       setIsLoadingCounts(true);
@@ -36,8 +38,8 @@ export default function MyCommunitiesPage() {
         const token = localStorage.getItem('access_token');
         if (!token) return;
 
-        // Fetch all posts and post requests once
-        const [postsResponse, requestsResponse] = await Promise.all([
+        // Fetch all posts, post requests, and join requests
+        const [postsResponse, requestsResponse, joinRequestsResponse] = await Promise.all([
           fetch('/api/community-post/?pageNumber=1&limit=200', {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -50,6 +52,7 @@ export default function MyCommunitiesPage() {
               'Accept': 'application/json',
             },
           }),
+          api.joinRequests.getAll()
         ]);
 
         if (postsResponse.ok && requestsResponse.ok) {
@@ -86,15 +89,29 @@ export default function MyCommunitiesPage() {
           });
 
           setDatasetCounts(counts);
+
+          // Calculate member counts for each joined community
+          const allJoinRequests = joinRequestsResponse.data || [];
+          const memberCountsMap: {[key: string]: number} = {};
+
+          joinedCommunities.forEach(community => {
+            const approvedMembers = allJoinRequests.filter(
+              (request: any) => request.community_id === community.id && request.status === 'approved'
+            );
+            memberCountsMap[community.id.toString()] = approvedMembers.length;
+          });
+
+          setMemberCounts(memberCountsMap);
+          console.log('Member counts for joined communities:', memberCountsMap);
         }
       } catch (error) {
-        console.error('Error fetching dataset counts:', error);
+        console.error('Error fetching counts:', error);
       } finally {
         setIsLoadingCounts(false);
       }
     };
 
-    fetchDatasetCounts();
+    fetchCounts();
   }, [joinedCommunities.length, loading]);
 
   // Fetch smart recommendations based on joined community categories
@@ -299,7 +316,7 @@ export default function MyCommunitiesPage() {
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
                       <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
+                        <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{isLoadingCounts ? '...' : (memberCounts[community.id.toString()]?.toLocaleString() || '0')}</span></div>
                         <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{isLoadingCounts ? '...' : (datasetCounts[community.id.toString()] || 0)} datasets</span></div>
                       </div>
                       <div className="flex gap-2">
