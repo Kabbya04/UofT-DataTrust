@@ -244,7 +244,6 @@ export default function ResearcherHomePage() {
                   timestamp={post.timestamp!}
                   content={post.description}
                   videoThumbnail={post.dataset?.thumbnail || post.file_url || "/placeholder.svg?height=200&width=400"}
-                  showResearchButton={true}
                 />
               ))
             ) : joinedCommunities.length === 0 ? (
