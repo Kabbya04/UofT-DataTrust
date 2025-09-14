@@ -1,0 +1,19 @@
+id,name,age,salary,department,years_experience,performance_score
+1,Alice Johnson,25,50000,Engineering,3.0,8.5
+2,Bob Smith,34,75000,Marketing,8.0,9.2
+3,Charlie Brown,28,60000,Engineering,4.0,7.8
+4,Diana Prince,42,90000,Management,15.0,9.5
+5,Eve Adams,31,65000,Marketing,6.0,8.1
+6,Frank Miller,29,58000,Engineering,4.0,7.9
+7,Grace Lee,35,82000,Sales,10.0,9.0
+8,Henry Wong,27,55000,Engineering,2.0,8.3
+9,Iris Chen,33,70000,Marketing,7.0,8.8
+10,Jack Wilson,38,78000,Sales,12.0,9.1
+11,Karen Davis,26,52000,Engineering,3.0,8.2
+12,Liam Brown,31,68000,Marketing,5.0,8.6
+13,Maya Patel,29,62000,Engineering,4.0,8.4
+14,Noah Kim,36,85000,Sales,11.0,9.3
+15,Olivia Garcia,28,59000,Marketing,4.0,8.0
+16,Paul Rodriguez,33,72000,Engineering,7.0,8.7
+17,Quinn Taylor,30,66000,Sales,6.0,8.5
+20,Tina Martinez,35,80000,Management,12.0,9.2
