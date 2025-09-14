@@ -89,14 +89,16 @@ async def execute_eda_pipeline(request: EDAExecutionRequest, background_tasks: B
                 data=request.input_data,
                 function_chain=request.function_chain,
                 continue_on_error=request.continue_on_error,
-                track_progress=request.track_progress
+                track_progress=request.track_progress,
+                ship_to_notebook=request.ship_to_notebook
             )
         else:
             execution_result = eda_executor.execute_predefined_workflow(
                 data=request.input_data,
                 workflow_type=request.workflow_type.value,
                 continue_on_error=request.continue_on_error,
-                track_progress=request.track_progress
+                track_progress=request.track_progress,
+                ship_to_notebook=request.ship_to_notebook
             )
         
         # Generate download link if requested

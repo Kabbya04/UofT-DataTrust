@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import uuid
 import time
 import json
+import os
+import shutil
 from datetime import datetime
 from typing import Any, Dict, List, Tuple, Optional, Union
 from contextlib import contextmanager
@@ -130,9 +132,10 @@ class EDAExecutor(DataScienceExecutor):
             ]
         }
     
-    def execute_unified_eda_pipeline(self, data: Any, function_chain: List[FunctionStep], 
-                                   continue_on_error: bool = True, 
-                                   track_progress: bool = True) -> Dict[str, Any]:
+    def execute_unified_eda_pipeline(self, data: Any, function_chain: List[FunctionStep],
+                                   continue_on_error: bool = True,
+                                   track_progress: bool = True,
+                                   ship_to_notebook: bool = False) -> Dict[str, Any]:
         """Execute unified EDA pipeline with multi-library support
         
         Args:
@@ -140,7 +143,8 @@ class EDAExecutor(DataScienceExecutor):
             function_chain: List of functions to execute across libraries
             continue_on_error: Whether to continue execution after errors
             track_progress: Whether to track execution progress
-            
+            ship_to_notebook: Whether to copy processed data to notebook directory
+
         Returns:
             Dict containing execution results, library summaries, and metadata
         """
@@ -187,9 +191,9 @@ class EDAExecutor(DataScienceExecutor):
                 # Generate execution summary
                 end_time = datetime.now()
                 execution_summary = self._generate_execution_summary(
-                    execution_context, start_time, end_time
+                    execution_context, start_time, end_time, ship_to_notebook
                 )
-                
+
                 return execution_summary
                 
             except Exception as e:
@@ -357,8 +361,9 @@ class EDAExecutor(DataScienceExecutor):
             except Exception:
                 pass  # Don't let callback errors affect execution
     
-    def _generate_execution_summary(self, execution_context: Dict[str, Any], 
-                                  start_time: datetime, end_time: datetime) -> Dict[str, Any]:
+    def _generate_execution_summary(self, execution_context: Dict[str, Any],
+                                  start_time: datetime, end_time: datetime,
+                                  ship_to_notebook: bool = False) -> Dict[str, Any]:
         """Generate comprehensive execution summary"""
         total_execution_time = (end_time - start_time).total_seconds() * 1000
         
@@ -379,6 +384,17 @@ class EDAExecutor(DataScienceExecutor):
                     'calculations': len(results.get('calculations', [])),
                     'visualizations': len(results.get('visualizations', []))
                 }
+
+        # Ship processed data to notebook if requested
+        notebook_file_path = None
+        if ship_to_notebook and execution_context['current_data'] is not None:
+            try:
+                notebook_file_path = self._copy_data_to_notebook(
+                    execution_context['current_data'],
+                    execution_context['execution_id']
+                )
+            except Exception as e:
+                print(f"Warning: Failed to copy data to notebook: {e}")
         
         return {
             'success': successful_steps == total_steps,
@@ -411,7 +427,16 @@ class EDAExecutor(DataScienceExecutor):
             'final_output': self._get_final_output(execution_context['results']),
             
             # Current processed data for download
-            'processed_data': self._extract_processed_dataframe(execution_context['current_data'])
+            'processed_data': self._extract_processed_dataframe(execution_context['current_data']),
+
+            # Notebook integration result
+            'notebook_file_path': notebook_file_path,
+            'notebook_integration': {
+                'enabled': ship_to_notebook,
+                'success': notebook_file_path is not None,
+                'file_path': notebook_file_path,
+                'message': 'Data successfully copied to notebook directory' if notebook_file_path else 'Notebook integration disabled or failed'
+            }
         }
     
     def _get_final_output(self, results: List[StepResult]) -> Any:
@@ -460,7 +485,7 @@ class EDAExecutor(DataScienceExecutor):
             'timestamp': datetime.now().isoformat()
         }
     
-    def execute_predefined_workflow(self, data: Any, workflow_type: str, 
+    def execute_predefined_workflow(self, data: Any, workflow_type: str,
                                   **kwargs) -> Dict[str, Any]:
         """Execute a predefined EDA workflow
         
@@ -485,7 +510,8 @@ class EDAExecutor(DataScienceExecutor):
             data=data,
             function_chain=function_chain,
             continue_on_error=kwargs.get('continue_on_error', True),
-            track_progress=kwargs.get('track_progress', True)
+            track_progress=kwargs.get('track_progress', True),
+            ship_to_notebook=kwargs.get('ship_to_notebook', False)
         )
         
         # Add workflow-specific metadata
@@ -569,3 +595,42 @@ class EDAExecutor(DataScienceExecutor):
         for library in self._library_performance:
             self._library_performance[library] = {'total_time': 0, 'function_count': 0}
         self._performance_cache.clear()
+
+    def _copy_data_to_notebook(self, current_data: Any, execution_id: str) -> str:
+        """Copy processed data to notebook directory"""
+        try:
+            # Get notebooks directory - corrected path to backend/app/notebooks
+            notebooks_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "notebooks")
+            os.makedirs(notebooks_dir, exist_ok=True)
+            
+            # Log the directory path for debugging
+            print(f"Notebook directory: {notebooks_dir}")
+
+            # Generate filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"processed_data_{execution_id[:8]}_{timestamp}.csv"
+            file_path = os.path.join(notebooks_dir, filename)
+
+            # Convert data to DataFrame if needed and save as CSV
+            if isinstance(current_data, pd.DataFrame):
+                current_data.to_csv(file_path, index=False)
+            elif isinstance(current_data, list) and len(current_data) > 0 and isinstance(current_data[0], dict):
+                df = pd.DataFrame(current_data)
+                df.to_csv(file_path, index=False)
+            else:
+                # Fallback: try to convert to DataFrame
+                df = pd.DataFrame(current_data)
+                df.to_csv(file_path, index=False)
+
+            # Verify file was created successfully
+            if os.path.exists(file_path):
+                file_size = os.path.getsize(file_path)
+                print(f"Successfully created notebook file: {filename} ({file_size} bytes)")
+                return file_path
+            else:
+                raise Exception(f"File was not created at expected path: {file_path}")
+                
+        except Exception as e:
+            error_msg = f"Failed to copy data to notebook: {str(e)}"
+            print(f"ERROR: {error_msg}")
+            raise Exception(error_msg)

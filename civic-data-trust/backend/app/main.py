@@ -2,7 +2,9 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import asyncio
 import logging
-from fastapi import FastAPI
+import os
+import time
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
 from app.core.config import settings
@@ -16,6 +18,44 @@ logger = logging.getLogger(__name__)
 
 # Global state for performance monitoring
 app_state = {"requests_processed": 0, "execution_time": 0.0}
+
+# Cleanup task for notebook files (24-hour retention)
+async def cleanup_notebook_files():
+    """Remove notebook files older than 24 hours"""
+    try:
+        notebooks_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "notebooks")
+        if not os.path.exists(notebooks_dir):
+            return
+
+        current_time = time.time()
+        files_removed = 0
+
+        for filename in os.listdir(notebooks_dir):
+            if filename in ['Welcome.ipynb', 'startup.py']:
+                continue  # Keep permanent files
+
+            file_path = os.path.join(notebooks_dir, filename)
+            if os.path.isfile(file_path):
+                file_age = current_time - os.path.getmtime(file_path)
+                if file_age > 86400:  # 24 hours in seconds
+                    os.remove(file_path)
+                    files_removed += 1
+
+        if files_removed > 0:
+            logger.info(f"Cleaned up {files_removed} notebook files older than 24 hours")
+    except Exception as e:
+        logger.error(f"Notebook cleanup failed: {e}")
+
+async def run_cleanup_schedule():
+    """Run cleanup task every 6 hours"""
+    while True:
+        try:
+            await asyncio.sleep(21600)  # 6 hours
+            await cleanup_notebook_files()
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"Cleanup schedule error: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -35,8 +75,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 logger.info("eager_task_factory not available, skipping optimization")
         except Exception as e:
             logger.warning(f"Failed to set asyncio optimizations: {e}")
-    
+
+    # Start cleanup task (runs every 6 hours)
+    cleanup_task = asyncio.create_task(run_cleanup_schedule())
+
     yield
+
+    # Cancel cleanup task on shutdown
+    cleanup_task.cancel()
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
     
     # Shutdown
     logger.info(f"Shutting down {settings.PROJECT_NAME}")

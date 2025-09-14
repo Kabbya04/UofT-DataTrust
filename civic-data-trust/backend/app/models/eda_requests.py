@@ -44,6 +44,7 @@ class EDAExecutionRequest(BaseModel):
     generate_download_link: bool = Field(False, description="Whether to generate Cloudflare download link")
     colab_optimized: bool = Field(False, description="Whether to optimize output for Google Colab")
     include_colab_notebook: bool = Field(False, description="Whether to include a Colab notebook in the package")
+    ship_to_notebook: bool = Field(False, description="Whether to copy processed data to notebook directory")
     
     # Cloudflare configuration
     cloudflare_config: Optional[CloudflareConfig] = Field(None, description="Cloudflare tunnel configuration")

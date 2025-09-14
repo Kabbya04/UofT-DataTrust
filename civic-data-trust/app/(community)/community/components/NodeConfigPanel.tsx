@@ -8,16 +8,39 @@ import axios from 'axios';
 import EDAResultsModal from './EDAResultsModal';
 import FileDownloadService from './FileDownloadService';
 
+// Function to check for existing files
+const checkExistingFiles = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/v1/notebook/check-files');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to check existing files:', error);
+    return { has_files: false, file_count: 0 };
+  }
+};
+
+// Function to cleanup existing files
+const cleanupFiles = async () => {
+  try {
+    const response = await axios.post('http://localhost:8000/api/v1/notebook/cleanup');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to cleanup files:', error);
+    throw error;
+  }
+};
+
 // Function to execute the function chain via API
 const executeFunctionChain = async (
-  nodeId: string, 
-  library: string | null, 
-  functionChain: any[], 
-  dispatch: any, 
-  currentNode: any, 
+  nodeId: string,
+  library: string | null,
+  functionChain: any[],
+  dispatch: any,
+  currentNode: any,
   setPlotData: (data: any) => void,
   setEDAResults: (results: any) => void,
-  setShowResultsModal: (show: boolean) => void
+  setShowResultsModal: (show: boolean) => void,
+  shipToNotebook: boolean = false
 ) => {
   try {
     toast.loading('Executing function chain...');
@@ -74,7 +97,8 @@ const executeFunctionChain = async (
         filename: input_data?.filename || 'data.csv'
       },
       generate_download_link: true,
-      colab_optimized: true
+      colab_optimized: true,
+      ship_to_notebook: true  // Enable notebook integration by default
     });
     
     toast.dismiss();
@@ -94,13 +118,22 @@ const executeFunctionChain = async (
     
     if (response.data && (response.data.success || hasAnySuccess)) {
       // Show appropriate message based on success/error status
-      if (response.data.success) {
-        toast.success('EDA workflow executed successfully!');
-      } else if (hasAnySuccess && hasAnyErrors) {
-        toast.success('EDA workflow completed with some errors - check results for details');
-      } else {
-        toast.success('EDA workflow executed successfully!');
-      }
+        if (response.data.success) {
+          toast.success('EDA workflow executed successfully!');
+        } else if (hasAnySuccess && hasAnyErrors) {
+          toast.success('EDA workflow completed with some errors - check results for details');
+        } else {
+          toast.success('EDA workflow executed successfully!');
+        }
+        
+        // Show notebook integration status
+        if (response.data.notebook_integration) {
+          if (response.data.notebook_integration.success) {
+            toast.success('📓 Data successfully shipped to notebook!');
+          } else if (response.data.notebook_integration.enabled) {
+            toast.error('❌ Failed to ship data to notebook');
+          }
+        }
       
       // Update the node with execution results
       dispatch(updateNode({
@@ -686,6 +719,9 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   // EDA Results Modal state
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [edaResults, setEDAResults] = useState<any>(null);
+
+  // File cleanup modal state
+  const [showCleanupModal, setShowCleanupModal] = useState(false);
   
   // EDA Function Chains state
   const [edaFunctionChains, setEdaFunctionChains] = useState<EDAFunctionChains>({
@@ -822,6 +858,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('basic_eda');
   const [generateDownloadLink, setGenerateDownloadLink] = useState<boolean>(true);
   const [colabOptimized, setColabOptimized] = useState<boolean>(true);
+  const [shipToNotebook, setShipToNotebook] = useState<boolean>(false);
 
   return (
     <div className="absolute top-0 right-0 w-[32rem] h-full bg-white shadow-xl z-50 flex flex-col">
@@ -840,7 +877,14 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         {isDataScienceNode && functionChain.length > 0 && (
           <div className="mb-4 space-y-2">
             <button
-              onClick={() => executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal)}
+              onClick={async () => {
+                const fileCheck = await checkExistingFiles();
+                if (fileCheck.has_files) {
+                  setShowCleanupModal(true);
+                } else {
+                  executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal, shipToNotebook);
+                }
+              }}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Play className="w-4 h-4" />
@@ -1092,6 +1136,12 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                 {/* Execute Button */}
                 <button
                   onClick={async () => {
+                    // Check for existing files first
+                    const fileCheck = await checkExistingFiles();
+                    if (fileCheck.has_files) {
+                      setShowCleanupModal(true);
+                      return;
+                    }
                     // Execute EDA workflow with proper function chain using configurable settings
                     try {
                       toast.loading('Executing EDA workflow...');
@@ -1173,12 +1223,13 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                           description: step.description || ''
                         })),
                         input_data: {
-                          csv_content: typeof input_data === 'string' ? input_data : 
+                          csv_content: typeof input_data === 'string' ? input_data :
                                        input_data?.csv_content || JSON.stringify(input_data),
                           filename: input_data?.filename || 'data.csv'
                         },
                         generate_download_link: generateDownloadLink,
-                        colab_optimized: colabOptimized
+                        colab_optimized: colabOptimized,
+                        ship_to_notebook: true  // Enable notebook integration by default
                       });
                       
                       toast.dismiss();
@@ -1204,6 +1255,15 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                           toast.success('EDA workflow completed with some errors - check results for details');
                         } else {
                           toast.success('EDA workflow executed successfully!');
+                        }
+                        
+                        // Show notebook integration status
+                        if (response.data.notebook_integration) {
+                          if (response.data.notebook_integration.success) {
+                            toast.success('📓 Data successfully shipped to notebook!');
+                          } else if (response.data.notebook_integration.enabled) {
+                            toast.error('❌ Failed to ship data to notebook');
+                          }
                         }
                         
                         dispatch(updateNode({
@@ -1343,7 +1403,12 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                 {edaFunctionChains[activeTab].length > 0 && (
                   <button
                     onClick={async () => {
-                      await executeFunctionChain(nodeId, activeTab, edaFunctionChains[activeTab], dispatch, node, setPlotData, setEDAResults, setShowResultsModal);
+                      const fileCheck = await checkExistingFiles();
+                      if (fileCheck.has_files) {
+                        setShowCleanupModal(true);
+                        return;
+                      }
+                      await executeFunctionChain(nodeId, activeTab, edaFunctionChains[activeTab], dispatch, node, setPlotData, setEDAResults, setShowResultsModal, shipToNotebook);
                     }}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -1429,6 +1494,20 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                     type="checkbox"
                     checked={colabOptimized}
                     onChange={(e) => setColabOptimized(e.target.checked)}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                </div>
+
+                {/* Ship to Notebook */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-medium text-sm text-gray-700">Send to Notebook</label>
+                    <p className="text-xs text-gray-500">Copy processed data to Jupyter notebook directory</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={shipToNotebook}
+                    onChange={(e) => setShipToNotebook(e.target.checked)}
                     className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                   />
                 </div>
@@ -1684,6 +1763,51 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
         </div>
       )}
       
+      {/* File Cleanup Modal */}
+      {showCleanupModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-md w-full mx-4">
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Existing Files Found</h3>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-gray-600 mb-4">
+                There are existing files in the notebook directory. Would you like to remove them before proceeding?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={async () => {
+                    try {
+                      toast.loading('Cleaning up files...');
+                      await cleanupFiles();
+                      toast.dismiss();
+                      toast.success('Files cleaned up successfully');
+                      setShowCleanupModal(false);
+                      // Continue with execution
+                      if (isDataScienceNode && functionChain.length > 0) {
+                        executeFunctionChain(nodeId, currentLibrary, functionChain, dispatch, node, setPlotData, setEDAResults, setShowResultsModal, shipToNotebook);
+                      }
+                    } catch (error) {
+                      toast.dismiss();
+                      toast.error('Failed to cleanup files');
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete & Continue
+                </button>
+                <button
+                  onClick={() => setShowCleanupModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* EDA Results Modal */}
       <EDAResultsModal
         isOpen={showResultsModal}
