@@ -56,8 +56,18 @@
 }
 
 @layer base {
+  :root {
+    --font-geist-sans: 'Geist Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-geist-mono: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  }
+  
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-geist-sans);
+  }
+  
+  code, pre, .font-mono {
+    font-family: var(--font-geist-mono);
   }
 }
 
