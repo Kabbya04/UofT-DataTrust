@@ -1,7 +1,6 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { RefreshCw, FileText } from 'lucide-react';
-import { useNotebook } from '../../hooks';
 import NotebookView from '../notebook/NotebookView';
 
 // Dynamic import with SSR disabled for Konva components
@@ -22,15 +21,16 @@ interface MainCanvasProps {
   isMounted: boolean;
   draggedNode: any;
   onNodeDrop: (e: React.DragEvent) => void;
+  notebook: any; // Notebook state passed from parent
 }
 
 export default function MainCanvas({
   isDarkMode,
   isMounted,
   draggedNode,
-  onNodeDrop
+  onNodeDrop,
+  notebook
 }: MainCanvasProps) {
-  const notebook = useNotebook();
 
   return (
     <div className="flex-1 p-6">

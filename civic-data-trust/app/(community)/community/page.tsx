@@ -93,6 +93,7 @@ function CommunityPageContent() {
           isMounted={isMounted}
           draggedNode={draggedNode}
           onNodeDrop={handleNodeDrop}
+          notebook={notebook}
         />
 
         {/* Right Panel - Plugin Library */}
