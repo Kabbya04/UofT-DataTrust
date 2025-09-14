@@ -5,9 +5,17 @@ const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1';
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
+    const { searchParams } = new URL(request.url);
+
+    // Extract query parameters according to new API spec
+    const communityId = searchParams.get('communityId') || '';
+    const requestStatus = searchParams.get('requestStatus') || '';
+    const limit = searchParams.get('limit') || '10';
+    const pageNumber = searchParams.get('pageNumber') || '1';
 
     console.log('=== Get All Post Requests Proxy ===');
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+    console.log('Query params:', { communityId, requestStatus, limit, pageNumber });
 
     const headers: Record<string, string> = {
       'Accept': 'application/json',
@@ -17,7 +25,14 @@ export async function GET(request: NextRequest) {
       headers['Authorization'] = authHeader;
     }
 
-    const backendUrl = `${API_BASE_URL}/community-post-request/`;
+    // Build URL with query parameters
+    const queryParams = new URLSearchParams();
+    if (communityId) queryParams.append('communityId', communityId);
+    if (requestStatus) queryParams.append('requestStatus', requestStatus);
+    queryParams.append('limit', limit);
+    queryParams.append('pageNumber', pageNumber);
+
+    const backendUrl = `${API_BASE_URL}/community-post-request/?${queryParams.toString()}`;
     console.log('Sending to backend URL:', backendUrl);
 
     const response = await fetch(backendUrl, {

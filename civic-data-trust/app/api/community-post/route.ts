@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
     console.log('Request body:', body);
 
-    // Validate required fields
-    const requiredFields = ['community_id', 'user_id', 'title', 'description', 'dataset_id'];
+    // Validate required fields based on new API schema
+    const requiredFields = ['community_id', 'user_id', 'file_url', 'title', 'description', 'dataset_id'];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -107,6 +107,14 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+    }
+
+    // Add timestamps if not provided (backend expects them)
+    if (!body.created_at) {
+      body.created_at = new Date().toISOString();
+    }
+    if (!body.updated_at) {
+      body.updated_at = new Date().toISOString();
     }
 
     const headers: Record<string, string> = {

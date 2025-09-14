@@ -8,15 +8,28 @@ import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 import { useState, useEffect } from "react";
 
-// Types for community posts
+// Types for community posts - Updated to match new API structure
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  status: boolean;
+  role: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface CommunityPost {
   id: string;
   community_id: string;
   user_id: string;
-  file_url: string;
+  file_url: string | null;
   title: string;
   description: string;
   dataset_id: string;
+  created_at: string;
+  updated_at: string;
+  user: User; // Nested user data from API
 }
 
 interface Dataset {
@@ -126,24 +139,26 @@ export default function CommunityMemberHomePage() {
                 }
               }
 
-              // Generate mock author data for now (you can enhance this later)
+              // Use real user data from API response
               const author = {
-                name: `User ${post.user_id.slice(0, 8)}`,
+                name: post.user?.name || `User ${post.user_id.slice(0, 8)}`,
                 avatar: "/placeholder.svg?height=40&width=40",
-                username: post.user_id.slice(0, 8).toLowerCase(),
+                username: post.user?.email?.split('@')[0] || post.user_id.slice(0, 8).toLowerCase(),
               };
 
               return {
                 ...post,
                 dataset,
                 author,
-                timestamp: "Recently", // You can enhance this with real timestamps
+                timestamp: post.created_at ? new Date(post.created_at).toLocaleDateString() : "Recently",
               };
             })
           );
 
-          // Sort by most recent (or you can add created_at field later for proper sorting)
-          const sortedPosts = postsWithDatasets.slice(0, 10); // Show top 10 latest
+          // Sort by most recent using real timestamps
+          const sortedPosts = postsWithDatasets
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, 10); // Show top 10 latest
 
           console.log('Final posts with datasets:', sortedPosts);
           setRealPosts(sortedPosts);

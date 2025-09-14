@@ -11,16 +11,27 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { PlayCircle, AlertTriangle, Flag, Eye, MessageSquare, Edit3, Info, MoreHorizontal, Loader2 } from 'lucide-react';
 
-// Types for API responses
-interface CommunityPostRequest {
+// Types for API responses - Updated to match new backend structure
+interface Community {
   id: string;
-  community_id: string;
-  user_id: string;
-  post_id: string;
-  message: string | null;
-  reason: string | null;
-  admin_message: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  name: string;
+  logo: string | null;
+  description: string;
+  community_category: {
+    id: string;
+    name: string;
+    disable: boolean;
+  };
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  status: boolean;
+  role: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface CommunityPost {
@@ -31,11 +42,27 @@ interface CommunityPost {
   title: string;
   description: string;
   dataset_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
-interface PostRequestWithContent extends CommunityPostRequest {
-  postContent?: CommunityPost;
+interface CommunityPostRequest {
+  id: string;
+  community_id: string;
+  user_id: string;
+  post_id: string;
+  message: string | null;
+  reason: string | null;
+  admin_message: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  // Nested objects from API response
+  community: Community;
+  user: User;
+  post: CommunityPost;
 }
+
+// No need for PostRequestWithContent since data comes nested
+type PostRequestWithContent = CommunityPostRequest;
 
 const rejectionReasons = [
     "Inappropriate content",
@@ -129,35 +156,13 @@ export default function PostReviewPage() {
                 }
 
                 const requestsResult = await requestsResponse.json();
+                console.log('Post requests API response:', requestsResult);
+
+                // The API now returns complete data with nested post, community, and user objects
                 const requests: CommunityPostRequest[] = requestsResult.data || requestsResult || [];
 
-                // Fetch post content for each request
-                const requestsWithContent = await Promise.all(
-                    requests.map(async (request) => {
-                        try {
-                            const postResponse = await fetch(`/api/community-post/${request.post_id}`, {
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'Accept': 'application/json',
-                                },
-                            });
-
-                            if (postResponse.ok) {
-                                const postResult = await postResponse.json();
-                                const postContent = postResult.data || postResult;
-                                return { ...request, postContent };
-                            } else {
-                                console.warn(`Failed to fetch post content for request ${request.id}`);
-                                return request;
-                            }
-                        } catch (error) {
-                            console.warn(`Error fetching post content for request ${request.id}:`, error);
-                            return request;
-                        }
-                    })
-                );
-
-                setPostRequests(requestsWithContent);
+                console.log('Processed post requests:', requests);
+                setPostRequests(requests);
             } catch (error) {
                 console.error('Error fetching post requests:', error);
                 setRequestsError(error instanceof Error ? error.message : 'Failed to load post requests');
@@ -402,9 +407,9 @@ export default function PostReviewPage() {
                                     <CardContent className="p-0">
                                         {/* Video/Media Section */}
                                         <div className="relative bg-muted h-48 flex items-center justify-center">
-                                            {request.postContent?.file_url ? (
+                                            {request.post?.file_url ? (
                                                 <img
-                                                    src={request.postContent.file_url}
+                                                    src={request.post.file_url}
                                                     alt="Post media"
                                                     className="w-full h-full object-cover"
                                                 />
@@ -458,19 +463,20 @@ export default function PostReviewPage() {
                                             <div className="flex justify-between items-start mb-2">
                                                 <div className="flex items-center gap-2">
                                                     <h3 className="font-semibold text-lg">
-                                                        {request.postContent?.title || 'Loading...'}
+                                                        {request.post?.title || 'Loading...'}
                                                     </h3>
                                                     <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                                                 </div>
                                                 <span className="text-sm text-muted-foreground">
-                                                    Community {request.community_id.slice(0, 8)}...
+                                                    {request.community?.name || `Community ${request.community_id.slice(0, 8)}...`}
                                                 </span>
                                             </div>
                                             <p className="text-sm text-muted-foreground">
-                                                {request.postContent?.description || 'No description available'}
+                                                {request.post?.description || 'No description available'}
                                             </p>
                                             <div className="mt-2 text-xs text-muted-foreground">
-                                                User: {request.user_id.slice(0, 8)}...
+                                                <div>User: {request.user?.name || request.user_id.slice(0, 8)}</div>
+                                                <div>Created: {request.post?.created_at ? new Date(request.post.created_at).toLocaleDateString() : 'Unknown'}</div>
                                             </div>
                                             {request.admin_message && (
                                                 <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
@@ -495,7 +501,7 @@ export default function PostReviewPage() {
                             <span>Request Changes</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Request specific changes to &quot;<strong>{selectedPost?.postContent?.title}</strong>&quot; by {selectedPost?.user_id.slice(0, 8)}...
+                            Request specific changes to &quot;<strong>{selectedPost?.post?.title}</strong>&quot; by {selectedPost?.user?.name || selectedPost?.user_id.slice(0, 8)}...
                             The author will be notified and can resubmit after making the requested modifications.
                         </DialogDescription>
                     </DialogHeader>
@@ -507,10 +513,11 @@ export default function PostReviewPage() {
                                 <Eye className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-medium">Post Preview</span>
                             </div>
-                            <h4 className="font-medium">{selectedPost?.postContent?.title}</h4>
-                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.postContent?.description}</p>
+                            <h4 className="font-medium">{selectedPost?.post?.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.post?.description}</p>
                             <p className="text-xs text-muted-foreground mt-2">
-                                Community {selectedPost?.community_id.slice(0, 8)}... • By {selectedPost?.user_id.slice(0, 8)}... •                             </p>
+                                {selectedPost?.community?.name} • By {selectedPost?.user?.name} • {selectedPost?.post?.created_at ? new Date(selectedPost.post.created_at).toLocaleDateString() : ''}
+                            </p>
                         </div>
 
                         {/* Change Request Category */}
@@ -687,7 +694,7 @@ export default function PostReviewPage() {
                             <span>Reject Post</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.postContent?.title}</strong>&quot; by {selectedPost?.user_id.slice(0, 8)}.... 
+                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.post?.title}</strong>&quot; by {selectedPost?.user?.name || selectedPost?.user_id.slice(0, 8)}....
                             This information will help improve content quality.
                         </DialogDescription>
                     </DialogHeader>
@@ -699,10 +706,11 @@ export default function PostReviewPage() {
                                 <Eye className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-medium">Post Preview</span>
                             </div>
-                            <h4 className="font-medium">{selectedPost?.postContent?.title}</h4>
-                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.postContent?.description}</p>
+                            <h4 className="font-medium">{selectedPost?.post?.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.post?.description}</p>
                             <p className="text-xs text-muted-foreground mt-2">
-                                Community {selectedPost?.community_id.slice(0, 8)}... • By {selectedPost?.user_id.slice(0, 8)}... •                             </p>
+                                {selectedPost?.community?.name} • By {selectedPost?.user?.name} • {selectedPost?.post?.created_at ? new Date(selectedPost.post.created_at).toLocaleDateString() : ''}
+                            </p>
                         </div>
 
                         {/* Reason Selection */}

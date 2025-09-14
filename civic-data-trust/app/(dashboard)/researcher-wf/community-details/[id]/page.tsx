@@ -9,15 +9,28 @@ import { useCommunity } from "@/app/components/contexts/community-context"
 import { useState, useEffect } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
 
-// Types for community posts
+// Types for community posts - Updated to match new API structure
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  status: boolean;
+  role: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface CommunityPost {
   id: string;
   community_id: string;
   user_id: string;
-  file_url: string;
+  file_url: string | null;
   title: string;
   description: string;
   dataset_id: string;
+  created_at: string;
+  updated_at: string;
+  user: User; // Nested user data from API
 }
 
 interface Dataset {
@@ -107,7 +120,7 @@ function PopularPostItem({ post }: { post: PostWithDataset }) {
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground line-clamp-1">{post.title}</p>
         <p className="text-xs text-muted-foreground">
-          {post.dataset ? `Dataset: ${post.dataset.name}` : `Researcher ${post.user_id.slice(0, 8)}...`}
+          {post.dataset ? `Dataset: ${post.dataset.name}` : (post.user?.name || `Researcher ${post.user_id.slice(0, 8)}...`)}
         </p>
       </div>
     </div>
