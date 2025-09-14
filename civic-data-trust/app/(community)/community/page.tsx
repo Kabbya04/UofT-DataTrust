@@ -55,6 +55,7 @@ function CommunityPageContent() {
   const [notebookMode, setNotebookMode] = useState(false);
   const [notebookUrl, setNotebookUrl] = useState('');
   const [notebookLoading, setNotebookLoading] = useState(false);
+  const [showNotebookCleanupModal, setShowNotebookCleanupModal] = useState(false);
   
   // Get workflow state for export
   const workflowState = useSelector((state: RootState) => state.workflow);
@@ -329,28 +330,79 @@ function CommunityPageContent() {
     input.click();
   };
 
+  const checkExistingFiles = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/notebook/check-files');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Failed to check existing files:', error);
+      return { has_files: false, file_count: 0 };
+    }
+  };
+
+  const cleanupNotebookFiles = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/notebook/cleanup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to cleanup files:', error);
+      throw error;
+    }
+  };
+
+  const startNotebookServer = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/notebook/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotebookUrl(data.url);
+        setNotebookMode(true);
+        return true;
+      } else {
+        alert('Failed to start notebook server');
+        return false;
+      }
+    } catch (error) {
+      alert('Error connecting to backend');
+      console.error('Notebook start error:', error);
+      return false;
+    }
+  };
+
   const toggleNotebookMode = async () => {
     if (!notebookMode) {
-      // Switching to notebook mode
+      // Check for existing files before switching to notebook mode
       setNotebookLoading(true);
+
       try {
-        const response = await fetch('http://localhost:8000/api/v1/notebook/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setNotebookUrl(data.url);
-          setNotebookMode(true);
+        const fileCheck = await checkExistingFiles();
+        setNotebookLoading(false);
+
+        if (fileCheck.has_files) {
+          // Show cleanup modal
+          setShowNotebookCleanupModal(true);
         } else {
-          alert('Failed to start notebook server');
+          // No existing files, proceed with notebook startup
+          setNotebookLoading(true);
+          const success = await startNotebookServer();
+          setNotebookLoading(false);
         }
       } catch (error) {
-        alert('Error connecting to backend');
-        console.error('Notebook start error:', error);
+        setNotebookLoading(false);
+        console.error('Error checking files:', error);
+        // If file check fails, still try to start notebook
+        setNotebookLoading(true);
+        const success = await startNotebookServer();
+        setNotebookLoading(false);
       }
-      setNotebookLoading(false);
     } else {
       // Switching back to canvas mode
       setNotebookMode(false);
@@ -741,6 +793,62 @@ function CommunityPageContent() {
           onDragEnd={() => setDraggedNode(null)}
           isDarkMode={isDarkMode}
         />
+
+        {/* Notebook Cleanup Modal */}
+        {showNotebookCleanupModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg max-w-md w-full mx-4">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">Existing Files Found</h3>
+              </div>
+              <div className="p-4">
+                <p className="text-sm text-gray-600 mb-4">
+                  There are existing data files in the notebook directory from previous EDA sessions.
+                  Would you like to remove them before opening the notebook to start fresh?
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={async () => {
+                      try {
+                        setNotebookLoading(true);
+                        await cleanupNotebookFiles();
+                        setShowNotebookCleanupModal(false);
+                        // Start notebook after cleanup
+                        await startNotebookServer();
+                        setNotebookLoading(false);
+                      } catch (error) {
+                        setNotebookLoading(false);
+                        alert('Failed to cleanup files. Please try again.');
+                        console.error('Cleanup error:', error);
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Delete & Open Notebook
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setShowNotebookCleanupModal(false);
+                      // Start notebook without cleanup
+                      setNotebookLoading(true);
+                      await startNotebookServer();
+                      setNotebookLoading(false);
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Keep Files & Continue
+                  </button>
+                  <button
+                    onClick={() => setShowNotebookCleanupModal(false)}
+                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
