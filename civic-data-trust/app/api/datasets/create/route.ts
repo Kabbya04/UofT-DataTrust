@@ -54,6 +54,35 @@ export async function POST(request: NextRequest) {
     const backendFormData = new FormData();
     backendFormData.append('file', file);
 
+    // Add optional fields if present
+    const tags = formData.get('tags') as string;
+    if (tags) {
+      // If tags is a JSON string, parse it to array format
+      try {
+        const tagsArray = JSON.parse(tags);
+        if (Array.isArray(tagsArray)) {
+          tagsArray.forEach((tag: string) => {
+            backendFormData.append('tags', tag);
+          });
+        } else {
+          backendFormData.append('tags', tags);
+        }
+      } catch {
+        // If not JSON, treat as single tag
+        backendFormData.append('tags', tags);
+      }
+    }
+
+    const thumbnail = formData.get('thumbnail') as File;
+    if (thumbnail) {
+      console.log('Thumbnail details:', {
+        name: thumbnail.name,
+        size: thumbnail.size,
+        type: thumbnail.type
+      });
+      backendFormData.append('thumbnail', thumbnail);
+    }
+
     // Debug: Log FormData contents
     console.log('FormData entries:');
     for (const [key, value] of backendFormData.entries()) {

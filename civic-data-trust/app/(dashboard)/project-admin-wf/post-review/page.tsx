@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/app/components/ui/tabs";
@@ -9,16 +9,33 @@ import { Label } from "@/app/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { PlayCircle, AlertTriangle, Flag, Eye, MessageSquare, Edit3, Info, MoreHorizontal } from 'lucide-react';
+import { PlayCircle, AlertTriangle, Flag, Eye, MessageSquare, Edit3, Info, MoreHorizontal, Loader2 } from 'lucide-react';
 
-const postsToReview = Array(3).fill(null).map((_, index) => ({
-    id: index + 1,
-    title: "Title",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.",
-    communityName: "Community Name",
-    author: "John Doe",
-    submittedAt: "2 hours ago"
-}));
+// Types for API responses
+interface CommunityPostRequest {
+  id: string;
+  community_id: string;
+  user_id: string;
+  post_id: string;
+  message: string | null;
+  reason: string | null;
+  admin_message: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+interface CommunityPost {
+  id: string;
+  community_id: string;
+  user_id: string;
+  file_url: string;
+  title: string;
+  description: string;
+  dataset_id: string;
+}
+
+interface PostRequestWithContent extends CommunityPostRequest {
+  postContent?: CommunityPost;
+}
 
 const rejectionReasons = [
     "Inappropriate content",
@@ -65,13 +82,18 @@ export default function PostReviewPage() {
     const [activeTab, setActiveTab] = useState('pending');
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [showRequestChangesModal, setShowRequestChangesModal] = useState(false);
-    const [selectedPost, setSelectedPost] = useState<any>(null);
+    const [selectedPost, setSelectedPost] = useState<PostRequestWithContent | null>(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [customMessage, setCustomMessage] = useState('');
     const [selectedViolations, setSelectedViolations] = useState<string[]>([]);
     const [notifyAuthor, setNotifyAuthor] = useState(true);
     const [allowResubmission, setAllowResubmission] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Real data state
+    const [postRequests, setPostRequests] = useState<PostRequestWithContent[]>([]);
+    const [isLoadingRequests, setIsLoadingRequests] = useState(false);
+    const [requestsError, setRequestsError] = useState<string | null>(null);
 
     // Request Changes Modal State
     const [changeRequestReason, setChangeRequestReason] = useState('');
@@ -81,7 +103,79 @@ export default function PostReviewPage() {
     const [deadlineDays, setDeadlineDays] = useState('7');
     const [notifyAuthorChanges, setNotifyAuthorChanges] = useState(true);
 
-    const handleReject = (post: any) => {
+    // Fetch post requests and their content
+    useEffect(() => {
+        const fetchPostRequests = async () => {
+            setIsLoadingRequests(true);
+            setRequestsError(null);
+
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                // Fetch all post requests
+                const requestsResponse = await fetch('/api/community-post-request/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!requestsResponse.ok) {
+                    const errorData = await requestsResponse.json();
+                    throw new Error(errorData.error || 'Failed to fetch post requests');
+                }
+
+                const requestsResult = await requestsResponse.json();
+                const requests: CommunityPostRequest[] = requestsResult.data || requestsResult || [];
+
+                // Fetch post content for each request
+                const requestsWithContent = await Promise.all(
+                    requests.map(async (request) => {
+                        try {
+                            const postResponse = await fetch(`/api/community-post/${request.post_id}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Accept': 'application/json',
+                                },
+                            });
+
+                            if (postResponse.ok) {
+                                const postResult = await postResponse.json();
+                                const postContent = postResult.data || postResult;
+                                return { ...request, postContent };
+                            } else {
+                                console.warn(`Failed to fetch post content for request ${request.id}`);
+                                return request;
+                            }
+                        } catch (error) {
+                            console.warn(`Error fetching post content for request ${request.id}:`, error);
+                            return request;
+                        }
+                    })
+                );
+
+                setPostRequests(requestsWithContent);
+            } catch (error) {
+                console.error('Error fetching post requests:', error);
+                setRequestsError(error instanceof Error ? error.message : 'Failed to load post requests');
+            } finally {
+                setIsLoadingRequests(false);
+            }
+        };
+
+        fetchPostRequests();
+    }, []);
+
+    // Filter posts based on active tab
+    const filteredPosts = postRequests.filter(request => {
+        if (activeTab === 'all') return true;
+        return request.status === activeTab;
+    });
+
+    const handleReject = (post: PostRequestWithContent) => {
         setSelectedPost(post);
         setShowRejectModal(true);
         setRejectionReason('');
@@ -91,7 +185,7 @@ export default function PostReviewPage() {
         setAllowResubmission(true);
     };
 
-    const handleRequestChanges = (post: any) => {
+    const handleRequestChanges = (post: PostRequestWithContent) => {
         setSelectedPost(post);
         setShowRequestChangesModal(true);
         setChangeRequestReason('');
@@ -103,52 +197,154 @@ export default function PostReviewPage() {
     };
 
     const handleConfirmReject = async () => {
-        if (!rejectionReason) return;
-        
+        if (!rejectionReason || !selectedPost) return;
+
         setIsProcessing(true);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        console.log('Rejecting post:', {
-            postId: selectedPost.id,
-            reason: rejectionReason,
-            message: customMessage,
-            violations: selectedViolations,
-            notifyAuthor,
-            allowResubmission
-        });
-        
-        setIsProcessing(false);
-        setShowRejectModal(false);
-        setSelectedPost(null);
+
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            const rejectData = {
+                request_id: selectedPost.id,
+                reason: rejectionReason,
+                admin_message: customMessage || undefined
+            };
+
+            const response = await fetch('/api/community-post-request/reject', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(rejectData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to reject post');
+            }
+
+            // Update local state
+            setPostRequests(prev =>
+                prev.map(request =>
+                    request.id === selectedPost.id
+                        ? { ...request, status: 'rejected' as const, admin_message: customMessage }
+                        : request
+                )
+            );
+
+            console.log('Post rejected successfully');
+        } catch (error) {
+            console.error('Error rejecting post:', error);
+            alert(error instanceof Error ? error.message : 'Failed to reject post');
+        } finally {
+            setIsProcessing(false);
+            setShowRejectModal(false);
+            setSelectedPost(null);
+        }
     };
 
     const handleConfirmRequestChanges = async () => {
-        if (!changeRequestReason || !changeRequestMessage.trim()) return;
-        
+        if (!changeRequestReason || !changeRequestMessage.trim() || !selectedPost) return;
+
         setIsProcessing(true);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        console.log('Requesting changes for post:', {
-            postId: selectedPost.id,
-            reason: changeRequestReason,
-            message: changeRequestMessage,
-            suggestedChanges: selectedChanges,
-            deadline: setDeadline ? deadlineDays : null,
-            notifyAuthor: notifyAuthorChanges
-        });
-        
-        setIsProcessing(false);
-        setShowRequestChangesModal(false);
-        setSelectedPost(null);
+
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            const changeData = {
+                request_id: selectedPost.id,
+                reason: changeRequestReason,
+                admin_message: changeRequestMessage
+            };
+
+            const response = await fetch('/api/community-post-request/request-change', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(changeData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to request changes');
+            }
+
+            // Update local state
+            setPostRequests(prev =>
+                prev.map(request =>
+                    request.id === selectedPost.id
+                        ? {
+                            ...request,
+                            status: 'pending' as const,
+                            admin_message: changeRequestMessage,
+                            reason: changeRequestReason
+                        }
+                        : request
+                )
+            );
+
+            console.log('Changes requested successfully');
+        } catch (error) {
+            console.error('Error requesting changes:', error);
+            alert(error instanceof Error ? error.message : 'Failed to request changes');
+        } finally {
+            setIsProcessing(false);
+            setShowRequestChangesModal(false);
+            setSelectedPost(null);
+        }
     };
 
-    const handleApprove = async (post: any) => {
-        console.log('Approving post:', post.id);
-        // Handle approval logic here
+    const handleApprove = async (post: PostRequestWithContent) => {
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            const approveData = {
+                request_id: post.id
+            };
+
+            const response = await fetch('/api/community-post-request/approve', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(approveData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to approve post');
+            }
+
+            // Update local state
+            setPostRequests(prev =>
+                prev.map(request =>
+                    request.id === post.id
+                        ? { ...request, status: 'approved' as const }
+                        : request
+                )
+            );
+
+            console.log('Post approved successfully');
+        } catch (error) {
+            console.error('Error approving post:', error);
+            alert(error instanceof Error ? error.message : 'Failed to approve post');
+        }
     };
 
     const handleViolationToggle = (violationId: string) => {
@@ -169,69 +365,124 @@ export default function PostReviewPage() {
 
     return (
         <div className="space-y-8">
-            <h1 className="text-3xl font-bold">Post Review (320)</h1>
-            
+            <h1 className="text-3xl font-bold">Post Review ({postRequests.length})</h1>
+
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
-                    <TabsTrigger value="all">ALL</TabsTrigger>
-                    <TabsTrigger value="pending">Pending</TabsTrigger>
-                    <TabsTrigger value="approved">Approved</TabsTrigger>
-                    <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                    <TabsTrigger value="all">ALL ({postRequests.length})</TabsTrigger>
+                    <TabsTrigger value="pending">Pending ({postRequests.filter(r => r.status === 'pending').length})</TabsTrigger>
+                    <TabsTrigger value="approved">Approved ({postRequests.filter(r => r.status === 'approved').length})</TabsTrigger>
+                    <TabsTrigger value="rejected">Rejected ({postRequests.filter(r => r.status === 'rejected').length})</TabsTrigger>
                 </TabsList>
                 <TabsContent value={activeTab} className="pt-6">
-                    <div className="grid gird-cols-2">
-                        {postsToReview.map((post, index) => (
-                            <Card key={index} className="overflow-hidden">
-                                <CardContent className="p-0">
-                                    {/* Video/Media Section */}
-                                    <div className="relative bg-muted h-48 flex items-center justify-center">
-                                        <PlayCircle className="h-16 w-16 "/>
-                                        
-                                        {/* Action Buttons Overlay */}
-                                        <div className="absolute top-4 right-4 flex gap-2">
-                                            <Button 
-                                                size="sm" 
-                                                onClick={() => handleApprove(post)}
-                                                className="bg-green-600 hover:bg-green-700 focus:ring-green-500 hover:cursor-pointer"
-                                            >
-                                                Approve
-                                            </Button>
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                onClick={() => handleReject(post)}
-                                                className=" bg-red-600 hover:bg-red-700 focus:ring-red-500 hover:cursor-pointer"
-                                            >
-                                                Reject
-                                            </Button>
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                onClick={() => handleRequestChanges(post)}
-                                                className=" bg-primary hover:bg-primary-700 focus:ring-primary-500 hover:cursor-pointer"
-                                            >
-                                                Request changes
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Content Section */}
-                                    <div className="p-4">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-semibold text-lg">{post.title}</h3>
-                                                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                    {isLoadingRequests ? (
+                        <div className="flex items-center justify-center p-8">
+                            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                            <span>Loading post requests...</span>
+                        </div>
+                    ) : requestsError ? (
+                        <div className="p-6 border border-red-200 rounded-lg bg-red-50">
+                            <p className="text-red-600 text-sm mb-2">{requestsError}</p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.location.reload()}
+                            >
+                                Retry
+                            </Button>
+                        </div>
+                    ) : filteredPosts.length === 0 ? (
+                        <div className="p-8 text-center">
+                            <p className="text-muted-foreground">No posts found for this status.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {filteredPosts.map((request) => (
+                                <Card key={request.id} className="overflow-hidden">
+                                    <CardContent className="p-0">
+                                        {/* Video/Media Section */}
+                                        <div className="relative bg-muted h-48 flex items-center justify-center">
+                                            {request.postContent?.file_url ? (
+                                                <img
+                                                    src={request.postContent.file_url}
+                                                    alt="Post media"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <PlayCircle className="h-16 w-16" />
+                                            )}
+
+                                            {/* Status Badge */}
+                                            <div className="absolute top-2 left-2">
+                                                <span className={`px-2 py-1 text-xs rounded-full capitalize ${
+                                                    request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                    request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                    'bg-red-100 text-red-800'
+                                                }`}>
+                                                    {request.status}
+                                                </span>
                                             </div>
-                                            <span className="text-sm text-muted-foreground">{post.communityName}</span>
+
+                                            {/* Action Buttons Overlay - Only show for pending */}
+                                            {request.status === 'pending' && (
+                                                <div className="absolute top-4 right-4 flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleApprove(request)}
+                                                        className="bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                                                    >
+                                                        Approve
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleReject(request)}
+                                                        className="bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
+                                                    >
+                                                        Reject
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleRequestChanges(request)}
+                                                        className="bg-primary hover:bg-primary/90"
+                                                    >
+                                                        Request changes
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <p className="text-sm text-muted-foreground">
-                                            {post.description}
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+
+                                        {/* Content Section */}
+                                        <div className="p-4">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="font-semibold text-lg">
+                                                        {request.postContent?.title || 'Loading...'}
+                                                    </h3>
+                                                    <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                                <span className="text-sm text-muted-foreground">
+                                                    Community {request.community_id.slice(0, 8)}...
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">
+                                                {request.postContent?.description || 'No description available'}
+                                            </p>
+                                            <div className="mt-2 text-xs text-muted-foreground">
+                                                User: {request.user_id.slice(0, 8)}...
+                                            </div>
+                                            {request.admin_message && (
+                                                <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
+                                                    <strong>Admin Message:</strong> {request.admin_message}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </TabsContent>
             </Tabs>
 
@@ -244,7 +495,7 @@ export default function PostReviewPage() {
                             <span>Request Changes</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Request specific changes to &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}. 
+                            Request specific changes to &quot;<strong>{selectedPost?.postContent?.title}</strong>&quot; by {selectedPost?.user_id.slice(0, 8)}...
                             The author will be notified and can resubmit after making the requested modifications.
                         </DialogDescription>
                     </DialogHeader>
@@ -256,11 +507,10 @@ export default function PostReviewPage() {
                                 <Eye className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-medium">Post Preview</span>
                             </div>
-                            <h4 className="font-medium">{selectedPost?.title}</h4>
-                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.description}</p>
+                            <h4 className="font-medium">{selectedPost?.postContent?.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.postContent?.description}</p>
                             <p className="text-xs text-muted-foreground mt-2">
-                                {selectedPost?.communityName} • By {selectedPost?.author} • {selectedPost?.submittedAt}
-                            </p>
+                                Community {selectedPost?.community_id.slice(0, 8)}... • By {selectedPost?.user_id.slice(0, 8)}... •                             </p>
                         </div>
 
                         {/* Change Request Category */}
@@ -437,7 +687,7 @@ export default function PostReviewPage() {
                             <span>Reject Post</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.title}</strong>&quot; by {selectedPost?.author}. 
+                            Please provide a reason for rejecting &quot;<strong>{selectedPost?.postContent?.title}</strong>&quot; by {selectedPost?.user_id.slice(0, 8)}.... 
                             This information will help improve content quality.
                         </DialogDescription>
                     </DialogHeader>
@@ -449,11 +699,10 @@ export default function PostReviewPage() {
                                 <Eye className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-medium">Post Preview</span>
                             </div>
-                            <h4 className="font-medium">{selectedPost?.title}</h4>
-                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.description}</p>
+                            <h4 className="font-medium">{selectedPost?.postContent?.title}</h4>
+                            <p className="text-sm text-muted-foreground mt-1">{selectedPost?.postContent?.description}</p>
                             <p className="text-xs text-muted-foreground mt-2">
-                                {selectedPost?.communityName} • By {selectedPost?.author} • {selectedPost?.submittedAt}
-                            </p>
+                                Community {selectedPost?.community_id.slice(0, 8)}... • By {selectedPost?.user_id.slice(0, 8)}... •                             </p>
                         </div>
 
                         {/* Reason Selection */}
