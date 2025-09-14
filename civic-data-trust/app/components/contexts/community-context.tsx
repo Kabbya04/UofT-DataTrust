@@ -73,31 +73,54 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       setLoading(true)
       setError(null)
       const response = await api.communities.getAll(1, 50)
-      
+
       // Get current user ID from auth context
       const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user
-      
-      const transformedCommunities: Community[] = response.data.map(community => {
-        // Check if current user is in the community's users or admins array
-        const isUserMember = community.users?.some((user: any) => user.id === currentUserId) || false
-        const isUserAdmin = community.admins?.some((admin: any) => admin.id === currentUserId) || false
-        const isJoined = isUserMember || isUserAdmin
-        
+      console.log('=== DEBUGGING USER AND COMMUNITIES ===')
+      console.log('Auth user object:', user)
+      console.log('Current user ID:', currentUserId)
+
+      // Fetch approved join requests to determine which communities user has joined
+      let approvedCommunityIds: string[] = []
+      try {
+        const joinRequestsResponse = await api.joinRequests.getAll()
+        console.log('Raw join requests response:', joinRequestsResponse)
+        const allJoinRequests = joinRequestsResponse.data || []
+        console.log('All join requests:', allJoinRequests)
+
+        const myRequests = allJoinRequests.filter((request: any) => request.user_id === currentUserId)
+        console.log('My join requests:', myRequests)
+
+        const approvedRequests = myRequests.filter((request: any) => request.status === 'approved')
+        console.log('My approved requests:', approvedRequests)
+
+        approvedCommunityIds = approvedRequests.map((request: any) => request.community_id)
+        console.log('Approved community IDs for current user:', approvedCommunityIds)
+      } catch (joinReqError) {
+        console.warn('Could not fetch join requests:', joinReqError)
+        console.error('Join request error details:', joinReqError)
+      }
+
+      const transformedCommunities: Community[] = response.data.items.map((community: any) => {
+        console.log('Raw community object:', community)
+
+        // Check membership using approved join requests
+        const isJoined = approvedCommunityIds.includes(community.id)
+
         console.log(`Community ${community.name}: user ${currentUserId} is ${isJoined ? 'joined' : 'not joined'}`)
-        console.log(`  - Community users:`, community.users?.map((u: any) => u.id) || [])
-        console.log(`  - Community admins:`, community.admins?.map((a: any) => a.id) || [])
+        console.log(`  - Community ID:`, community.id)
         console.log(`  - Current user ID:`, currentUserId)
-        console.log(`  - Is member:`, isUserMember, `Is admin:`, isUserAdmin)
-        
+        console.log(`  - Approved communities:`, approvedCommunityIds)
+
         return {
           ...community,
-          isJoined, // Actually check if user is a member
-          memberCount: (community.users?.length || 0) + (community.admins?.length || 0), // Real member count
-          tags: [community.community_category.name], // Use category as tag
+          isJoined,
+          memberCount: 0, // We don't have member count data in new API
+          tags: [community.community_category.name],
           coverImage: community.logo || '/placeholder-np7tk.png'
         }
       })
-      
+
       setCommunities(transformedCommunities)
     } catch (err) {
       console.error('Failed to fetch communities:', err)

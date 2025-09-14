@@ -7,6 +7,7 @@ import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { useCommunity } from "@/app/components/contexts/community-context"
+import { api } from "@/app/lib/api"
 
 const categoryTabs = ['All', 'Education', 'Data Science', 'Technology', 'Games', 'Movies', 'Television', 'Medicine', 'Travel', 'Business', 'Internet']
 
@@ -22,9 +23,10 @@ interface CommunityCardProps {
   }
   onJoin: (communityId: string) => void
   onViewDetails: (communityId: string) => void
+  isLoadingCounts?: boolean
 }
 
-function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps) {
+function CommunityCard({ community, onJoin, onViewDetails, isLoadingCounts }: CommunityCardProps) {
   return (
     <Card className="p-2 hover:shadow-lg w-fit transition-all duration-200 border border-border bg-card">
       <div className="flex items-start gap-3 mb-3">
@@ -36,8 +38,8 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
             {community.name}
           </h4>
           <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
-            <div>• {community.datasets} datasets</div>
+            <div>• {isLoadingCounts ? '...' : (community.memberCount?.toLocaleString() || '0')} members</div>
+            <div>• {isLoadingCounts ? '...' : community.datasets} datasets</div>
             <div>• {community.description || 'No description available'}</div>
           </div>
           <div className="flex gap-2">
@@ -57,6 +59,9 @@ export default function DiscoverCommunityPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'sections' | 'all'>('sections')
+  const [memberCounts, setMemberCounts] = useState<{[key: string]: number}>({})
+  const [datasetCounts, setDatasetCounts] = useState<{[key: string]: number}>({})
+  const [isLoadingCounts, setIsLoadingCounts] = useState(false)
   const { communities, loading, error, toggleJoinStatus, refreshCommunities } = useCommunity()
   const router = useRouter()
 
@@ -78,6 +83,83 @@ export default function DiscoverCommunityPage() {
     }
   }, [])
 
+  // Fetch real counts for communities
+  useEffect(() => {
+    const fetchRealCounts = async () => {
+      if (communities.length === 0 || loading) return
+
+      setIsLoadingCounts(true)
+      try {
+        const token = localStorage.getItem('access_token')
+        if (!token) return
+
+        // Fetch all join requests to calculate member counts
+        const [joinRequestsResponse, postsResponse, requestsResponse] = await Promise.all([
+          api.joinRequests.getAll(),
+          fetch('/api/community-post/?pageNumber=1&limit=200', {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+          }),
+          fetch('/api/community-post-request/', {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+          })
+        ])
+
+        // Calculate member counts from approved join requests
+        const allJoinRequests = joinRequestsResponse.data || []
+        const memberCountsMap: {[key: string]: number} = {}
+
+        communities.forEach(community => {
+          const approvedMembers = allJoinRequests.filter(
+            (request: any) => request.community_id === community.id && request.status === 'approved'
+          )
+          memberCountsMap[community.id] = approvedMembers.length
+        })
+
+        // Calculate dataset counts from approved posts
+        if (postsResponse.ok && requestsResponse.ok) {
+          const postsResult = await postsResponse.json()
+          const requestsResult = await requestsResponse.json()
+
+          const allPosts = postsResult.data || postsResult || []
+          const allRequests = requestsResult.data || requestsResult || []
+
+          const approvedPostIds = allRequests
+            .filter((request: any) => request.status === 'approved')
+            .map((request: any) => request.post_id)
+
+          const datasetCountsMap: {[key: string]: number} = {}
+
+          communities.forEach(community => {
+            const communityPosts = allPosts.filter(
+              (post: any) => post.community_id === community.id.toString()
+            )
+            const approvedCommunityPosts = communityPosts.filter(
+              (post: any) => approvedPostIds.includes(post.id)
+            )
+            const uniqueDatasetIds = [...new Set(
+              approvedCommunityPosts
+                .filter((post: any) => post.dataset_id)
+                .map((post: any) => post.dataset_id)
+            )]
+            datasetCountsMap[community.id] = uniqueDatasetIds.length
+          })
+
+          setDatasetCounts(datasetCountsMap)
+        }
+
+        setMemberCounts(memberCountsMap)
+        console.log('Real member counts:', memberCountsMap)
+        console.log('Real dataset counts:', datasetCounts)
+      } catch (error) {
+        console.error('Error fetching real counts:', error)
+      } finally {
+        setIsLoadingCounts(false)
+      }
+    }
+
+    fetchRealCounts()
+  }, [communities.length, loading])
+
   const handleRefresh = async () => {
     try {
       setIsRefreshing(true)
@@ -89,12 +171,12 @@ export default function DiscoverCommunityPage() {
     }
   }
 
-  // Transform API communities to match the expected format
+  // Transform API communities to match the expected format with real data
   const extendedCommunities = communities.map(c => ({
     ...c,
-    datasets: Math.floor(Math.random() * 20) + 5,
+    datasets: datasetCounts[c.id] || 0,
     category: c.community_category?.name || 'General',
-    memberCount: c.memberCount || Math.floor(Math.random() * 2000) + 100
+    memberCount: memberCounts[c.id] || 0
   }))
 
   // Apply filters for search and category
@@ -210,7 +292,7 @@ export default function DiscoverCommunityPage() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recommendedCommunities.map((community) => (
-                      <CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                      <CommunityCard key={`rec-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                     ))}
                   </div>
                 </div>
@@ -225,7 +307,7 @@ export default function DiscoverCommunityPage() {
                       <h2 className="text-lg font-semibold text-foreground mb-4">Education</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {educationCommunities.map((community) => (
-                          <CommunityCard key={`education-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                          <CommunityCard key={`education-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                         ))}
                       </div>
                     </div>
@@ -237,7 +319,7 @@ export default function DiscoverCommunityPage() {
                       <h2 className="text-lg font-semibold text-foreground mb-4">Data Science</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {dataScienceCommunities.map((community) => (
-                          <CommunityCard key={`data-science-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                          <CommunityCard key={`data-science-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                         ))}
                       </div>
                     </div>
@@ -249,7 +331,7 @@ export default function DiscoverCommunityPage() {
                       <h2 className="text-lg font-semibold text-foreground mb-4">Technology</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {technologyCommunities.map((community) => (
-                          <CommunityCard key={`tech-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                          <CommunityCard key={`tech-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                         ))}
                       </div>
                     </div>
@@ -261,7 +343,7 @@ export default function DiscoverCommunityPage() {
                       <h2 className="text-lg font-semibold text-foreground mb-4">Games</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {gamesCommunities.map((community) => (
-                          <CommunityCard key={`games-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                          <CommunityCard key={`games-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                         ))}
                       </div>
                     </div>
@@ -281,7 +363,7 @@ export default function DiscoverCommunityPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredCommunities.map((community) => (
-                  <CommunityCard key={`all-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} />
+                  <CommunityCard key={`all-${community.id}`} community={community} onJoin={handleJoinCommunity} onViewDetails={handleViewDetails} isLoadingCounts={isLoadingCounts} />
                 ))}
               </div>
             </div>

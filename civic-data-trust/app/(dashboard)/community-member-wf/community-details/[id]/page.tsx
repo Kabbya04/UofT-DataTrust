@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/app/components/ui/avatar"
 import { useCommunity } from "@/app/components/contexts/community-context"
 import { useState, useEffect } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
+import { api } from "@/app/lib/api"
 
 // Types for community posts - Updated to match new API structure
 interface User {
@@ -134,6 +135,8 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
   const [postsError, setPostsError] = useState<string | null>(null)
   const [datasetCount, setDatasetCount] = useState<number>(0)
   const [isLoadingDatasetCount, setIsLoadingDatasetCount] = useState<boolean>(false)
+  const [memberCount, setMemberCount] = useState<number>(0)
+  const [isLoadingMemberCount, setIsLoadingMemberCount] = useState<boolean>(false)
   const router = useRouter();
 
   // Use useEffect to resolve the Promise params
@@ -144,6 +147,38 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
     };
     resolveParams();
   }, [params]);
+
+  // Fetch member count for this community
+  useEffect(() => {
+    const fetchMemberCount = async () => {
+      if (!communityId) return;
+
+      setIsLoadingMemberCount(true);
+
+      try {
+        // Fetch all join requests to calculate member count
+        const joinRequestsResponse = await api.joinRequests.getAll();
+        const allJoinRequests = joinRequestsResponse.data || [];
+
+        // Count approved members for this community
+        const approvedMembers = allJoinRequests.filter(
+          (request: any) => request.community_id === communityId && request.status === 'approved'
+        );
+
+        console.log(`Member count for community ${communityId}:`, approvedMembers.length);
+        console.log('Approved join requests:', approvedMembers);
+
+        setMemberCount(approvedMembers.length);
+      } catch (error) {
+        console.error('Error fetching member count:', error);
+        setMemberCount(0);
+      } finally {
+        setIsLoadingMemberCount(false);
+      }
+    };
+
+    fetchMemberCount();
+  }, [communityId]);
 
   // Fetch dataset count for this community
   useEffect(() => {
@@ -515,7 +550,7 @@ export default function CommunityDetailsPage({ params }: CommunityDetailsPagePro
             <Card className="p-4">
               <h3 className="font-semibold text-foreground mb-4">Stats</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Members</span></div><span className="font-semibold text-foreground">{community.memberCount}</span></div>
+                <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Members</span></div><span className="font-semibold text-foreground">{isLoadingMemberCount ? '...' : memberCount}</span></div>
                 <div className="flex items-center justify-between"><div className="flex items-center gap-2"><Database className="h-4 w-4 text-muted-foreground" /><span className="text-sm text-foreground">Datasets</span></div><span className="font-semibold text-foreground">{isLoadingDatasetCount ? '...' : datasetCount}</span></div>
               </div>
             </Card>
