@@ -166,12 +166,8 @@ export const api = {
             id: string
             name: string
           }
-          admins: Array<{
-            id: string
-            name: string
-            email: string
-          }>
-          users: Array<any>
+          admins: Array<string>
+          users: Array<string>
         }>
         total: number
         pageNumber: number

@@ -59,7 +59,6 @@ export default function DiscoverCommunityPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'sections' | 'all'>('sections')
-  const [memberCounts, setMemberCounts] = useState<{[key: string]: number}>({})
   const [datasetCounts, setDatasetCounts] = useState<{[key: string]: number}>({})
   const [isLoadingCounts, setIsLoadingCounts] = useState(false)
   const { communities, loading, error, toggleJoinStatus, refreshCommunities } = useCommunity()
@@ -83,9 +82,9 @@ export default function DiscoverCommunityPage() {
     }
   }, [])
 
-  // Fetch real counts for communities
+  // Fetch real dataset counts for all communities
   useEffect(() => {
-    const fetchRealCounts = async () => {
+    const fetchDatasetCounts = async () => {
       if (communities.length === 0 || loading) return
 
       setIsLoadingCounts(true)
@@ -93,9 +92,8 @@ export default function DiscoverCommunityPage() {
         const token = localStorage.getItem('access_token')
         if (!token) return
 
-        // Fetch all join requests to calculate member counts
-        const [joinRequestsResponse, postsResponse, requestsResponse] = await Promise.all([
-          api.joinRequests.getAll(),
+        // Fetch all posts and post requests to calculate dataset counts
+        const [postsResponse, requestsResponse] = await Promise.all([
           fetch('/api/community-post/?pageNumber=1&limit=200', {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
           }),
@@ -104,18 +102,6 @@ export default function DiscoverCommunityPage() {
           })
         ])
 
-        // Calculate member counts from approved join requests
-        const allJoinRequests = joinRequestsResponse.data || []
-        const memberCountsMap: {[key: string]: number} = {}
-
-        communities.forEach(community => {
-          const approvedMembers = allJoinRequests.filter(
-            (request: any) => request.community_id === community.id && request.status === 'approved'
-          )
-          memberCountsMap[community.id] = approvedMembers.length
-        })
-
-        // Calculate dataset counts from approved posts
         if (postsResponse.ok && requestsResponse.ok) {
           const postsResult = await postsResponse.json()
           const requestsResult = await requestsResponse.json()
@@ -145,19 +131,16 @@ export default function DiscoverCommunityPage() {
           })
 
           setDatasetCounts(datasetCountsMap)
+          console.log('Real dataset counts for discover page:', datasetCountsMap)
         }
-
-        setMemberCounts(memberCountsMap)
-        console.log('Real member counts:', memberCountsMap)
-        console.log('Real dataset counts:', datasetCounts)
       } catch (error) {
-        console.error('Error fetching real counts:', error)
+        console.error('Error fetching dataset counts:', error)
       } finally {
         setIsLoadingCounts(false)
       }
     }
 
-    fetchRealCounts()
+    fetchDatasetCounts()
   }, [communities.length, loading])
 
   const handleRefresh = async () => {
@@ -176,7 +159,7 @@ export default function DiscoverCommunityPage() {
     ...c,
     datasets: datasetCounts[c.id] || 0,
     category: c.community_category?.name || 'General',
-    memberCount: memberCounts[c.id] || 0
+    memberCount: c.memberCount || 0
   }))
 
   // Apply filters for search and category
