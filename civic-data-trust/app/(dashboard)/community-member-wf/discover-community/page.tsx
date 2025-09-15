@@ -7,6 +7,7 @@ import { Card } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { useCommunity } from "@/app/components/contexts/community-context"
+import { api } from "@/app/lib/api"
 
 const categoryTabs = ['All', 'Education', 'Data Science', 'Technology', 'Games', 'Movies', 'Television', 'Medicine', 'Travel', 'Business', 'Internet']
 
@@ -37,7 +38,7 @@ function CommunityCard({ community, onJoin, onViewDetails, isLoadingCounts }: Co
             {community.name}
           </h4>
           <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {community.memberCount?.toLocaleString() || '0'} members</div>
+            <div>• {isLoadingCounts ? '...' : (community.memberCount?.toLocaleString() || '0')} members</div>
             <div>• {isLoadingCounts ? '...' : community.datasets} datasets</div>
             <div>• {community.description || 'No description available'}</div>
           </div>

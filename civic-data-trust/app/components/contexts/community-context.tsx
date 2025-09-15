@@ -73,31 +73,31 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       setLoading(true)
       setError(null)
       const response = await api.communities.getAll(1, 50)
-      
+
       // Get current user ID from auth context
       const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user
-      
+
       const transformedCommunities: Community[] = (response.data as any).items.map((community: any) => {
         // Check if current user is in the community's users or admins array (arrays contain user IDs as strings)
         const isUserMember = community.users?.includes(currentUserId) || false
         const isUserAdmin = community.admins?.includes(currentUserId) || false
         const isJoined = isUserMember || isUserAdmin
-        
+
         console.log(`Community ${community.name}: user ${currentUserId} is ${isJoined ? 'joined' : 'not joined'}`)
         console.log(`  - Community users:`, community.users || [])
         console.log(`  - Community admins:`, community.admins || [])
         console.log(`  - Current user ID:`, currentUserId)
         console.log(`  - Is member:`, isUserMember, `Is admin:`, isUserAdmin)
-        
+
         return {
           ...community,
-          isJoined, // Actually check if user is a member
-          memberCount: (community.users?.length || 0) + (community.admins?.length || 0), // Real member count
-          tags: [community.community_category.name], // Use category as tag
+          isJoined,
+          memberCount: (community.users?.length || 0) + (community.admins?.length || 0),
+          tags: [community.community_category.name],
           coverImage: community.logo || '/placeholder-np7tk.png'
         }
       })
-      
+
       setCommunities(transformedCommunities)
     } catch (err) {
       console.error('Failed to fetch communities:', err)
