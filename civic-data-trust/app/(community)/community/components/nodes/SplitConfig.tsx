@@ -31,7 +31,48 @@ const SplitConfig: React.FC<SplitConfigProps> = ({ nodeId, parameters }) => {
     ? nodes.find(node => node.id === inputConnection.sourceNodeId)
     : null;
     
-  const availableColumns = connectedNode?.data?.outputData?.columns || [];
+  // Extract columns from connected CSV data
+  const getAvailableColumns = () => {
+    // First check if columns are stored in node data
+    if (connectedNode?.data?.outputData?.columns) {
+      return connectedNode.data.outputData.columns;
+    }
+    
+    // Then check if we can extract from CSV content
+    if (connectedNode?.parameters?.csvContent) {
+      try {
+        const csvContent = connectedNode.parameters.csvContent;
+        const lines = csvContent.split('\n');
+        if (lines.length > 0) {
+          const headers = lines[0].split(',').map((header: string) => header.trim().replace(/"/g, ''));
+          return headers.filter((header: string) => header.length > 0);
+        }
+      } catch (e) {
+        console.warn('Failed to parse CSV headers:', e);
+      }
+    }
+    
+    // Fallback: check localStorage for uploaded CSV
+    try {
+      const uploadedData = localStorage.getItem('lastUploadedCSV');
+      if (uploadedData) {
+        const parsedData = JSON.parse(uploadedData);
+        if (parsedData.content) {
+          const lines = parsedData.content.split('\n');
+          if (lines.length > 0) {
+            const headers = lines[0].split(',').map((header: string) => header.trim().replace(/"/g, ''));
+            return headers.filter((header: string) => header.length > 0);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse stored CSV data:', e);
+    }
+    
+    return [];
+  };
+  
+  const availableColumns = getAvailableColumns();
   const [isExecuting, setIsExecuting] = useState(false);
 
   const handleParameterChange = (updates: Record<string, any>) => {
