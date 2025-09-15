@@ -105,6 +105,7 @@ export default function SendAnnouncementPage() {
                       handleRecipientChange(option.id, checked as boolean)
                     }
                     className="h-4 w-4"
+                    style={{ borderColor: '#03A9F4' }}
                   />
                   <Label 
                     htmlFor={option.id} 
@@ -123,6 +124,7 @@ export default function SendAnnouncementPage() {
             <Button 
               onClick={handleSend}
               className="bg-black hover:bg-black/90 text-white px-8"
+              style={{ backgroundColor: '#03A9F4' }}
             >
               <Send className="h-4 w-4 mr-2" />
               Send

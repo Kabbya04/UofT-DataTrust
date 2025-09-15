@@ -217,6 +217,7 @@ export default function CreateCommunityPage() {
                                     type="submit"
                                     disabled={isLoading || !formData.name || !formData.category || !formData.description || !formData.adminId}
                                     className="min-w-[140px]"
+                                    style={{ backgroundColor: '#03A9F4' }}
                                 >
                                     {isLoading ? (
                                         <div className="flex items-center space-x-2">

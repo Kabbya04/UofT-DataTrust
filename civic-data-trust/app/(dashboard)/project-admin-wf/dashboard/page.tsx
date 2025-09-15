@@ -27,16 +27,17 @@ export default function AdminDashboardPage() {
                 <h1 className="text-3xl font-bold">Community Management</h1>
                 <div className="flex gap-4">
                     <Link href="/project-admin-wf/create-community">
-                        <Button variant="outline">Create Community</Button>
+                        <Button variant="outline" style={{ backgroundColor: '#EBEBEB' }}>Create Community</Button>
                     </Link>
                     <Link href="/project-admin-wf/invite-members">
-                        <Button>Invite Members</Button>
+                        <Button style={{ backgroundColor: '#2196F3', color: 'white' }}>Invite Members</Button>
                     </Link>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Members</CardTitle><Users className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">90,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Researcher</CardTitle><Users className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
                 <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Active Users</CardTitle><TrendingUp className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
                 <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Engagement Rate</CardTitle><BarChart2 className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
             </div>
@@ -176,7 +177,7 @@ export default function AdminDashboardPage() {
                 <CardContent>
                     <Table>
                         <TableHeader><TableRow><TableHead>Time</TableHead><TableHead>Activity</TableHead><TableHead>File Type</TableHead><TableHead>User</TableHead><TableHead>User Type</TableHead><TableHead>Community</TableHead><TableHead >Action</TableHead></TableRow></TableHeader>
-                        <TableBody>{recentActivity.map((activity, index) => (<TableRow key={index}><TableCell>{activity.time}</TableCell><TableCell>{activity.activity}</TableCell><TableCell>{activity.fileType}</TableCell><TableCell>{activity.user}</TableCell><TableCell>{activity.userType}</TableCell><TableCell>{activity.community}</TableCell><TableCell className="text-right"><Button variant="secondary" className=" h-auto bg-green-500 ">Delete</Button> <Button variant="destructive" className=" h-auto">Warning</Button></TableCell></TableRow>))}</TableBody>
+                        <TableBody>{recentActivity.map((activity, index) => (<TableRow key={index}><TableCell>{activity.time}</TableCell><TableCell>{activity.activity}</TableCell><TableCell>{activity.fileType}</TableCell><TableCell>{activity.user}</TableCell><TableCell>{activity.userType}</TableCell><TableCell>{activity.community}</TableCell><TableCell className="text-right"><Button variant="secondary" className=" h-auto bg-green-500 ">Delete</Button> <Button variant="destructive" className=" h-auto" style={{ backgroundColor: '#CC0000E5' }}>Warning</Button></TableCell></TableRow>))}</TableBody>
                     </Table>
                 </CardContent>
             </Card>

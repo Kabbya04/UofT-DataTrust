@@ -197,6 +197,7 @@ export default function FlaggedContentsPage() {
                           size="sm"
                           onClick={() => handleKeepPost(content.id)}
                           className="bg-black hover:bg-black/90 text-white text-xs px-3 py-1"
+                          style={{ backgroundColor: '#03A9F4' }}
                         >
                           Keep post
                         </Button>
@@ -205,6 +206,7 @@ export default function FlaggedContentsPage() {
                           variant="outline"
                           onClick={() => handleDeletePost(content.id)}
                           className="text-xs px-3 py-1 border-gray-300 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                          style={{ backgroundColor: '#EBEBEB' }}
                         >
                           Delete post
                         </Button>

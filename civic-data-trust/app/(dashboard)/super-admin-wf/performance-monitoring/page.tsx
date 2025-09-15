@@ -48,17 +48,61 @@ export default function PerformanceMonitoringPage() {
                     <CardHeader className="flex flex-row items-center justify-between"><CardTitle>Recent Incidents</CardTitle><Button variant="link">SEE ALL</Button></CardHeader>
                     <CardContent className="space-y-6">
                         {incidents.map((incident, i) => (
-                            <div key={i} className="flex items-center gap-4"><Clock className="h-5 w-5 text-muted-foreground" /><div><p>{incident.text}</p><p className="text-xs text-muted-foreground">{incident.time}</p></div><Button variant="outline" size="sm" className="ml-auto bg-green-100 text-green-800 border-green-200 hover:bg-green-200"><CheckCircle className="h-4 w-4 mr-2"/>{incident.status}</Button></div>
+                            <div key={i} className="flex items-center gap-4"><Clock className="h-5 w-5 text-muted-foreground" /><div><p>{incident.text}</p><p className="text-xs text-muted-foreground">{incident.time}</p></div><Button variant="outline" size="sm" className="ml-auto bg-green-100 text-green-800 border-green-200 hover:bg-green-200" style={{ backgroundColor: '#2196F3', color: 'white' }}><CheckCircle className="h-4 w-4 mr-2"/>{incident.status}</Button></div>
                         ))}
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>System Resources</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">CPU Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Memory Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Disk Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Network</label><span>50%</span></div><Progress value={50} /></div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">CPU Usage</label><span>50%</span></div>
+                        <div className="relative h-5 w-full rounded-full bg-gray-200 overflow-hidden" style={{ borderRadius: '50px' }}>
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-blue-500" 
+                            style={{ 
+                              width: '50%', 
+                              backgroundColor: '#2196F3',
+                              borderRadius: '50px'
+                            }} 
+                          />
+                        </div>
+                        </div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Memory Usage</label><span>50%</span></div>
+                        <div className="relative h-5 w-full rounded-full bg-gray-200 overflow-hidden" style={{ borderRadius: '50px' }}>
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-blue-500" 
+                            style={{ 
+                              width: '50%', 
+                              backgroundColor: '#2196F3',
+                              borderRadius: '50px'
+                            }} 
+                          />
+                        </div>
+                        </div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Disk Usage</label><span>50%</span></div>
+                        <div className="relative h-5 w-full rounded-full bg-gray-200 overflow-hidden" style={{ borderRadius: '50px' }}>
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-blue-500" 
+                            style={{ 
+                              width: '50%', 
+                              backgroundColor: '#2196F3',
+                              borderRadius: '50px'
+                            }} 
+                          />
+                        </div>
+                        </div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Network</label><span>50%</span></div>
+                        <div className="relative h-5 w-full rounded-full bg-gray-200 overflow-hidden" style={{ borderRadius: '50px' }}>
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-blue-500" 
+                            style={{ 
+                              width: '50%', 
+                              backgroundColor: '#2196F3',
+                              borderRadius: '50px'
+                            }} 
+                          />
+                        </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

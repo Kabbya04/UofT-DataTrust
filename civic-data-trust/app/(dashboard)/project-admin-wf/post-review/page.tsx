@@ -221,6 +221,7 @@ export default function PostReviewPage() {
                                                 variant="outline"
                                                 onClick={() => handleRequestChanges(post)}
                                                 className=" bg-primary hover:bg-primary-700 focus:ring-primary-500 border-4 hover:cursor-pointer"
+                                                style={{ backgroundColor: '#FFEC86' }}
                                             >
                                                 Request changes
                                             </Button>

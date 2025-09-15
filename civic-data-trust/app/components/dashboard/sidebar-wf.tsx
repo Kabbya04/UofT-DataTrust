@@ -513,7 +513,7 @@ export function SidebarWf() {
 
   return (
     // The sidebar itself is a flex column that does NOT scroll
-    <div className="w-64 bg-background flex flex-col h-full">
+    <div className="w-64 flex flex-col h-full" style={{ backgroundColor: '#F1F1F1' }}>
 
       <div className="flex-1 overflow-y-auto p-6">
         {isResearcherWf && isResearcherResearchSection && <ResearcherResearchNav />}

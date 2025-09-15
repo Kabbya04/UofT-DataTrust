@@ -30,14 +30,14 @@ const Stepper = ({ step }: { step: number }) => {
             {steps.map((label, index) => (
                 <div key={index} className="flex items-center flex-1 last:flex-initial">
                     <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center font-bold transition-colors",
+                        "w-8 h-8 rounded-full flex items-center justify-center font-bold transition-colors flex-shrink-0",
                         index + 1 === step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
                         index + 1 < step && "bg-primary/50 text-primary-foreground"
                     )}>
                         {index + 1}
                     </div>
-                    <span className={cn("ml-2 font-medium", index + 1 === step ? "text-foreground" : "text-muted-foreground")}>{label}</span>
-                    {index < steps.length - 1 && <div className="flex-1 h-0.5 bg-border mx-4"></div>}
+                    <span className={cn("ml-2 font-medium whitespace-nowrap", index + 1 === step ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+                    {index < steps.length - 1 && <div className="flex-1 h-0.5 bg-border mx-2"></div>}
                 </div>
             ))}
         </div>
@@ -237,9 +237,9 @@ export default function UploadDatasetPage() {
                             </div>
 
                             <div className="flex justify-start gap-2">
-                                <Button variant="outline">Cancel</Button>
-                                <Button className="bg-primary hover:bg-primary/90">Upload</Button>
-                                <Button variant="outline" className="border border-primary hover:bg-primary/90 text-primary">Save as draft</Button>
+                                <Button variant="outline" style={{ backgroundColor: '#EBEBEB', color: 'black' }}>Cancel</Button>
+                                <Button className="bg-primary hover:bg-primary/90" style={{ backgroundColor: '#2196F3', color: 'white' }}>Upload</Button>
+                                <Button variant="outline" className="border border-primary hover:bg-primary/90 text-primary" style={{ backgroundColor: '#EBEBEB', color: 'black' }}>Save as draft</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -265,7 +265,13 @@ export default function UploadDatasetPage() {
                                                 <span className="text-muted-foreground"> / Remaining: 28</span>
                                             </div>
                                         </div>
-                                        <Progress value={(1.28 / 29.28) * 100} />
+                                        {/* Custom progress bar with specified styling */}
+                                        <div className="w-full h-2 bg-[#EAEAEA80] border border-[#A89B9B] rounded-[5px] overflow-hidden">
+                                            <div 
+                                                className="h-full bg-[#FC0D1C] rounded-l-[5px]"
+                                                style={{ width: `${(1.28 / 29.28) * 100}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div><Label htmlFor="aws-id">AWS secret ID</Label><Input id="aws-id" /></div>
@@ -277,7 +283,7 @@ export default function UploadDatasetPage() {
                                     </div>
                                     <div><Label htmlFor="aws-path">Path (optional)</Label><Input id="aws-path" /></div>
                                     <a href="#" className="flex items-center gap-2 text-sm text-primary hover:underline"><HelpCircle className="h-4 w-4" />How to create AWS S3 bucket access key?</a>
-                                    <Button variant="outline" className="w-full">Connect to AWS</Button>
+                                    <Button variant="outline" className="w-full" style={{ backgroundColor: '#2196F3', color: 'white' }}>Connect to AWS</Button>
                                 </div>
                                 {/* Right Placeholder Column */}
                                 <div className="bg-muted h-96 rounded-lg flex flex-col items-center justify-center text-muted-foreground">
@@ -287,8 +293,8 @@ export default function UploadDatasetPage() {
                             </div>
 
                             <div className="flex justify-end gap-2 mt-8">
-                                <Button variant="outline">Cancel</Button>
-                                <Button disabled>Next Step</Button>
+                                <Button variant="outline" style={{ backgroundColor: '#EBEBEB', color: 'black' }}>Cancel</Button>
+                                <Button disabled style={{ backgroundColor: '#2196F3', color: 'white' }}>Next Step</Button>
                             </div>
                         </CardContent>
                     </Card>

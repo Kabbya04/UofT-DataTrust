@@ -72,7 +72,7 @@ export default function AddNewAdminPage() {
               className="space-y-3"
             >
               <div className="flex items-center space-x-3">
-                <RadioGroupItem value="project-admin" id="project-admin" />
+                <RadioGroupItem value="project-admin" id="project-admin" style={{ borderColor: '#2196F3' }} />
                 <Label 
                   htmlFor="project-admin" 
                   className="text-sm font-normal cursor-pointer flex items-center gap-2"
@@ -82,7 +82,7 @@ export default function AddNewAdminPage() {
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
-                <RadioGroupItem value="super-admin" id="super-admin" />
+                <RadioGroupItem value="super-admin" id="super-admin" style={{ borderColor: '#2196F3' }} />
                 <Label 
                   htmlFor="super-admin" 
                   className="text-sm font-normal cursor-pointer flex items-center gap-2"
@@ -99,6 +99,7 @@ export default function AddNewAdminPage() {
             <Button 
               onClick={handleInvite}
               className="bg-black hover:bg-black/90 text-white px-8"
+              style={{ backgroundColor: '#03A9F4' }}
             >
               Invite
             </Button>

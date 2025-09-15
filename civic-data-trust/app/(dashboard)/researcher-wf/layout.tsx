@@ -11,7 +11,7 @@ export default function ResearcherWfLayout({
 }) {
   return (
     // The parent is now a flex container that takes the full screen height
-    <div className="flex flex-col w-full h-screen bg-background overflow-hidden">
+    <div className="flex flex-col w-full h-screen overflow-hidden" style={{ backgroundColor: '#F1F1F1' }}>
       <NavbarWf />
       {/* This container will grow to fill the remaining space */}
       <div className="flex flex-1 overflow-hidden">

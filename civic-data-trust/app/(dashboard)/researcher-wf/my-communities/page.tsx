@@ -36,7 +36,7 @@ const CommunityCard = ({ community, index }: { community: any; index: number }) 
                     <p>{community.datasets} datasets</p>
                     <p>{community.field}</p>
                 </div>
-                <Button variant="outline" size="sm" className="mt-3 rounded-lg border-border text-muted-foreground hover:text-foreground hover:border-border">View Details</Button>
+                <Button variant="outline" size="sm" className="mt-3 rounded-lg border-border text-muted-foreground hover:text-foreground hover:border-border" style={{ backgroundColor: '#2196F3', color: 'white' }}>View Details</Button>
             </div>
         </div>
     </Card>

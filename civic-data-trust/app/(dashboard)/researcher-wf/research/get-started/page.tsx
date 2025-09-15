@@ -169,7 +169,7 @@ export default function GetStartedPage() {
                                     <p className="text-sm text-muted-foreground mb-3">
                                         Complete the platform overview to understand the basics
                                     </p>
-                                    <Button size="sm" variant="outline">
+                                    <Button size="sm" variant="outline" style={{ backgroundColor: '#2196F3', color: 'white' }}>
                                         Continue Learning
                                     </Button>
                                 </div>

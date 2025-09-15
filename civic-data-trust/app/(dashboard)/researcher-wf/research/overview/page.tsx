@@ -58,7 +58,7 @@ const projects = [
 const StatusIcon = ({ status }: { status: string }) => {
     switch (status) {
         case 'Completed':
-            return <CheckCircle2 className="h-4 w-4 text-civic-accent-green" />;
+            return <CheckCircle2 className="h-4 w-4" style={{ color: '#2196F3' }} />;
         case 'In Progress':
             return <Clock className="h-4 w-4 text-button-warning" />;
         case 'Failed':
@@ -202,7 +202,7 @@ export default function OverviewPage() {
                 <p className="text-figma-sm text-muted-foreground mb-2">Data provided by</p>
                 <div className="flex items-center gap-2 flex-wrap justify-end">
                     {project.credentials.map((cred, i) => (
-                        <Badge key={i} variant="secondary" className="bg-muted text-card-foreground border-border rounded-lg px-3 py-1 text-figma-sm font-normal">{cred.name}</Badge>
+                        <Badge key={i} variant="secondary" className="bg-muted text-card-foreground border-border rounded-lg px-3 py-1 text-figma-sm font-normal" style={{ backgroundColor: '#2196F3', color: 'white' }}>{cred.name}</Badge>
                     ))}
                 </div>
               </div>

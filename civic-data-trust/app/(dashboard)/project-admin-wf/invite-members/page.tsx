@@ -145,7 +145,7 @@ export default function InviteMembersPage() {
 
                                                 return (
                                                     <div key={role} className="flex items-start space-x-3">
-                                                        <RadioGroupItem value={role} id={role} className="mt-1" />
+                                                        <RadioGroupItem value={role} id={role} className="mt-1" style={{ borderColor: '#03A9F4' }} />
                                                         <div className="flex-1 space-y-1">
                                                             <Label htmlFor={role} className="flex items-center space-x-2 cursor-pointer">
                                                                 <Icon className="h-4 w-4" />
@@ -207,6 +207,7 @@ export default function InviteMembersPage() {
                                         onClick={handleSendInvites}
                                         disabled={isLoading || invitedEmails.length === 0}
                                         className="min-w-[120px]"
+                                        style={{ backgroundColor: '#03A9F4' }}
                                     >
                                         {isLoading ? (
                                             <div className="flex items-center space-x-2">

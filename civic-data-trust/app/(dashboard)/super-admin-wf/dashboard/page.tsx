@@ -149,21 +149,21 @@ export default function SuperAdminDashboardPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
                 <div className="flex gap-2">
-                    <Button asChild>
+                    <Button asChild style={{ backgroundColor: '#2196F3', color: 'white' }}>
                         <Link href="/super-admin-wf/create-new-community">
                             <Plus className="h-4 w-4 mr-2" />
                             Create Community
                         </Link>
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" style={{ backgroundColor: '#EBEBEB' }}>
                         <Link href="/super-admin-wf/add-new-admin">
                             Add New Admin
                         </Link>
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" style={{ backgroundColor: '#EBEBEB' }}>
                         <Link href="/super-admin-wf/send-announcement">Send Announcement</Link>
                     </Button>
-                    <Button variant="destructive">
+                    <Button variant="destructive" style={{ backgroundColor: '#EBEBEB' }}>
                         <Flag className="h-4 w-4 mr-2" />
                         <Link href="/super-admin-wf/review-flags">
                             Review Flags
