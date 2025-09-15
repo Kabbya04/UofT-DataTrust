@@ -324,7 +324,7 @@ function GenerateReportModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                         <Button variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button onClick={handleGenerate} className="bg-black hover:bg-black/90 text-white" style={{ backgroundColor: '#2196F3' }}>
+                        <Button onClick={handleGenerate} className="bg-black hover:bg-black/90 text-white" style={{ backgroundColor: '#2196F3', color: 'white' }}>
                             <BarChart2 className="h-4 w-4 mr-2" />
                             Generate Report
                         </Button>
@@ -352,7 +352,7 @@ export default function AnalyticsReportsPage() {
                         <Download className="h-4 w-4 mr-2" />
                         Export Data
                     </Button>
-                    <Button onClick={() => setIsReportModalOpen(true)} style={{ backgroundColor: '#2196F3' }}>
+                    <Button onClick={() => setIsReportModalOpen(true)} style={{ backgroundColor: '#2196F3', color: 'white' }}>
                         <BarChart2 className="h-4 w-4 mr-2" />
                         Generate Report
                     </Button>

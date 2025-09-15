@@ -38,13 +38,26 @@ export function NavbarWf() {
   const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
 
   // Get user initials for avatar fallback
-  const getUserInitials = (name: string) => {
-    return name
+  const getUserInitials = (name: string | undefined | null): string => {
+    // Handle edge cases where name is undefined, null, or empty
+    if (!name || typeof name !== 'string') {
+      return '??';
+    }
+    
+    // Clean and process the name
+    const cleanName = name.trim();
+    if (!cleanName) {
+      return '??';
+    }
+    
+    const initials = cleanName
       .split(' ')
-      .map(word => word.charAt(0))
+      .filter(part => part.length > 0) // remove empty parts
+      .map(part => part.charAt(0))
       .join('')
-      .toUpperCase()
-      .slice(0, 2);
+      .toUpperCase();
+      
+    return initials.slice(0, 2);
   };
 
   const getHomeLink = () => {
