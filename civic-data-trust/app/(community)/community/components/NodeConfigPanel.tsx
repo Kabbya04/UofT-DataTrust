@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play, Image } from 'lucide-react';
+import { X, ChevronDown, ChevronRight, Info, Plus, Trash2, GripVertical, Play, Image, Bot } from 'lucide-react';
 import { updateNode } from '@/app/store/workflowSlice';
 import { RootState } from '@/app/store';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import EDAResultsModal from './EDAResultsModal';
 import FileDownloadService from './FileDownloadService';
+import { GroqService } from '../services/groqService';
 
 // Function to check for existing files
 const checkExistingFiles = async () => {
@@ -850,6 +851,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
 
   const isDataScienceNode = ['pandas', 'numpy', 'matplotlib'].includes(node.type);
   const isEDAProcessor = node.type === 'eda_processor';
+  const isLlamaNode = node.type === 'llama';
   const currentLibrary = isDataScienceNode ? node.type : null;
   const currentFunctions = currentLibrary ? LIBRARY_FUNCTIONS[currentLibrary] : null;
   
@@ -859,6 +861,13 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
   const [generateDownloadLink, setGenerateDownloadLink] = useState<boolean>(true);
   const [colabOptimized, setColabOptimized] = useState<boolean>(true);
   const [shipToNotebook, setShipToNotebook] = useState<boolean>(false);
+
+  // Llama node state
+  const [llamaAnalysisType, setLlamaAnalysisType] = useState<string>('eda');
+  const [llamaCustomQuery, setLlamaCustomQuery] = useState<string>('');
+  const [llamaAnalysis, setLlamaAnalysis] = useState<string>('');
+  const [llamaIsProcessing, setLlamaIsProcessing] = useState<boolean>(false);
+  const [llamaStreamedContent, setLlamaStreamedContent] = useState<string>('');
 
   return (
     <div className="absolute top-0 right-0 w-[32rem] h-full bg-white shadow-xl z-50 flex flex-col">
@@ -1555,6 +1564,185 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Llama Node Configuration */}
+        {isLlamaNode && (
+          <div className="space-y-4">
+            <div className="bg-orange-50 rounded-lg p-3">
+              <h3 className="font-medium text-orange-900 mb-2 flex items-center gap-2">
+                <Bot className="w-5 h-5" />
+                Llama - Groq LLM Analysis
+              </h3>
+              <p className="text-sm text-orange-600">
+                Analyze CSV data using Meta's Llama model via Groq API for insights and explanations
+              </p>
+            </div>
+
+            {/* Analysis Type Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Analysis Type
+              </label>
+              <select
+                value={llamaAnalysisType}
+                onChange={(e) => setLlamaAnalysisType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="eda">Exploratory Data Analysis (EDA)</option>
+                <option value="processing">Data Processing Suggestions</option>
+                <option value="explanation">Data Explanation</option>
+              </select>
+            </div>
+
+            {/* Custom Query */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Custom Query (Optional)
+              </label>
+              <textarea
+                value={llamaCustomQuery}
+                onChange={(e) => setLlamaCustomQuery(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring-2 focus:ring-orange-500"
+                placeholder="Ask specific questions about your data, or leave blank for general analysis..."
+              />
+            </div>
+
+            {/* Execute Button */}
+            <button
+              onClick={async () => {
+                setLlamaIsProcessing(true);
+                setLlamaAnalysis('');
+                setLlamaStreamedContent('');
+
+                try {
+                  // Get connected CSV data from input nodes
+                  let csvData = {};
+
+                  // Check if node has CSV data parameter
+                  if (node?.parameters?.csvContent) {
+                    const rows = node.parameters.csvContent.split('\n');
+                    const headers = rows[0].split(',').map((h: string) => h.trim());
+                    const formattedData: Record<string, any[]> = {};
+
+                    headers.forEach(header => {
+                      formattedData[header] = [];
+                    });
+
+                    for (let i = 1; i < rows.length; i++) {
+                      const values = rows[i].split(',').map((v: string) => v.trim());
+                      headers.forEach((header, index) => {
+                        formattedData[header].push(values[index] || '');
+                      });
+                    }
+
+                    csvData = formattedData;
+                  } else {
+                    // Check localStorage for uploaded CSV data
+                    const uploadedData = localStorage.getItem('lastUploadedCSV');
+                    if (uploadedData) {
+                      try {
+                        const parsedData = JSON.parse(uploadedData);
+                        const rows = parsedData.content.split('\n');
+                        const headers = rows[0].split(',').map((h: string) => h.trim());
+                        const formattedData: Record<string, any[]> = {};
+
+                        headers.forEach(header => {
+                          formattedData[header] = [];
+                        });
+
+                        for (let i = 1; i < rows.length; i++) {
+                          const values = rows[i].split(',').map((v: string) => v.trim());
+                          headers.forEach((header, index) => {
+                            formattedData[header].push(values[index] || '');
+                          });
+                        }
+
+                        csvData = formattedData;
+                      } catch (e) {
+                        console.warn('Failed to parse stored CSV data:', e);
+                        toast.error('No CSV data found. Please connect a CSV data source.');
+                        return;
+                      }
+                    } else {
+                      toast.error('No CSV data found. Please connect a CSV data source.');
+                      return;
+                    }
+                  }
+
+                  if (Object.keys(csvData).length === 0) {
+                    toast.error('No CSV data available for analysis.');
+                    return;
+                  }
+
+                  toast.loading('Analyzing data with Llama...');
+
+                  // Process using Groq service
+                  const result = await GroqService.processLlamaNode(
+                    nodeId,
+                    { analysis_type: llamaAnalysisType, query: llamaCustomQuery },
+                    { csv_data: csvData },
+                    llamaAnalysisType,
+                    llamaCustomQuery
+                  );
+
+                  if (result.status === 'success') {
+                    setLlamaAnalysis(result.analysis);
+
+                    // Update node with analysis result
+                    dispatch(updateNode({
+                      id: nodeId,
+                      updates: {
+                        data: {
+                          ...node.data,
+                          analysis: result.analysis,
+                          status: 'success',
+                          analysisType: llamaAnalysisType,
+                          query: llamaCustomQuery
+                        }
+                      }
+                    }));
+
+                    toast.dismiss();
+                    toast.success('Analysis completed successfully!');
+                  } else {
+                    toast.dismiss();
+                    toast.error(result.error || 'Analysis failed');
+                  }
+                } catch (error) {
+                  console.error('Llama analysis failed:', error);
+                  toast.dismiss();
+                  toast.error('Analysis failed. Please check your connection and try again.');
+                } finally {
+                  setLlamaIsProcessing(false);
+                }
+              }}
+              disabled={llamaIsProcessing}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Bot className="w-4 h-4" />
+              {llamaIsProcessing ? 'Analyzing...' : 'Analyze Data'}
+            </button>
+
+            {/* Analysis Results */}
+            {llamaAnalysis && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">Analysis Results</h4>
+                <div className="prose prose-sm max-w-none">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-700 bg-white p-3 rounded border max-h-96 overflow-y-auto">
+                    {llamaAnalysis}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* Connection Status */}
+            <div className="text-xs text-gray-500 bg-gray-50 rounded p-2">
+              <strong>Input Status:</strong> {node.inputs.some(input => input.connected)
+                ? '✅ Connected to data source'
+                : '⚠️ No data source connected - will use sample data'}
+            </div>
           </div>
         )}
 

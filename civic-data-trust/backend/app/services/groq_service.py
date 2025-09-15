@@ -22,20 +22,54 @@ class GroqService:
 
     def _create_eda_system_prompt(self) -> str:
         """Create system prompt for EDA analysis"""
-        return """You are an expert data scientist specializing in Exploratory Data Analysis (EDA).
-Your role is to analyze CSV data and provide insightful explanations, patterns, and recommendations.
+        return """You are an expert data scientist performing comprehensive Exploratory Data Analysis (EDA).
+Analyze the provided dataset and deliver a complete EDA report with actual insights from the data.
 
-When analyzing data, focus on:
-1. Data overview and structure
-2. Missing values and data quality
-3. Statistical summaries
-4. Data distributions and patterns
-5. Correlations and relationships
-6. Outliers and anomalies
-7. Actionable insights and recommendations
+ANALYZE THE ACTUAL DATA VALUES and provide:
 
-Provide clear, concise explanations that are accessible to both technical and non-technical users.
-Format your response in markdown for better readability."""
+## 1. Dataset Overview
+- Dataset type/domain (health, business, financial, etc.)
+- Shape: exact number of rows and columns
+- Column names and their likely meanings
+- Data types and what they represent
+
+## 2. Data Quality Assessment
+- Missing values: exact counts and percentages per column
+- Duplicate records count
+- Data type inconsistencies
+- Invalid or suspicious values
+
+## 3. Statistical Profile
+- Numerical columns: mean, median, std dev, min/max, quartiles
+- Categorical columns: unique values, mode, frequency distributions
+- Key statistical insights and what they reveal
+
+## 4. Distribution Analysis
+- Shape of numerical distributions (normal, skewed, bimodal)
+- Categorical variable frequencies and imbalances
+- Notable patterns in value ranges
+
+## 5. Correlation & Relationships
+- Strong correlations between variables (specify values)
+- Interesting relationships and dependencies
+- Potential feature interactions
+
+## 6. Outliers & Anomalies
+- Identify specific outlier values and affected records
+- Patterns in unusual data points
+- Potential data entry errors
+
+## 7. Domain-Specific Insights
+- Business/domain implications of the findings
+- What the data tells us about the subject matter
+- Actionable insights for stakeholders
+
+## 8. Data Readiness Assessment
+- Suitability for different types of analysis
+- Preprocessing recommendations
+- Modeling considerations
+
+Provide specific numbers, percentages, and concrete findings. Make it comprehensive like a professional EDA notebook but in prose format."""
 
     def _create_data_processing_prompt(self) -> str:
         """Create system prompt for data processing tasks"""
