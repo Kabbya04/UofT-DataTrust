@@ -28,26 +28,26 @@ const lineChartData = [
 export default function StatisticsPage() {
     return (
         <div className="space-y-8 font-urbanist">
-            <h1 className="text-figma-3xl font-bold text-civic-gray-900">Statistics</h1>
+            <h1 className="text-figma-3xl font-bold text-card-foreground">Statistics</h1>
             
-            <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
+            <Card className="bg-card border shadow-figma">
                 <CardHeader className="pb-4">
-                    <CardTitle className="text-figma-xl font-bold text-civic-gray-900">My Research Data</CardTitle>
+                    <CardTitle className="text-figma-xl font-bold text-card-foreground">My Research Data</CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center gap-4 p-6">
                     <Select defaultValue="all">
-                        <SelectTrigger className="w-48 h-12 border-civic-gray-200 rounded-xl text-figma-base">
+                        <SelectTrigger className="w-48 h-12 border-border rounded-xl text-figma-base">
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-civic-gray-200 rounded-xl">
+                        <SelectContent className="border-border rounded-xl">
                             <SelectItem value="all">All Data</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select defaultValue="30d">
-                        <SelectTrigger className="w-48 h-12 border-civic-gray-200 rounded-xl text-figma-base">
+                        <SelectTrigger className="w-48 h-12 border-border rounded-xl text-figma-base">
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-civic-gray-200 rounded-xl">
+                        <SelectContent className="border-border rounded-xl">
                             <SelectItem value="30d">Last 30 Days</SelectItem>
                         </SelectContent>
                     </Select>
@@ -56,52 +56,52 @@ export default function StatisticsPage() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                <Card className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-figma-base font-medium text-civic-gray-500">Total Projects</CardTitle>
-                        <Database className="h-5 w-5 text-civic-gray-400" />
+                        <CardTitle className="text-figma-base font-medium text-muted-foreground">Total Projects</CardTitle>
+                        <Database className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-figma-3xl font-bold text-civic-gray-900">900</div>
-                        <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+                        <div className="text-figma-3xl font-bold text-card-foreground">900</div>
+                        <p className="text-figma-sm text-muted-foreground">+100% vs last month</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                <Card className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-figma-base font-medium text-civic-gray-500">Access Requested</CardTitle>
-                        <FileClock className="h-5 w-5 text-civic-gray-400" />
+                        <CardTitle className="text-figma-base font-medium text-muted-foreground">Access Requested</CardTitle>
+                        <FileClock className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-figma-3xl font-bold text-civic-gray-900">50,000</div>
-                        <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+                        <div className="text-figma-3xl font-bold text-card-foreground">50,000</div>
+                        <p className="text-figma-sm text-muted-foreground">+100% vs last month</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                <Card className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-figma-base font-medium text-civic-gray-500">Approved Access</CardTitle>
-                        <CheckCircle className="h-5 w-5 text-civic-gray-400" />
+                        <CardTitle className="text-figma-base font-medium text-muted-foreground">Approved Access</CardTitle>
+                        <CheckCircle className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-figma-3xl font-bold text-civic-gray-900">30,000</div>
-                        <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+                        <div className="text-figma-3xl font-bold text-card-foreground">30,000</div>
+                        <p className="text-figma-sm text-muted-foreground">+100% vs last month</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                <Card className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-figma-base font-medium text-civic-gray-500">Data Usage</CardTitle>
-                        <FileUp className="h-5 w-5 text-civic-gray-400" />
+                        <CardTitle className="text-figma-base font-medium text-muted-foreground">Data Usage</CardTitle>
+                        <FileUp className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-figma-3xl font-bold text-civic-gray-900">500 MB</div>
-                        <p className="text-figma-sm text-civic-gray-500">+100% vs last month</p>
+                        <div className="text-figma-3xl font-bold text-card-foreground">500 MB</div>
+                        <p className="text-figma-sm text-muted-foreground">+100% vs last month</p>
                     </CardContent>
                 </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
+                <Card className="bg-card border shadow-figma">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Project Status Distribution</CardTitle>
+                        <CardTitle className="text-figma-xl font-bold text-card-foreground font-urbanist">Project Status Distribution</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px] p-6">
                         <ResponsiveContainer width="100%" height="100%">
@@ -146,9 +146,9 @@ export default function StatisticsPage() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
+                <Card className="bg-card border shadow-figma">
                     <CardHeader className="pb-4">
-                        <CardTitle className="text-figma-xl font-bold text-civic-gray-900 font-urbanist">Research Activity Trends</CardTitle>
+                        <CardTitle className="text-figma-xl font-bold text-card-foreground font-urbanist">Research Activity Trends</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px] p-6">
                         <ResponsiveContainer width="100%" height="100%">
@@ -193,20 +193,20 @@ export default function StatisticsPage() {
             </div>
             
             <div>
-                <h2 className="text-figma-xl font-bold text-civic-gray-900 mb-6">My Projects</h2>
+                <h2 className="text-figma-xl font-bold text-card-foreground mb-6">My Projects</h2>
                 <div className="space-y-4">
                     {projects.map((project, index) => (
-                        <Card key={index} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 p-6 flex items-center justify-between">
+                        <Card key={index} className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200 p-6 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-civic-gray-100 rounded-lg">
-                                    <ImageIcon className="h-6 w-6 text-civic-gray-400" />
+                                <div className="p-3 bg-muted rounded-lg">
+                                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-figma-lg text-civic-gray-900">{project.name}</h3>
-                                    <p className="text-figma-base text-civic-gray-500">{project.date} &nbsp; {project.size}</p>
+                                    <h3 className="font-bold text-figma-lg text-card-foreground">{project.name}</h3>
+                                    <p className="text-figma-base text-muted-foreground">{project.date} &nbsp; {project.size}</p>
                                 </div>
                             </div>
-                            <Badge variant="outline" className="border-civic-gray-200 text-civic-gray-500 bg-white rounded-lg px-3 py-1 text-figma-base">
+                            <Badge variant="outline" className="border-border text-muted-foreground bg-card rounded-lg px-3 py-1 text-figma-base">
                                 {project.tag}
                             </Badge>
                         </Card>

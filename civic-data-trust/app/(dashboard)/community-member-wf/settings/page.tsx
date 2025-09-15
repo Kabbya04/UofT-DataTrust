@@ -146,7 +146,20 @@ function AccountSettings() {
         <div>
           <div className="font-semibold text-lg">
             {user.name} 
-            <span className=" bg-green-500 text-white px-2 py-0.5 rounded text-xs ml-2">
+            <span 
+              className="text-white text-xs ml-2 inline-flex items-center justify-center"
+              style={{
+                width: '149px',
+                height: '24px',
+                backgroundColor: '#43CD41',
+                borderRadius: '32px',
+                paddingTop: '7px',
+                paddingRight: '14px',
+                paddingBottom: '9px',
+                paddingLeft: '14px',
+                gap: '4px'
+              }}
+            >
               {getRoleName(user.role)}
             </span>
           </div>
@@ -238,6 +251,8 @@ function AccountSettings() {
           type="submit" 
           variant="default"
           disabled={isLoading || !!(formData.newPassword && formData.newPassword !== formData.confirmPassword)}
+          style={{ backgroundColor: '#03A9F4', color: 'white' }}
+          className="hover:opacity-90"
         >
           {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
@@ -285,7 +300,13 @@ function PrivacyNotifications() {
         </div>
       </div>
       <div className="col-span-2 mt-6">
-        <Button variant="default">Save Changes</Button>
+        <Button 
+          variant="default" 
+          style={{ backgroundColor: '#03A9F4', color: 'white' }}
+          className="hover:opacity-90"
+        >
+          Save Changes
+        </Button>
       </div>
     </div>
   )
@@ -356,7 +377,13 @@ function DisplayPreferences() {
         </div>
       </div>
       <div className="col-span-2 mt-6">
-        <Button variant="default">Save Changes</Button>
+        <Button 
+          variant="default" 
+          style={{ backgroundColor: '#03A9F4', color: 'white' }}
+          className="hover:opacity-90"
+        >
+          Save Changes
+        </Button>
       </div>
     </div>
   )
@@ -381,8 +408,11 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-pressed={checked}
       onClick={() => onChange(!checked)}
       className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200
-        ${checked ? "bg-primary" : "bg-gray-400"}`}
-      style={{ boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined }}
+        ${checked ? "" : "bg-gray-400"}`}
+      style={{ 
+        backgroundColor: checked ? '#2196F3' : undefined,
+        boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined 
+      }}
     >
       <span
         className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200

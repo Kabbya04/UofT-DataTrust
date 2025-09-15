@@ -55,6 +55,20 @@ export default function MyCommunitiesPage() {
 
   return (
     <div className="flex-1 p-6">
+      <style jsx>{`
+        [data-state="active"] {
+          background-color: #2196F3 !important;
+          color: white !important;
+        }
+        [data-state="inactive"] {
+          background-color: #F8F8F8 !important;
+          color: rgb(55, 65, 81) !important;
+        }
+        .dark [data-state="inactive"] {
+          background-color: #333333 !important;
+          color: white !important;
+        }
+      `}</style>
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-foreground">My Communities</h1>
@@ -67,10 +81,28 @@ export default function MyCommunitiesPage() {
       </div>
 
       <Tabs defaultValue="joined" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="joined">Joined Communities</TabsTrigger>
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-          <TabsTrigger value="recommendations">Recommended</TabsTrigger>
+        <TabsList className="h-12 p-1 rounded-[10px] gap-[10px] bg-transparent">
+          <TabsTrigger 
+            value="joined"
+            className="h-12 px-5 py-3 rounded-[10px] font-medium transition-all duration-200 data-[state=active]:shadow-none"
+            style={{ minWidth: '66px' }}
+          >
+            Joined Communities
+          </TabsTrigger>
+          <TabsTrigger 
+            value="activity"
+            className="h-12 px-5 py-3 rounded-[10px] font-medium transition-all duration-200 data-[state=active]:shadow-none"
+            style={{ minWidth: '66px' }}
+          >
+            Recent Activity
+          </TabsTrigger>
+          <TabsTrigger 
+            value="recommendations"
+            className="h-12 px-5 py-3 rounded-[10px] font-medium transition-all duration-200 data-[state=active]:shadow-none"
+            style={{ minWidth: '66px' }}
+          >
+            Recommended
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="joined" className="space-y-6">

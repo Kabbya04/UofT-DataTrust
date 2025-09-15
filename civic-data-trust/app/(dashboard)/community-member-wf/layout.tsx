@@ -10,13 +10,13 @@ export default function CommunityMemberWfLayout({
 }) {
   return (
     // The parent is now a flex container that takes the full screen height
-    <div className="flex flex-col w-full h-screen bg-gray-100 overflow-hidden">
+    <div className="flex flex-col w-full h-screen bg-background overflow-hidden">
       <NavbarWf />
       {/* This container will grow to fill the remaining space */}
       <div className="flex flex-1 overflow-hidden">
         <SidebarWf />
         {/* The main content area is now the only part that scrolls */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8 rounded-tl-4xl rounded-tr-4xl bg-white mx-4 mt-1 scrollbar-hidden">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8 rounded-tl-4xl rounded-tr-4xl bg-card border border-border mx-4 mt-1 scrollbar-hidden shadow-sm">
           <UserProvider>
             <CommunityProvider>
               {children}

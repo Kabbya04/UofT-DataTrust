@@ -16,9 +16,17 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-3 rounded-3xl hover:bg-civic-gray-100 transition-all duration-200 bg-white text-civic-gray-400 hover:text-civic-gray-900 shadow-sm hover:shadow-figma"
+      className="p-3 rounded-3xl transition-all duration-300 bg-background/80 hover:bg-card border border-border shadow-sm hover:shadow-lg backdrop-blur-sm"
+      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
-      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+      <div className="relative w-5 h-5">
+        {theme === "dark" ? (
+          <Sun className="w-5 h-5 text-amber-500 dark:text-amber-400 transition-colors duration-300" />
+        ) : (
+          <Moon className="w-5 h-5 text-slate-600 dark:text-slate-300 transition-colors duration-300" />
+        )}
+      </div>
     </button>
   );
 }

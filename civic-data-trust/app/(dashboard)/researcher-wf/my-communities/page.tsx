@@ -17,7 +17,7 @@ const communities = {
 };
 
 const CommunityCard = ({ community, index }: { community: any; index: number }) => (
-    <Card className="bg-white border border-civic-gray-200 rounded-lg shadow-figma hover:shadow-figma-card transition-all duration-200">
+    <Card className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
         <div className="flex gap-4 p-4">
             <div className="relative w-[119px] h-[107px] rounded-md flex-shrink-0 overflow-hidden">
                 <Image
@@ -30,13 +30,13 @@ const CommunityCard = ({ community, index }: { community: any; index: number }) 
                 />
             </div>
             <div className="flex-1 space-y-3">
-                <h3 className="font-bold text-figma-lg text-civic-gray-900">{community.name}</h3>
-                <div className="space-y-1 text-figma-base text-civic-gray-500">
+                <h3 className="font-bold text-figma-lg text-card-foreground">{community.name}</h3>
+                <div className="space-y-1 text-figma-base text-muted-foreground">
                     <p>{community.members} members</p>
                     <p>{community.datasets} datasets</p>
                     <p>{community.field}</p>
                 </div>
-                <Button variant="outline" size="sm" className="mt-3 rounded-lg border-civic-gray-200 text-civic-gray-500 hover:text-civic-gray-900 hover:border-civic-gray-300">View Details</Button>
+                <Button variant="outline" size="sm" className="mt-3 rounded-lg border-border text-muted-foreground hover:text-foreground hover:border-border">View Details</Button>
             </div>
         </div>
     </Card>
@@ -47,32 +47,59 @@ export default function MyCommunitiesPage() {
 
     return (
         <div className="space-y-8 font-urbanist">
-            <h1 className="text-figma-3xl font-bold text-civic-gray-900">My Communities</h1>
+            {/* Add global styles for filter buttons */}
+            <style jsx global>{`
+                .researcher-filter-inactive {
+                    background-color: #F8F8F8 !important;
+                    color: rgb(55, 65, 81) !important;
+                }
+                :global(.dark) .researcher-filter-inactive {
+                    background-color: #333333 !important;
+                    color: white !important;
+                }
+            `}</style>
+            <h1 className="text-figma-3xl font-bold text-foreground">My Communities</h1>
             
             {/* Category Filter */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
-                {categories.map(cat => (
-                    <Button
-                        key={cat}
-                        variant={activeCategory === cat ? "default" : "secondary"}
-                        onClick={() => setActiveCategory(cat)}
-                        className={cn(
-                            "rounded-2xl px-5 py-3 text-figma-lg font-normal transition-all duration-200 whitespace-nowrap",
-                            activeCategory === cat 
-                                ? "bg-white shadow-figma text-civic-gray-900 font-bold"
-                                : "bg-white text-civic-gray-500 hover:shadow-figma hover:text-civic-gray-900"
-                        )}
-                    >
-                        {cat}
-                    </Button>
-                ))}
+            <div className="flex items-center gap-[10px] overflow-x-auto pb-2">
+                {categories.map(cat => {
+                    const isActive = activeCategory === cat;
+                    return (
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            className={cn(
+                                "h-12 px-5 py-3 rounded-[10px] font-medium transition-all duration-200 whitespace-nowrap border-0 cursor-pointer",
+                                isActive
+                                    ? "text-white"
+                                    : "researcher-filter-inactive"
+                            )}
+                            style={{ 
+                                minWidth: '66px',
+                                backgroundColor: isActive ? '#2196F3' : undefined
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    );
+                })}
             </div>
+            <style jsx>{`
+                .filter-button-inactive {
+                    background-color: #F8F8F8 !important;
+                    color: rgb(55, 65, 81) !important;
+                }
+                .dark .filter-button-inactive {
+                    background-color: #333333 !important;
+                    color: white !important;
+                }
+            `}</style>
             
             {/* Communities Grid */}
             <div className="space-y-8">
                 {Object.entries(communities).map(([category, items]) => (
                     <div key={category}>
-                        <h2 className="text-figma-2xl font-bold text-civic-gray-900 mb-6">{category}</h2>
+                        <h2 className="text-figma-2xl font-bold text-foreground mb-6">{category}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {items.map((community, index) => (
                                 <CommunityCard key={index} community={community} index={index} />

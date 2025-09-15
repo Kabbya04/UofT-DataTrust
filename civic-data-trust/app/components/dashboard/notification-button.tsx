@@ -59,7 +59,7 @@ export function NotificationButton() {
   }
 
   const NotificationItem = ({ notification }: { notification: (typeof notifications)[0] }) => (
-    <div className="flex items-start gap-3 p-3 hover:bg-gray-50 hover:text-gray-200 dark:hover:bg-gray-800 rounded-lg">
+    <div className="flex items-start gap-3 p-3 hover:bg-accent rounded-lg">
       <Image
         src={notification.avatar || "/placeholder.svg"}
         alt={notification.user}
@@ -68,10 +68,10 @@ export function NotificationButton() {
         className="rounded-full "
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm ">
+        <p className="text-sm text-foreground">
           <span className="font-medium">{notification.user}</span> {notification.message}
         </p>
-        <p className="text-xs mt-1">{notification.time}</p>
+        <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -79,22 +79,22 @@ export function NotificationButton() {
             <DotsThree className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-40 border border-border rounded-xl shadow-figma">
           <button
             onClick={() => markAsRead(notification.id)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded"
           >
             <Check className="h-4 w-4" />
             Mark as Read
           </button>
           <button
             onClick={() => deleteNotification(notification.id)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded"
           >
             <Trash className="h-4 w-4" />
             Delete
           </button>
-          <button className="flex items-center gap-2 w-full px-2 py-1.5 text-sm hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+          <button className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded">
             <Flag className="h-4 w-4" />
             Report Issue 
           </button>
@@ -106,19 +106,19 @@ export function NotificationButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-12 w-12 p-3 bg-white border border-transparent hover:border-civic-gray-300 rounded-3xl shadow-sm hover:shadow-figma transition-all duration-200">
-          <Bell className="h-5 w-5 text-civic-gray-400" />
+        <Button variant="ghost" className="relative h-12 w-12 p-3 bg-card border border-border hover:border-border rounded-3xl shadow-sm hover:shadow-figma transition-all duration-200">
+          <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs font-medium flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
               {unreadCount}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96 p-0">
-        <div className="p-4 border-b">
+      <DropdownMenuContent align="end" className="w-96 p-0 border border-border rounded-2xl shadow-figma-card bg-popover text-popover-foreground">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold ">Notifications</h3>
+            <h3 className="font-semibold text-foreground">Notifications</h3>
             <Button variant="ghost" size="icon" className="h-6 w-6">
               <Gear className="h-4 w-4" />
             </Button>
@@ -159,7 +159,7 @@ export function NotificationButton() {
           <TabsContent value="archived" className="mt-0">
             <div className="max-h-96 overflow-y-auto p-2">
               <div className="text-center py-8 ">
-                <p className="text-sm">No archived notifications</p>
+                <p className="text-sm text-muted-foreground">No archived notifications</p>
               </div>
             </div>
           </TabsContent>

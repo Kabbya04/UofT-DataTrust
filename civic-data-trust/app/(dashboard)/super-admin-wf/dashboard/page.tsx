@@ -174,7 +174,7 @@ export default function SuperAdminDashboardPage() {
 
             <div className="grid grid-cols-5 gap-4">
                 {stats.map(stat => (
-                    <Card key={stat.title} className={`${stat.color} text-black`}>
+                    <Card key={stat.title} className={`${stat.color} text-black bg-card border border-border`}>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                         </CardHeader>
@@ -204,14 +204,14 @@ export default function SuperAdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
+                <Card className="bg-card border border-border">
                     <CardHeader><CardTitle>Global Data Flow (Sankey Chart)</CardTitle></CardHeader>
                     <CardContent>
                         {/* --- REPLACED IMAGE WITH DYNAMIC CHART --- */}
                         <SankeyChartPlaceholder />
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-card border border-border">
                     <CardHeader><CardTitle>Data Categories (Heatmap)</CardTitle></CardHeader>
                     <CardContent>
                         {/* --- REPLACED IMAGE WITH DYNAMIC CHART --- */}
@@ -220,7 +220,7 @@ export default function SuperAdminDashboardPage() {
                 </Card>
             </div>
 
-            <Card>
+            <Card className="bg-card border border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Top Categories/Topic</CardTitle>
                     <Button variant="link">
@@ -274,7 +274,7 @@ export default function SuperAdminDashboardPage() {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
+                <Card className="bg-card border border-border">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>Recent Activity</CardTitle>
                         <Button variant="link">SEE ALL</Button>
@@ -291,7 +291,7 @@ export default function SuperAdminDashboardPage() {
                         ))}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-card border border-border">
                     <CardHeader><CardTitle>Platform Status</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
                         <p className="flex items-center gap-2">

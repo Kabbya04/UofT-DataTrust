@@ -16,7 +16,7 @@ export default function PlaceholderPage({
 }) {
   return (
     <div className="p-6">
-      <Card className="bg-card border-border shadow-lg">
+      <Card className="bg-card border border-border shadow-lg">
         <CardHeader>
           <CardTitle className="text-primary text-xl">{title}</CardTitle>
           {description && <p className="text-muted-foreground">{description}</p>}

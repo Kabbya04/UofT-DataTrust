@@ -2,37 +2,42 @@
 
 import { useState } from 'react';
 import { Button } from "@/app/components/ui/button";
-import { Input } from '@/app/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Badge } from 'lucide-react';
 
-const TABS = ["Account Settings", "Privacy & Notifications", "Display & Preferences"];
+const TABS = [
+  "Account Settings",
+  "Privacy & Notifications",
+  "Display & Preferences"
+]
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState(TABS[0]);
+  const [activeTab, setActiveTab] = useState(0)
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-1">Settings</h1>
-      <p className="text-sm text-muted-foreground mb-8">Manage your settings and preferences.</p>
-      
-      <div className="flex gap-4 mb-6 border-b">
-        {TABS.map((tab) => (
+    <div className="w-full  ">
+      <h1 className="text-2xl font-bold mb-1">Settings</h1>
+      <p className="text-sm text-muted-foreground mb-6">Manage your settings and preferences.</p>
+      <div className="flex gap-6 mb-6">
+        {TABS.map((tab, idx) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-2 text-lg font-medium transition-colors ${activeTab === tab ? "border-b-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab(idx)}
+            className={`text-lg font-medium pb-1 border-b-2  cursor-pointer transition-all ${
+              activeTab === idx
+                ? "border-foreground text-foreground"
+                : "border-transparent text-muted-foreground"
+            }`}
+            style={{ minWidth: 180 }}
           >
             {tab}
           </button>
         ))}
       </div>
-      
-      <div>
-        {activeTab === "Account Settings" && <AccountSettings />}
-        {activeTab === "Privacy & Notifications" && <PrivacyNotifications />}
-        {activeTab === "Display & Preferences" && <DisplayPreferences />}
+      <div className="bg-background rounded-lg border border-primary p-6">
+        {activeTab === 0 && <AccountSettings />}
+        {activeTab === 1 && <PrivacyNotifications />}
+        {activeTab === 2 && <DisplayPreferences />}
       </div>
     </div>
   );
@@ -42,10 +47,20 @@ export default function SettingsPage() {
 const ToggleSwitch = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
     <button
       type="button"
+      aria-pressed={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-muted'}`}
+      className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200
+        ${checked ? "" : "bg-gray-400"}`}
+      style={{ 
+        backgroundColor: checked ? '#2196F3' : undefined,
+        boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined 
+      }}
     >
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      <span
+        className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200
+          ${checked ? "translate-x-1" : ""}`}
+        style={{ transform: checked ? "translateX(18px)" : "translateX(0)" }}
+      />
     </button>
 );
 
@@ -65,26 +80,75 @@ const ToggleRow = ({ label }: { label: string }) => {
 // Tab Content Components
 function AccountSettings() {
   return (
-    <Card>
-      <CardContent className="p-6 max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-            <div className="w-20 h-20 rounded-full bg-muted" />
-            <div>
-                <div className="font-semibold text-xl flex items-center">Jhon Doe <Badge className="ml-2">Researcher</Badge></div>
-                <div className="text-sm text-muted-foreground">Member since 17 January, 2025</div>
-            </div>
+    <div className="px-8">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-16 h-16 rounded-full bg-muted" />
+        <div>
+          <div className="font-semibold text-lg">
+            Jhon Doe 
+            <span 
+              className="text-white text-xs ml-2 inline-flex items-center justify-center"
+              style={{
+                width: '149px',
+                height: '24px',
+                backgroundColor: '#43CD41',
+                borderRadius: '32px',
+                paddingTop: '7px',
+                paddingRight: '14px',
+                paddingBottom: '9px',
+                paddingLeft: '14px',
+                gap: '4px'
+              }}
+            >
+              Researcher
+            </span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Member since 17 January, 2025
+          </div>
         </div>
-        <form className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium mb-1">First Name</label><Input defaultValue="Jhon" /></div>
-                <div><label className="block text-sm font-medium mb-1">Last Name</label><Input defaultValue="Doe" /></div>
-            </div>
-            <div><label className="block text-sm font-medium mb-1">Email</label><Input type="email" defaultValue="jhon@email.com" /></div>
-            <div><label className="block text-sm font-medium mb-1">Password</label><Input type="password" defaultValue="********" /></div>
-            <Button>Save Changes</Button>
-        </form>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <form className="space-y-4 mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-md mb-1">First Name:</label>
+            <input className="w-full border rounded px-2 py-1" defaultValue="Jhon" />
+          </div>
+          <div>
+            <label className="block text-md mb-1">Last Name:</label>
+            <input className="w-full border rounded px-2 py-1" defaultValue="Doe" />
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-md mb-1">Email:</label>
+          <input 
+            className="w-full border rounded px-2 py-1 bg-muted" 
+            defaultValue="jhon@email.com" 
+            disabled 
+          />
+          <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+        </div>
+        
+        <div>
+          <label className="block text-md mb-1">Password:</label>
+          <input 
+            type="password"
+            className="w-full border rounded px-2 py-1" 
+            defaultValue="********" 
+          />
+        </div>
+        
+        <Button 
+          variant="default"
+          style={{ backgroundColor: '#03A9F4', color: 'white' }}
+          className="hover:opacity-90"
+        >
+          Save Changes
+        </Button>
+      </form>
+    </div>
   );
 }
 
@@ -119,7 +183,12 @@ function PrivacyNotifications() {
                 </CardContent>
             </Card>
         </div>
-        <Button>Save Changes</Button>
+        <Button 
+          style={{ backgroundColor: '#03A9F4', color: 'white' }}
+          className="hover:opacity-90"
+        >
+          Save Changes
+        </Button>
     </div>
   );
 }
@@ -162,7 +231,12 @@ function DisplayPreferences() {
                     <div className="flex items-center justify-between"><span className="text-md">Delete account</span><Button size="sm" className="bg-red-500 w-32 text-white uppercase">delete</Button></div>
                 </CardContent></Card>
             </div>
-            <Button>Save Changes</Button>
+            <Button 
+              style={{ backgroundColor: '#03A9F4', color: 'white' }}
+              className="hover:opacity-90"
+            >
+              Save Changes
+            </Button>
         </div>
     );
 }

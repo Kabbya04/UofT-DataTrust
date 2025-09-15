@@ -132,8 +132,8 @@ const TextLink = ({ href, children }: { href: string, children: React.ReactNode 
       className={cn(
         "flex items-center space-x-2 px-5 py-3 rounded-2xl text-figma-lg font-normal transition-all duration-200 group",
         isActive
-          ? "bg-white shadow-figma font-bold text-civic-gray-900"
-          : "text-civic-gray-500 hover:bg-white hover:shadow-figma hover:text-civic-gray-900"
+          ? "bg-card shadow-figma font-bold text-foreground"
+          : "text-muted-foreground hover:bg-card hover:shadow-figma hover:text-foreground"
       )}
     >
       {children}
@@ -196,7 +196,7 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
       {/* Dataset Categories Section */}
       <div className="space-y-1">
         <div className="flex items-center justify-between px-5 py-2">
-          <h3 className="text-xl font-bold text-civic-gray-400 uppercase tracking-wider">MY DATA</h3>
+          <h3 className="text-xl font-bold text-muted-foreground uppercase tracking-wider">MY DATA</h3>
         </div>
         {/* Display grouped categories */}
         <div className="max-h-96 overflow-y-auto space-y-1">
@@ -211,23 +211,23 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
               <div key={categoryName}>
                 <button
                   onClick={() => toggleCategory(categoryName)}
-                  className="w-full flex items-center justify-between px-5 py-3 rounded-2xl text-figma-lg font-normal transition-all duration-200 text-civic-gray-500 hover:bg-white hover:shadow-figma hover:text-civic-gray-900"
+                  className="w-full flex items-center justify-between px-5 py-3 rounded-2xl text-figma-lg font-normal transition-all duration-200 text-muted-foreground hover:bg-card hover:shadow-figma hover:text-foreground"
                 >
                   <span>{categoryName}</span>
                   <CaretDown className={cn(
-                    "h-4 w-4 text-civic-gray-400 transition-transform duration-200",
+                    "h-4 w-4 text-muted-foreground transition-transform duration-200",
                     openCategories[categoryName] && "rotate-180"
                   )} />
                 </button>
                 {openCategories[categoryName] && (
                   <div className="relative">
                     {/* Ladder-style visual connection */}
-                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
                     <div className="pl-6 mt-1 space-y-1">
                       {visibleTags.map((tag, index) => (
                         <div key={tag} className="relative">
                           {/* Horizontal ladder line */}
-                          <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300"></div>
+                          <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
                           <Link
                             href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
                             className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
@@ -258,7 +258,7 @@ const ProjectAdminTextLink = ({ href, children }: { href: string, children: Reac
     <Link
       href={href}
       className={cn(
-        "block text-base font-medium py-2 px-3 rounded-md text-foreground/80 hover:text-foreground hover:bg-muted transition-colors",
+        "block text-base font-medium py-2 px-3 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors",
         isActive && "text-primary font-bold bg-primary/10"
       )}
     >
@@ -381,7 +381,7 @@ export function SidebarWf() {
           </TextLink>
 
         </div>
-        <hr className="my-6 border-civic-gray-200" />
+        <hr className="my-6 border-border" />
 
         {/* Dataset Tags Section - Same as GeneralNav */}
         <div className="space-y-1">
@@ -430,12 +430,12 @@ export function SidebarWf() {
                   {openCategories[categoryName] && (
                     <div className="relative">
                       {/* Ladder-style visual connection */}
-                      <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                      <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
                       <div className="pl-6 mt-1 space-y-1">
                         {visibleTags.map((tag, index) => (
                           <div key={tag} className="relative">
                             {/* Horizontal ladder line */}
-                            <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300"></div>
+                            <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
                             <Link
                               href={`/researcher-wf/research/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
                               className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
@@ -513,7 +513,7 @@ export function SidebarWf() {
 
   return (
     // The sidebar itself is a flex column that does NOT scroll
-    <div className="w-64 bg-civic-gray-100 flex flex-col h-full">
+    <div className="w-64 bg-background flex flex-col h-full">
 
       <div className="flex-1 overflow-y-auto p-6">
         {isResearcherWf && isResearcherResearchSection && <ResearcherResearchNav />}
@@ -523,9 +523,9 @@ export function SidebarWf() {
         {isSuperAdminWf && <SuperAdminNav rolePrefix="super-admin-wf" />}
       </div>
 
-      <div className="p-6 border-t border-civic-gray-200">
+      <div className="p-6">
         <TextLink href={getSettingsLink()}>
-          <Gear className="h-5 w-5 text-civic-gray-400" />
+          <Gear className="h-5 w-5 text-muted-foreground" />
           <span>Settings</span>
         </TextLink>
       </div>

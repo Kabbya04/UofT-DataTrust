@@ -77,15 +77,15 @@ export default function Profile01({
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className="relative overflow-hidden rounded-2xl border border-zinc-200 ">
-        <Card className="relative px-6 pt-12 pb-6">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground">
+        <Card className="relative px-6 pt-12 pb-6 bg-popover text-popover-foreground border-0">
           <div className="flex items-center gap-4 mb-8">
             <div className="relative shrink-0">
-              <Avatar className="w-18 h-18 ring-4 ring-white">
+              <Avatar className="w-18 h-18 ring-4 ring-background">
                 <AvatarImage src={avatar} alt={user?.name || 'User'} />
                 <AvatarFallback className="text-lg">{user ? getUserInitials(user.name) : 'U'}</AvatarFallback>
               </Avatar>
-              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-background" />
             </div>
 
             {/* Profile Info */}
@@ -95,21 +95,21 @@ export default function Profile01({
               <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
             </div>
           </div>
-          <div className="h-px bg-zinc-200  my-6" />
+          <div className="h-px bg-border my-6" />
           <div className="space-y-2">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
                 className="flex items-center justify-between p-2 
-                                   hover:bg-zinc-500  rounded-lg transition-colors duration-200"
+                                   hover:bg-muted rounded-lg transition-colors duration-200"
               >
                 <div className="flex items-center gap-2">
                   {item.icon}
-                  <span className="text-sm font-medium  ">{item.label}</span>
+                  <span className="text-sm font-medium text-foreground">{item.label}</span>
                 </div>
                 <div className="flex items-center">
-                  {item.value && <span className="text-sm   mr-2">{item.value}</span>}
+                  {item.value && <span className="text-sm text-muted-foreground mr-2">{item.value}</span>}
                   {item.external && <ArrowSquareOut className="w-4 h-4" />}
                 </div>
               </Link>
@@ -118,12 +118,12 @@ export default function Profile01({
             <button
               type="button"
               onClick={logout}
-              className="w-full flex items-center justify-between p-2 hover:bg-zinc-500 
+              className="w-full flex items-center justify-between p-2 hover:bg-muted 
                                   rounded-lg transition-colors duration-200"
             > 
               <div className="flex items-center gap-2">
                 <SignOut className="w-4 h-4" />
-                <span className="text-sm font-medium">Logout</span>
+                <span className="text-sm font-medium text-foreground">Logout</span>
               </div>
             </button>
           </div>

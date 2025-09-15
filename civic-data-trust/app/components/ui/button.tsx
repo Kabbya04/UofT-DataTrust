@@ -13,14 +13,14 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-figma hover:shadow-figma-card",
         outline:
-          "border border-civic-gray-200 bg-white text-civic-gray-900 hover:bg-civic-gray-100 hover:border-civic-gray-300 shadow-figma hover:shadow-figma-card",
+          "border border-border bg-card text-card-foreground hover:bg-accent hover:border-border shadow-figma hover:shadow-figma-card",
         secondary:
           "bg-civic-gray-100 text-civic-gray-500 hover:bg-civic-gray-200 hover:text-civic-gray-900 shadow-figma hover:shadow-figma-card",
         ghost: "hover:bg-civic-gray-100 hover:text-civic-gray-900",
         link: "text-primary underline-offset-4 hover:underline",
         // Figma-specific variants
         figma_primary: "bg-civic-gray-900 text-white hover:bg-civic-gray-900/90 shadow-figma hover:shadow-figma-card rounded-2xl",
-        figma_secondary: "bg-white border border-civic-gray-200 text-civic-gray-900 hover:bg-civic-gray-100 hover:border-civic-gray-300 shadow-figma hover:shadow-figma-card rounded-2xl",
+        figma_secondary: "bg-card border border-border text-card-foreground hover:bg-accent hover:border-border shadow-figma hover:shadow-figma-card rounded-2xl",
         success: "bg-civic-accent-green text-white hover:bg-civic-accent-green/90 shadow-figma hover:shadow-figma-card",
       },
       size: {

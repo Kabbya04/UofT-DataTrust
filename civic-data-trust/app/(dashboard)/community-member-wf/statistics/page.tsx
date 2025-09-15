@@ -109,7 +109,7 @@ export default function StatisticsPage() {
                 <h2 className="text-figma-xl font-bold text-civic-gray-900 mb-6 font-urbanist">Your Audience</h2>
                 
                 {/* Filters */}
-                <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma mb-6 p-6">
+                <Card className="bg-card border shadow-figma mb-6 p-6">
                     <CardContent className="p-0">
                         <div className="flex items-center justify-between">
                             <div className="flex gap-4">
@@ -145,7 +145,7 @@ export default function StatisticsPage() {
                 {/* Audience Stats Cards - All 4 cards in one row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {filteredData.audienceStats.map((stat, index) => (
-                        <Card key={index} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                        <Card key={index} className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-figma-base font-medium text-civic-gray-500">{stat.title}</span>
@@ -175,7 +175,7 @@ export default function StatisticsPage() {
             }`}>
                 {/* Pie Chart */}
                 {(!expandedChart || expandedChart === 'pie') && (
-                    <Card className={`bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 ${
+                    <Card className={`bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200 ${
                         expandedChart === 'pie' ? 'w-full h-full' : ''
                     }`}>
                         <CardContent className="p-8">
@@ -223,7 +223,7 @@ export default function StatisticsPage() {
 
                 {/* Line Chart */}
                 {(!expandedChart || expandedChart === 'line') && (
-                    <Card className={`bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200 ${
+                    <Card className={`bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200 ${
                         expandedChart === 'line' ? 'w-full h-full' : ''
                     }`}>
                         <CardContent className="p-8">
@@ -286,14 +286,14 @@ export default function StatisticsPage() {
                 <h2 className="text-figma-xl font-bold text-civic-gray-900 mb-6 font-urbanist">Data Performance</h2>
                 <div className="space-y-4">
                     {filteredData.performanceData.length === 0 ? (
-                        <Card className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma">
+                        <Card className="bg-card border shadow-figma">
                             <CardContent className="p-8 text-center">
                                 <div className="text-civic-gray-500">No data available for the selected filters.</div>
                             </CardContent>
                         </Card>
                     ) : (
                         filteredData.performanceData.map((item) => (
-                            <Card key={item.id} className="bg-white border border-civic-gray-200 rounded-2xl shadow-figma hover:shadow-figma-card transition-all duration-200">
+                            <Card key={item.id} className="bg-card border shadow-figma hover:shadow-figma-card transition-all duration-200">
                                 <CardContent className="p-6">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">

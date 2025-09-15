@@ -36,9 +36,9 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Members</CardTitle><Users className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">90,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Active Users</CardTitle><TrendingUp className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Engagement Rate</CardTitle><BarChart2 className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Members</CardTitle><Users className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">90,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Active Users</CardTitle><TrendingUp className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card className=""><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Engagement Rate</CardTitle><BarChart2 className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
             </div>
 
 
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
 
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                    <Card className="border border-gray-200 rounded-lg">
+                    <Card className="bg-card border">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold">Growth of Content</CardTitle>
                         </CardHeader>
@@ -130,7 +130,7 @@ export default function AdminDashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border border-gray-200 rounded-lg">
+                    <Card className="bg-card border">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold">Distribution of Content</CardTitle>
                         </CardHeader>
@@ -171,7 +171,7 @@ export default function AdminDashboardPage() {
 
 
 
-            <Card>
+            <Card className="">
                 <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
                 <CardContent>
                     <Table>

@@ -112,7 +112,7 @@ export default function CommunityMemberHomePage() {
                 {popularCommunities.map((community, i) => (
                   <Card key={community.id}
                     onClick={() => router.push(`/community-member-wf/community-details/${community.id}`)}
-                    className=" w-full h-32 flex flex-row gap-2 cursor-pointer">
+                    className="w-full h-32 flex flex-row gap-2 cursor-pointer bg-card border border-border">
                     <>
                       {/* <Image
                         src={community.coverImage || "/placeholder.svg?height=200&width=400"}
@@ -121,7 +121,7 @@ export default function CommunityMemberHomePage() {
                         height={200}
                         style={{ width: "100%", height: "auto" }}
                       /> */}
-                      <div className="relative w-[40%]  bg-gray-200 rounded-lg overflow-hidden">
+                      <div className="relative w-[40%] bg-gray-200 rounded-lg overflow-hidden">
                         <Image
                           src={community.coverImage || getCommunityImage(community.id)}
                           alt={community.name}
@@ -129,7 +129,7 @@ export default function CommunityMemberHomePage() {
                           objectFit="cover"
                         />
                       </div>
-                      <CardContent className=" w-[60%] p-0">
+                      <CardContent className="w-[60%] p-0">
                         <h3 className="font-semibold text-lg ">{community.name}</h3>
                         <ul className="text-xs text-muted-foreground list-disc ml-3 ">
                           <li>{community.memberCount || 0} members</li>

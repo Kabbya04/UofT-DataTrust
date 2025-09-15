@@ -17,14 +17,24 @@ type Role = 'researcher-wf/home' | 'community-member-wf/home' | 'project-admin-w
 export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelectorDialogProps) {
   const router = useRouter();
 
+  // Debug logging
+  console.log('RoleSelectorDialog rendered with isOpen:', isOpen);
+
   const handleRoleSelect = (role: Role) => {
+    console.log('Role selected:', role); // Debug log
     const path = `/${role}`;
     router.push(path);
     onOpenChange(false); // Step 4: Close the dialog after selection
   };
 
+  // If dialog is not supposed to be open, don't render anything
+  if (!isOpen) {
+    console.log('Dialog not open, not rendering');
+    return null;
+  }
+
   const RoleCard = ({ role, title, description, icon: Icon }: { role: Role; title: string; description: string; icon: React.ElementType; }) => (
-    <Card className="cursor-pointer transition-all hover:border-civic-gray-400 hover:shadow-figma-card hover:-translate-y-1 bg-white border-civic-gray-200 rounded-2xl" onClick={() => handleRoleSelect(role)}>
+    <Card className="cursor-pointer transition-all hover:border-civic-gray-400 hover:shadow-figma-card hover:-translate-y-1 bg-white border border-civic-gray-200 rounded-2xl" onClick={() => handleRoleSelect(role)}>
       <CardHeader className="p-4">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-civic-gray-100 rounded-lg">
@@ -42,7 +52,7 @@ export default function RoleSelectorDialog({ isOpen, onOpenChange }: RoleSelecto
   return (
     // Step 3: Pass the props to the underlying Dialog component
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] bg-white border-civic-gray-200 shadow-figma">
+      <DialogContent className="sm:max-w-[480px] bg-white border border-civic-gray-200 shadow-figma-card rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-figma-2xl font-bold text-civic-gray-900 font-urbanist">Select Your Role</DialogTitle>
           <DialogDescription className="text-figma-base text-civic-gray-500 font-urbanist">Choose a role to view the corresponding dashboard experience.</DialogDescription>

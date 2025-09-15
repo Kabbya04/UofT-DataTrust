@@ -43,10 +43,10 @@ export default function ExpandableContentCard({
   }
 
   return (
-    <Card className="w-full bg-transparent ">
+    <Card className="w-full bg-card border border-border">
       {/* Video Thumbnail */}
       {videoThumbnail && (
-        <div className="relative bg-gray-300 h-48 flex items-center justify-center rounded-lg overflow-hidden">
+        <div className="relative bg-muted h-48 flex items-center justify-center rounded-t-xl overflow-hidden">
           <Image
             src={videoThumbnail}
             alt={title}
@@ -60,9 +60,9 @@ export default function ExpandableContentCard({
       <div className="p-4">
         {/* Header with title and menu */}
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-lg font-semibold ">{title}</h3>
+          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
           <div className="flex items-center gap-2">
-            {communityName && <span className="text-sm ">{communityName}</span>}
+            {communityName && <span className="text-sm text-muted-foreground">{communityName}</span>}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -82,7 +82,7 @@ export default function ExpandableContentCard({
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="w-8 h-8 cursor-pointer" onClick={handleProfileClick}>
             <AvatarImage src={author.avatar || "/placeholder.svg"} alt={author.name} />
-            <AvatarFallback className="bg-gray-600 text-white text-sm">
+            <AvatarFallback className="bg-muted text-foreground text-sm">
               {author.name
                 .split(" ")
                 .map((n) => n[0])
@@ -91,17 +91,17 @@ export default function ExpandableContentCard({
           </Avatar>
           <div>
             <p
-              className="text-sm font-medium cursor-pointer hover:underline"
+              className="text-sm font-medium text-foreground cursor-pointer hover:underline"
               onClick={handleProfileClick}
             >
               {author.name}
             </p>
-            <p className="text-xs ">{timestamp}</p>
+            <p className="text-xs text-muted-foreground">{timestamp}</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="text-sm leading-relaxed mb-3">
+        <div className="text-sm leading-relaxed mb-3 text-foreground">
           {isExpanded ? content : shouldShowToggle ? shortContent : content}
         </div>
 
