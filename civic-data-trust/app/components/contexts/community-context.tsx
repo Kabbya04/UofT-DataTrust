@@ -77,15 +77,15 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       // Get current user ID from auth context
       const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user
       
-      const transformedCommunities: Community[] = response.data.map(community => {
-        // Check if current user is in the community's users or admins array
-        const isUserMember = community.users?.some((user: any) => user.id === currentUserId) || false
-        const isUserAdmin = community.admins?.some((admin: any) => admin.id === currentUserId) || false
+      const transformedCommunities: Community[] = (response.data as any).items.map((community: any) => {
+        // Check if current user is in the community's users or admins array (arrays contain user IDs as strings)
+        const isUserMember = community.users?.includes(currentUserId) || false
+        const isUserAdmin = community.admins?.includes(currentUserId) || false
         const isJoined = isUserMember || isUserAdmin
         
         console.log(`Community ${community.name}: user ${currentUserId} is ${isJoined ? 'joined' : 'not joined'}`)
-        console.log(`  - Community users:`, community.users?.map((u: any) => u.id) || [])
-        console.log(`  - Community admins:`, community.admins?.map((a: any) => a.id) || [])
+        console.log(`  - Community users:`, community.users || [])
+        console.log(`  - Community admins:`, community.admins || [])
         console.log(`  - Current user ID:`, currentUserId)
         console.log(`  - Is member:`, isUserMember, `Is admin:`, isUserAdmin)
         

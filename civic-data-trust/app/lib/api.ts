@@ -155,23 +155,24 @@ interface JoinRequest {
 
 export const api = {
   communities: {
-    getAll: (page = 1, limit = 10) => 
-      makeRequest<Array<{
-        id: string
-        name: string
-        logo: string | null
-        description: string | null
-        community_category: {
+    getAll: (page = 1, limit = 10) =>
+      makeRequest<{
+        items: Array<{
           id: string
           name: string
-        }
-        admins: Array<{
-          id: string
-          name: string
-          email: string
+          logo: string | null
+          description: string | null
+          community_category: {
+            id: string
+            name: string
+          }
+          admins: Array<string>
+          users: Array<string>
         }>
-        users: Array<any>
-      }>>(`/community?page=${page}&limit=${limit}`),
+        total: number
+        pageNumber: number
+        limit: number
+      }>(`/community?page=${page}&limit=${limit}`),
     
     create: (name: string, community_category_id: string, description?: string) =>
       makeRequest<{

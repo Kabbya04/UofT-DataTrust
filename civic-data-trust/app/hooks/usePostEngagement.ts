@@ -322,12 +322,19 @@ export function usePostEngagement(postId: string) {
           
           // Check if it's a "view already exists" case
           // API returns: {status: false, message: "View already exists"}
-          if (responseData.status === false && responseData.message === "View already exists") {
+          if (responseData.status === false && (
+            responseData.message === "View already exists" ||
+            responseData.message?.includes("already exists") ||
+            responseData.message?.includes("duplicate")
+          )) {
             console.log('ℹ️ View already exists for this user and post')
             return
           }
-          
-          console.error('❌ Failed to add view:', responseData)
+
+          // Only log as error if it's actually an unexpected error
+          if (responseData.status === false) {
+            console.error('❌ Failed to add view:', responseData)
+          }
         } catch (parseError) {
           const responseText = await response.text()
           console.error('❌ Failed to add view (text response):', responseText)
