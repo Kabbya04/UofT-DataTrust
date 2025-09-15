@@ -59,7 +59,7 @@ export function NotificationButton() {
   }
 
   const NotificationItem = ({ notification }: { notification: (typeof notifications)[0] }) => (
-    <div className="flex items-start gap-3 p-3 hover:bg-accent rounded-lg">
+    <div className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
       <Image
         src={notification.avatar || "/placeholder.svg"}
         alt={notification.user}
@@ -68,34 +68,36 @@ export function NotificationButton() {
         className="rounded-full "
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-foreground">
-          <span className="font-medium">{notification.user}</span> {notification.message}
+        <p className="text-sm" style={{ color: 'black' }}>
+          <span className="font-medium" style={{ color: 'black' }}>{notification.user}</span> {notification.message}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+        <p className="text-xs mt-1" style={{ color: 'black' }}>{notification.time}</p>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
-            <DotsThree className="h-4 w-4" />
+            <DotsThree className="h-4 w-4" style={{ color: 'black' }} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40 border border-border rounded-xl shadow-figma">
+        <DropdownMenuContent align="end" className="w-40 border border-border rounded-xl shadow-figma" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
           <button
             onClick={() => markAsRead(notification.id)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded"
+            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded"
+            style={{ backgroundColor: '#F1F1F1', color: 'black' }}
           >
-            <Check className="h-4 w-4" />
+            <Check className="h-4 w-4" style={{ color: 'black' }} />
             Mark as Read
           </button>
           <button
             onClick={() => deleteNotification(notification.id)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded"
+            className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded"
+            style={{ backgroundColor: '#F1F1F1', color: 'black' }}
           >
-            <Trash className="h-4 w-4" />
+            <Trash className="h-4 w-4" style={{ color: 'black' }} />
             Delete
           </button>
-          <button className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-foreground hover:bg-accent rounded">
-            <Flag className="h-4 w-4" />
+          <button className="flex items-center gap-2 w-full px-2 py-1.5 text-sm rounded" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
+            <Flag className="h-4 w-4" style={{ color: 'black' }} />
             Report Issue 
           </button>
         </DropdownMenuContent>
@@ -115,25 +117,25 @@ export function NotificationButton() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96 p-0 border border-border rounded-2xl shadow-figma-card bg-popover text-popover-foreground">
-        <div className="p-4 border-b border-border">
+      <DropdownMenuContent align="end" className="w-96 p-0 border border-border rounded-2xl shadow-figma-card" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
+        <div className="p-4 border-b border-border" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-foreground">Notifications</h3>
+            <h3 className="font-semibold" style={{ color: 'black' }}>Notifications</h3>
             <Button variant="ghost" size="icon" className="h-6 w-6">
-              <Gear className="h-4 w-4" />
+              <Gear className="h-4 w-4" style={{ color: 'black' }} />
             </Button>
           </div>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
-            <TabsTrigger value="all" className="text-xs">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2" style={{ backgroundColor: '#F1F1F1' }}>
+            <TabsTrigger value="all" className="text-xs" style={{ color: 'black' }}>
               All
             </TabsTrigger>
-            <TabsTrigger value="unread" className="text-xs">
+            <TabsTrigger value="unread" className="text-xs" style={{ color: 'black' }}>
               Unread
             </TabsTrigger>
-            <TabsTrigger value="archived" className="text-xs">
+            <TabsTrigger value="archived" className="text-xs" style={{ color: 'black' }}>
               Archived
             </TabsTrigger>
           </TabsList>

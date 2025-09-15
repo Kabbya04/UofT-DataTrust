@@ -78,7 +78,7 @@ export default function Profile01({
   return (
     <div className="w-full max-w-sm mx-auto">
       <div className="relative overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground">
-        <Card className="relative px-6 pt-12 pb-6 bg-popover text-popover-foreground border-0">
+        <Card className="relative px-6 pt-12 pb-6 border-0" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
           <div className="flex items-center gap-4 mb-8">
             <div className="relative shrink-0">
               <Avatar className="w-18 h-18 ring-4 ring-background">
@@ -90,27 +90,27 @@ export default function Profile01({
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h2 className="text-xl font-semibold">{user?.name || 'Loading...'}</h2>
-              <p className="text-muted-foreground">{user ? getRoleName(user.role) : 'Loading...'}</p>
-              <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
+              <h2 className="text-xl font-semibold" style={{ color: 'black' }}>{user?.name || 'Loading...'}</h2>
+              <p style={{ color: 'black' }}>{user ? getRoleName(user.role) : 'Loading...'}</p>
+              <p className="text-sm" style={{ color: 'black' }}>{user?.email || ''}</p>
             </div>
           </div>
-          <div className="h-px bg-border my-6" />
+          <div className="h-px my-6" style={{ backgroundColor: '#ddd' }} />
           <div className="space-y-2">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center justify-between p-2 
-                                   hover:bg-muted rounded-lg transition-colors duration-200"
+                className="flex items-center justify-between p-2 rounded-lg transition-colors duration-200"
+                style={{ backgroundColor: '#F1F1F1', color: 'black' }}
               >
                 <div className="flex items-center gap-2">
                   {item.icon}
-                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                  <span className="text-sm font-medium" style={{ color: 'black' }}>{item.label}</span>
                 </div>
                 <div className="flex items-center">
-                  {item.value && <span className="text-sm text-muted-foreground mr-2">{item.value}</span>}
-                  {item.external && <ArrowSquareOut className="w-4 h-4" />}
+                  {item.value && <span className="text-sm mr-2" style={{ color: 'black' }}>{item.value}</span>}
+                  {item.external && <ArrowSquareOut className="w-4 h-4" style={{ color: 'black' }} />}
                 </div>
               </Link>
             ))}
@@ -118,12 +118,12 @@ export default function Profile01({
             <button
               type="button"
               onClick={logout}
-              className="w-full flex items-center justify-between p-2 hover:bg-muted 
-                                  rounded-lg transition-colors duration-200"
+              className="w-full flex items-center justify-between p-2 rounded-lg transition-colors duration-200"
+              style={{ backgroundColor: '#F1F1F1', color: 'black' }}
             > 
               <div className="flex items-center gap-2">
-                <SignOut className="w-4 h-4" />
-                <span className="text-sm font-medium text-foreground">Logout</span>
+                <SignOut className="w-4 h-4" style={{ color: 'black' }} />
+                <span className="text-sm font-medium" style={{ color: 'black' }}>Logout</span>
               </div>
             </button>
           </div>

@@ -115,7 +115,8 @@ export function NavbarWf() {
             <DropdownMenuContent
               align="end"
               sideOffset={8}
-              className="w-[280px] sm:w-80 border border-border rounded-2xl shadow-figma-card bg-popover text-popover-foreground"
+              className="w-[280px] sm:w-80 border border-border rounded-2xl shadow-figma-card"
+              style={{ backgroundColor: '#F1F1F1', color: 'black' }}
             >
               <Profile avatar="/profile.jpg" />
             </DropdownMenuContent>
