@@ -7,6 +7,8 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import EDAResultsModal from './EDAResultsModal';
 import FileDownloadService from './FileDownloadService';
+import IfBranchConfig from './nodes/IfBranchConfig';
+import SplitConfig from './nodes/SplitConfig';
 
 // Function to check for existing files
 const checkExistingFiles = async () => {
@@ -50,12 +52,20 @@ const executeFunctionChain = async (
       dataset_name: "sample_employees"  // Default fallback
     };
     
-    // Check for CSV content in current node or any connected nodes
+    // Check for CSV content in current node (including split data)
     if (currentNode?.parameters?.csvContent) {
       input_data = {
         csv_content: currentNode.parameters.csvContent,
         filename: currentNode.parameters.fileName || 'uploaded.csv'
       };
+      
+      // Add split metadata if this data came from a split node
+      if (currentNode.parameters.splitSource) {
+        input_data.split_metadata = {
+          source_node: currentNode.parameters.splitSource,
+          output_port: currentNode.parameters.splitPort
+        };
+      }
     } else if (currentNode?.type === 'csv_input' && currentNode?.parameters?.csvContent) {
       input_data = {
         csv_content: currentNode.parameters.csvContent,
@@ -873,6 +883,22 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
       </div>
       
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+        {/* If/Branch Node Configuration */}
+        {node.type === 'if_branch' && (
+          <IfBranchConfig 
+            nodeId={nodeId} 
+            parameters={node.parameters || {}} 
+          />
+        )}
+        
+        {/* Split Node Configuration */}
+        {node.type === 'split' && (
+          <SplitConfig 
+            nodeId={nodeId} 
+            parameters={node.parameters || {}} 
+          />
+        )}
+        
         {/* Execute Function Chain Button */}
         {isDataScienceNode && functionChain.length > 0 && (
           <div className="mb-4 space-y-2">
@@ -1146,7 +1172,7 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                     try {
                       toast.loading('Executing EDA workflow...');
                       
-                      // Determine input data
+                      // Determine input data (including split data)
                       let input_data: any = {
                         dataset_name: "sample_employees"
                       };
@@ -1156,6 +1182,14 @@ export default function NodeConfigPanel({ nodeId, onClose }: NodeConfigPanelProp
                           csv_content: node.parameters.csvContent,
                           filename: node.parameters.fileName || 'uploaded.csv'
                         };
+                        
+                        // Add split metadata if this data came from a split node
+                        if (node.parameters.splitSource) {
+                          input_data.split_metadata = {
+                            source_node: node.parameters.splitSource,
+                            output_port: node.parameters.splitPort
+                          };
+                        }
                       } else {
                         const uploadedData = localStorage.getItem('lastUploadedCSV');
                         if (uploadedData) {

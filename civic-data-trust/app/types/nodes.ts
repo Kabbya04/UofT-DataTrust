@@ -18,13 +18,24 @@ export enum NodeTypes {
   
   // Logic
   IF_CONDITION = 'if_condition',
+  IF_BRANCH = 'if_branch',
   SWITCH = 'switch',
   LOOP = 'loop',
+  SPLIT = 'split',
+  MERGE = 'merge',
   
   // Utility
   IMAGE_INPUT = 'image_input',
   TEXT_INPUT = 'text_input',
   OUTPUT = 'output',
+}
+
+export type PortType = 'csv' | 'json' | 'image' | 'any' | 'control';
+
+export interface NodeData {
+  status: 'idle' | 'processing' | 'success' | 'error';
+  error?: string;
+  outputData?: string;
 }
 
 export interface NodeDefinition {
@@ -36,6 +47,13 @@ export interface NodeDefinition {
   inputs: PortDefinition[];
   outputs: PortDefinition[];
   parameters?: ParameterDefinition[];
+}
+
+export interface NodePort {
+  id: string;
+  type: PortType;
+  label: string;
+  multiple?: boolean;
 }
 
 export interface PortDefinition {

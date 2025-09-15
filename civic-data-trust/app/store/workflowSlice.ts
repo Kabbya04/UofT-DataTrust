@@ -40,6 +40,7 @@ export interface WorkflowState {
   isConnecting: boolean;
   connectingFrom: { nodeId: string; portId: string } | null;
   connectionLineStyle: 'solid' | 'dotted';
+  nodeOutputs: Record<string, any>;
 }
 
 const initialState: WorkflowState = {
@@ -51,6 +52,7 @@ const initialState: WorkflowState = {
   isConnecting: false,
   connectingFrom: null,
   connectionLineStyle: 'solid',
+  nodeOutputs: {},
 };
 
 const workflowSlice = createSlice({
@@ -143,6 +145,33 @@ const workflowSlice = createSlice({
     setConnectionLineStyle: (state, action: PayloadAction<'solid' | 'dotted'>) => {
       state.connectionLineStyle = action.payload;
     },
+    updateNodeStatus: (state, action: PayloadAction<{ id: string; status: string; error?: string }>) => {
+      const node = state.nodes.find(n => n.id === action.payload.id);
+      if (node) {
+        if (!node.data) node.data = {};
+        node.data.status = action.payload.status;
+        if (action.payload.error !== undefined) {
+          node.data.error = action.payload.error;
+        }
+      }
+    },
+    setNodeOutput: (state, action: PayloadAction<{ id: string; output: any }>) => {
+      const node = state.nodes.find(n => n.id === action.payload.id);
+      if (node) {
+        if (!node.data) node.data = {};
+        node.data.outputData = action.payload.output;
+      }
+      state.nodeOutputs[action.payload.id] = action.payload.output;
+    },
+    updateNodeParameters: (state, action: PayloadAction<{ id: string; parameters: Record<string, any> }>) => {
+      const node = state.nodes.find(n => n.id === action.payload.id);
+      if (node) {
+        if (!node.parameters) {
+          node.parameters = {};
+        }
+        Object.assign(node.parameters, action.payload.parameters);
+      }
+    },
   },
 });
 
@@ -158,6 +187,9 @@ export const {
   startConnecting,
   endConnecting,
   setConnectionLineStyle,
+  updateNodeStatus,
+  setNodeOutput,
+  updateNodeParameters,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;

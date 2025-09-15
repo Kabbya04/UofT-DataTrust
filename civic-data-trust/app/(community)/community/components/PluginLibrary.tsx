@@ -84,16 +84,16 @@ const nodeLibrary = [
     outputs: [{ id: 'main', type: 'main', label: 'Output' }]
   },
   { 
-    id: 'split_data', 
-    name: 'Split', 
+    id: 'split', 
+    name: 'Split Data', 
     icon: <Split className="w-5 h-5" />, 
-    color: '#EC4899',
+    color: '#9C27B0',
     category: 'Data',
-    description: 'Split data into branches',
-    inputs: [{ id: 'main', type: 'main', label: 'Input' }],
+    description: 'Split CSV data by rows or columns',
+    inputs: [{ id: 'input', type: 'csv', label: 'CSV Input' }],
     outputs: [
-      { id: 'output1', type: 'main', label: 'Output 1' },
-      { id: 'output2', type: 'main', label: 'Output 2' }
+      { id: 'output1', type: 'csv', label: 'Output 1' },
+      { id: 'output2', type: 'csv', label: 'Output 2' }
     ]
   },
   { 
@@ -174,6 +174,19 @@ const nodeLibrary = [
     outputs: [
       { id: 'true', type: 'condition', label: 'True' },
       { id: 'false', type: 'condition', label: 'False' }
+    ]
+  },
+  { 
+    id: 'if_branch', 
+    name: 'If/Branch', 
+    icon: <GitBranch className="w-5 h-5" />, 
+    color: '#FFA500',
+    category: 'Logic',
+    description: 'Conditional data routing with configurable conditions',
+    inputs: [{ id: 'input', type: 'main', label: 'Input Data' }],
+    outputs: [
+      { id: 'true', type: 'main', label: 'True (1)' },
+      { id: 'false', type: 'main', label: 'False (0)' }
     ]
   },
   

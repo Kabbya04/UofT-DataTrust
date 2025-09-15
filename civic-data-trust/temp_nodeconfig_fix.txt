@@ -1,0 +1,16 @@
+// First change: Add import
+Line 10: import IfBranchConfig from './nodes/IfBranchConfig';
+Line 11: import SplitConfig from './nodes/SplitConfig';
+
+// Second change: Add conditional rendering after line 883
+After the IfBranchConfig block, add:
+        
+        {/* Split Node Configuration */}
+        {node.type === 'split' && (
+          <SplitConfig 
+            nodeId={nodeId} 
+            parameters={node.parameters || {}} 
+          />
+        )}
+
+These are the exact changes needed to fix the split node configuration panel issue.
