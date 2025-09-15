@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Provider, useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import { store, RootState } from '../../store';
+import { addNode } from '../../store/workflowSlice';
 import PluginLibrary from './components/PluginLibrary';
 import { Upload, Save, Download, Play, FileJson, RefreshCw, Trash2, Image, FileText, Database } from 'lucide-react';
 import TemplatePanel from './components/TemplatePanel';

@@ -1,10 +1,13 @@
+import React from 'react';
 import type {
   NonEmptyString,
   Timestamp,
-  PositiveNumber,
+  PositiveNumber
+} from '../../types/strict';
+import type {
   StrictPerformanceMetric,
   StrictRenderPerformance
-} from '../../types/strict';
+} from '../../types/enhanced';
 
 interface AnalyticsEvent {
   readonly name: NonEmptyString;
@@ -258,7 +261,7 @@ export function withAnalytics<T extends React.ComponentType<any>>(
   Component: T,
   componentName: NonEmptyString
 ): T {
-  const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>((props, ref) => {
+  const WrappedComponent = React.forwardRef<any, any>((props, ref) => {
     React.useEffect(() => {
       analytics.trackComponentUsage(componentName, 'mount');
       return () => {
@@ -266,11 +269,11 @@ export function withAnalytics<T extends React.ComponentType<any>>(
       };
     }, []);
 
-    return <Component {...props} ref={ref} />;
+    return <Component {...(props as any)} ref={ref} />;
   });
 
   WrappedComponent.displayName = `withAnalytics(${componentName})`;
-  return WrappedComponent as T;
+  return WrappedComponent as unknown as T;
 }
 
 export default analytics;

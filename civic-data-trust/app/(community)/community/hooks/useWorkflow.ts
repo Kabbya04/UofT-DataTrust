@@ -14,7 +14,7 @@ export const useWorkflow = () => {
 
   const saveWorkflow = useCallback(async () => {
     try {
-      await WorkflowService.saveWorkflow(workflowName, workflowState);
+      await WorkflowService.saveWorkflow(workflowName, workflowState as any);
       return true;
     } catch (error) {
       console.error('Failed to save workflow:', error);
@@ -84,8 +84,8 @@ export const useWorkflow = () => {
   }, [dispatch, workflowState.nodes]);
 
   const testWorkflow = useCallback(() => {
-    const config = WorkflowService.generateWorkflowConfig(workflowState);
-    const validation = WorkflowService.validateWorkflow(workflowState);
+    const config = WorkflowService.generateWorkflowConfig(workflowState as any);
+    const validation = WorkflowService.validateWorkflow(workflowState as any);
 
     console.log('Testing workflow with configuration:', config);
     console.log('Validation result:', validation);
@@ -103,7 +103,7 @@ export const useWorkflow = () => {
     return {
       nodeCount: workflowState.nodes.length,
       connectionCount: workflowState.connections.length,
-      isValid: WorkflowService.validateWorkflow(workflowState).isValid
+      isValid: WorkflowService.validateWorkflow(workflowState as any).isValid
     };
   }, [workflowState]);
 

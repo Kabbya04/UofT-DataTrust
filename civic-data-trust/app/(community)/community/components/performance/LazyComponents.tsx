@@ -40,13 +40,16 @@ export function withLazyLoading<T extends React.ComponentType<any>>(
   componentName: string,
   fallback?: React.ReactNode
 ) {
-  return React.forwardRef<any, React.ComponentProps<T>>((props, ref) => (
+  const WrappedComponent = React.forwardRef<any, any>((props, ref) => (
     <ComponentErrorBoundary componentName={componentName}>
       <Suspense fallback={fallback || <ComponentLoader name={componentName} />}>
-        <Component {...props} ref={ref} />
+        <Component {...(props as any)} ref={ref} />
       </Suspense>
     </ComponentErrorBoundary>
   ));
+  
+  WrappedComponent.displayName = `withLazyLoading(${componentName})`;
+  return WrappedComponent as any;
 }
 
 // Pre-wrapped lazy components ready to use

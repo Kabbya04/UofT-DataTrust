@@ -6,23 +6,23 @@ export interface WorkflowNode {
   y: number;
   width: number;
   height: number;
-  color: string;
+  color?: string;
   inputs: WorkflowInput[];
   outputs: WorkflowOutput[];
-  parameters: Record<string, any>;
-  data: Record<string, any>;
+  parameters?: Record<string, any>;
+  data?: any;
 }
 
 export interface WorkflowInput {
   id: string;
-  type: string;
+  type: 'main' | 'data' | 'condition';
   label: string;
   connected: boolean;
 }
 
 export interface WorkflowOutput {
   id: string;
-  type: string;
+  type: 'main' | 'data' | 'condition';
   label: string;
   connected: boolean;
 }

@@ -77,12 +77,12 @@ export function withPerformanceMonitoring<T extends React.ComponentType<any>>(
   Component: T,
   componentName: string
 ): T {
-  const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>((props, ref) => {
+  const WrappedComponent = React.forwardRef<any, any>((props, ref) => {
     usePerformanceMonitor(componentName);
-    return <Component {...props} ref={ref} />;
+    return <Component {...(props as any)} ref={ref} />;
   });
 
   WrappedComponent.displayName = `withPerformanceMonitoring(${componentName})`;
 
-  return WrappedComponent as T;
+  return WrappedComponent as unknown as T;
 }

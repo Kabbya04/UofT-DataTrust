@@ -1,9 +1,12 @@
 import type {
   NonEmptyString,
-  PositiveNumber,
+  PositiveNumber
+} from '../../types/strict';
+import { createTimestamp } from '../../types/strict';
+import type {
   StrictPerformanceMetric,
   StrictRenderPerformance
-} from '../../types/strict';
+} from '../../types/enhanced';
 import { analytics } from '../analytics/AnalyticsService';
 
 interface PerformanceEntry {
@@ -60,7 +63,7 @@ class PerformanceMonitor {
         name,
         value: duration as PositiveNumber,
         unit: 'ms',
-        timestamp: new Date().toISOString(),
+        timestamp: createTimestamp(new Date().toISOString()),
         context: {},
       });
     }
@@ -84,7 +87,7 @@ class PerformanceMonitor {
         name,
         value: duration as PositiveNumber,
         unit: 'ms',
-        timestamp: new Date().toISOString(),
+        timestamp: createTimestamp(new Date().toISOString()),
         context: { ...context, success: true },
       });
 
@@ -96,7 +99,7 @@ class PerformanceMonitor {
         name,
         value: duration as PositiveNumber,
         unit: 'ms',
-        timestamp: new Date().toISOString(),
+        timestamp: createTimestamp(new Date().toISOString()),
         context: { ...context, success: false, error: (error as Error).message },
       });
 
@@ -210,7 +213,7 @@ class PerformanceMonitor {
             name: 'long_task' as NonEmptyString,
             value: entry.duration as PositiveNumber,
             unit: 'ms',
-            timestamp: new Date().toISOString(),
+            timestamp: createTimestamp(new Date().toISOString()),
             context: {
               startTime: entry.startTime,
               name: entry.name,
@@ -230,8 +233,8 @@ class PerformanceMonitor {
       { name: 'dns_lookup', value: entry.domainLookupEnd - entry.domainLookupStart },
       { name: 'tcp_connect', value: entry.connectEnd - entry.connectStart },
       { name: 'request_response', value: entry.responseEnd - entry.requestStart },
-      { name: 'dom_processing', value: entry.domComplete - entry.domLoading },
-      { name: 'page_load', value: entry.loadEventEnd - entry.navigationStart },
+      { name: 'dom_processing', value: entry.domComplete - entry.domContentLoadedEventStart },
+      { name: 'page_load', value: entry.loadEventEnd - entry.fetchStart },
     ];
 
     metrics.forEach(metric => {
@@ -240,7 +243,7 @@ class PerformanceMonitor {
           name: metric.name as NonEmptyString,
           value: metric.value as PositiveNumber,
           unit: 'ms',
-          timestamp: new Date().toISOString(),
+          timestamp: createTimestamp(new Date().toISOString()),
           context: { type: 'navigation' },
         });
       }
@@ -254,7 +257,7 @@ class PerformanceMonitor {
         name: 'slow_resource' as NonEmptyString,
         value: entry.duration as PositiveNumber,
         unit: 'ms',
-        timestamp: new Date().toISOString(),
+        timestamp: createTimestamp(new Date().toISOString()),
         context: {
           url: entry.name,
           initiatorType: entry.initiatorType,
@@ -274,7 +277,7 @@ class PerformanceMonitor {
           name: 'memory_usage' as NonEmptyString,
           value: memory.usedJSHeapSize as PositiveNumber,
           unit: 'bytes',
-          timestamp: new Date().toISOString(),
+          timestamp: createTimestamp(new Date().toISOString()),
           context: {
             totalHeapSize: memory.totalJSHeapSize,
             heapSizeLimit: memory.jsHeapSizeLimit,
@@ -296,7 +299,7 @@ class PerformanceMonitor {
           name: 'first_contentful_paint' as NonEmptyString,
           value: fcpEntries[0].startTime as PositiveNumber,
           unit: 'ms',
-          timestamp: new Date().toISOString(),
+          timestamp: createTimestamp(new Date().toISOString()),
           context: { vital: 'FCP' },
         });
       }
