@@ -68,11 +68,68 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const { user, isLoading: authLoading } = useAuth()
 
+  // Add token refresh functionality
+  const refreshAuthToken = async (): Promise<string | null> => {
+    try {
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+      
+      if (!refreshToken) {
+        return null;
+      }
+      
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to refresh token');
+      }
+      
+      const data = await response.json();
+      const newAccessToken = data.access_token;
+      
+      if (typeof window !== 'undefined' && newAccessToken) {
+        localStorage.setItem('access_token', newAccessToken);
+      }
+      
+      return newAccessToken;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return null;
+    }
+  };
+
   const fetchCommunities = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await api.communities.getAll(1, 50)
+      
+      // Try to fetch communities
+      let response;
+      try {
+        response = await api.communities.getAll(1, 50)
+      } catch (error: any) {
+        // If it's a 401 error, try to refresh the token and retry
+        if (error.name === 'ApiError' && error.status === 401) {
+          const newToken = await refreshAuthToken();
+          if (newToken) {
+            // Retry the request with the new token
+            response = await api.communities.getAll(1, 50)
+          } else {
+            // If token refresh failed, redirect to login
+            if (typeof window !== 'undefined') {
+              window.location.href = '/sign-in';
+            }
+            return;
+          }
+        } else {
+          throw error;
+        }
+      }
       
       // Get current user ID from auth context
       const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user

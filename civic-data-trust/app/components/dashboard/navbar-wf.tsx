@@ -38,7 +38,8 @@ export function NavbarWf() {
   const isSuperAdminWf = pathname.startsWith('/super-admin-wf');
 
   // Get user initials for avatar fallback
-  const getUserInitials = (name: string) => {
+  const getUserInitials = (name: string | undefined | null) => {
+    if (!name) return 'JD'; // Default fallback if name is undefined/null
     return name
       .split(' ')
       .map(word => word.charAt(0))

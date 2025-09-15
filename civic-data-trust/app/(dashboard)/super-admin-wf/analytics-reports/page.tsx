@@ -352,7 +352,7 @@ export default function AnalyticsReportsPage() {
                         <Download className="h-4 w-4 mr-2" />
                         Export Data
                     </Button>
-                    <Button onClick={() => setIsReportModalOpen(true)} style={{ backgroundColor: '#2196F3' }}>
+                    <Button onClick={() => setIsReportModalOpen(true)} className="text-white" style={{ backgroundColor: '#2196F3' }}>
                         <BarChart2 className="h-4 w-4 mr-2" />
                         Generate Report
                     </Button>
