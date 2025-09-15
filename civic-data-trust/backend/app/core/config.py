@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,
-        extra="forbid"
+        extra="ignore"
     )
     
     PROJECT_NAME: str = "Data Science Workflow API"
@@ -34,5 +34,8 @@ class Settings(BaseSettings):
     # Python 3.12+ specific optimizations
     ENABLE_PERFORMANCE_MONITORING: bool = Field(default=True)
     USE_ASYNCIO_OPTIMIZATION: bool = Field(default=True)
+
+    # Groq API settings
+    GROQ_API_KEY: str = Field(default="")
 
 settings = Settings()

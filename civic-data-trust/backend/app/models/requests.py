@@ -63,3 +63,16 @@ class FileUploadRequest(BaseModel):
     """Request model for file upload"""
     dataset_name: str = Field(..., description="Name for the uploaded dataset")
     description: Optional[str] = Field(None, description="Description of the dataset")
+
+class LLMRequest(BaseModel):
+    """Request model for LLM analysis"""
+    data: Dict[str, Any] = Field(..., description="Data to analyze (CSV data as dict)")
+    analysis_type: str = Field(default="eda", description="Type of analysis: eda, processing, explanation")
+    query: Optional[str] = Field(None, description="Optional user query or specific question")
+    model: Optional[str] = Field(None, description="Specific model to use (optional)")
+
+class WorkflowNodeRequest(BaseModel):
+    """Request model for workflow node processing"""
+    node_type: str = Field(..., description="Type of node (e.g., 'llama', 'analysis')")
+    input_data: Dict[str, Any] = Field(..., description="Input data from previous nodes")
+    node_config: Dict[str, Any] = Field(default_factory=dict, description="Node configuration")

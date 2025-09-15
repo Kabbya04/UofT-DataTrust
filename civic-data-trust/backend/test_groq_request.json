@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": ["Alice", "Bob", "Charlie", "Diana"],
+    "age": [25, 30, 35, 28],
+    "salary": [50000, 60000, 70000, 55000],
+    "department": ["Engineering", "Marketing", "Engineering", "HR"]
+  },
+  "analysis_type": "eda",
+  "query": "Please analyze this employee dataset and provide insights about the salary distribution and department breakdown."
+}

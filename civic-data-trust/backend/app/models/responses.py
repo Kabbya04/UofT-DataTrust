@@ -46,3 +46,18 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
     timestamp: str
+
+class LLMResponse(BaseModel):
+    """Response model for LLM analysis"""
+    analysis: str
+    model_used: str
+    status: str
+    execution_time_ms: Optional[float] = None
+
+class WorkflowNodeResponse(BaseModel):
+    """Response model for workflow node processing"""
+    result: Optional[Any] = None
+    analysis: Optional[str] = None
+    error: Optional[str] = None
+    status: str
+    node_type: Optional[str] = None
