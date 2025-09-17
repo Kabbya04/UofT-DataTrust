@@ -19,13 +19,30 @@ export default function MyCommunitiesPage() {
   const [recommendedCommunities, setRecommendedCommunities] = useState<any[]>([])
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(false)
 
-  const joinedCommunities = communities.filter(c => c.isJoined)
+  const joinedCommunities = communities.filter(c => {
+    console.log(`Checking if community ${c.name} (ID: ${c.id}) is joined:`, c.isJoined);
+    return c.isJoined;
+  });
   
   // Debug logging
-  console.log('MyCommunitiesPage - All communities:', communities.length)
-  console.log('MyCommunitiesPage - Joined communities:', joinedCommunities.length)
-  console.log('MyCommunitiesPage - Loading:', loading)
-  console.log('MyCommunitiesPage - Error:', error)
+  console.log('MyCommunitiesPage - All communities:', communities.length);
+  console.log('MyCommunitiesPage - All communities details:', communities);
+  console.log('MyCommunitiesPage - Joined communities:', joinedCommunities.length);
+  console.log('MyCommunitiesPage - Joined communities details:', joinedCommunities);
+  console.log('MyCommunitiesPage - Loading:', loading);
+  console.log('MyCommunitiesPage - Error:', error);
+  
+  // Additional debugging
+  console.log('=== COMMUNITY DEBUG INFO ===');
+  communities.forEach((community, index) => {
+    console.log(`Community ${index + 1}:`, {
+      id: community.id,
+      name: community.name,
+      isJoined: community.isJoined,
+      users: community.users,
+      admins: community.admins
+    });
+  });
 
   // Fetch dataset and member counts for joined communities
   useEffect(() => {
@@ -112,7 +129,7 @@ export default function MyCommunitiesPage() {
     };
 
     fetchCounts();
-  }, [joinedCommunities.length, loading]);
+  }, [communities.length, loading]);
 
   // Fetch smart recommendations based on joined community categories
   useEffect(() => {

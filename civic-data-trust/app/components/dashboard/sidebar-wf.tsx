@@ -132,7 +132,7 @@ const TextLink = ({ href, children }: { href: string, children: React.ReactNode 
       className={cn(
         "flex items-center space-x-2 px-3 py-2 rounded-lg text-base font-medium transition-colors",
         isActive
-          ? "bg-primary text-primary-foreground"
+          ? "bg-white text-foreground shadow-sm"
           : "text-foreground hover:bg-muted"
       )}
     >
@@ -177,13 +177,15 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
           <TrendingUp className="h-4 w-4" />
           <span>Popular</span>
         </TextLink>
-        <TextLink href={`/${rolePrefix}/upload-dataset`}>
-          <Button size="sm"
-           className="bg-primary hover:bg-primary/90">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Dataset
-          </Button>
-        </TextLink>
+        {rolePrefix !== "researcher-wf" && (
+          <TextLink href={`/${rolePrefix}/upload-dataset`}>
+            <Button size="sm"
+             className="bg-primary hover:bg-primary/90">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Dataset
+            </Button>
+          </TextLink>
+        )}
       </div>
       <hr className="my-3 border-border" />
 
@@ -200,7 +202,7 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
             placeholder="Search categories..."
             value={searchTags}
             onChange={(e) => setSearchTags(e.target.value)}
-            className="w-full px-2 py-1 text-sm border border-border rounded-md bg-background"
+            className="w-full px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         {/* Display grouped categories */}
@@ -232,18 +234,26 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
                   </div>
                 </button>
                 {openCategories[categoryName] && (
-                  <div className="pl-6 mt-1 space-y-1">
-                    {visibleTags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="block px-2 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors"
-                      >
-                        {tag}
-                      </Link>
-                    ))}
+                  <div className="relative">
+                    {/* Ladder-style visual connection */}
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                    <div className="pl-6 mt-1 space-y-1">
+                      {visibleTags.map((tag, index) => (
+                        <div key={tag} className="relative">
+                          {/* Horizontal ladder line */}
+                          <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                          <Link
+                            href={`/${rolePrefix}/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
+                          >
+                            {tag}
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
+
               </div>
             );
           })}
@@ -258,17 +268,18 @@ const ProjectAdminTextLink = ({ href, children }: { href: string, children: Reac
   const pathname = usePathname();
   const isActive = pathname === href;
   return (
-
     <Link
       href={href}
       className={cn(
-        "block text-base font-medium py-2 px-3 rounded-md text-foreground/80 hover:text-foreground hover:bg-muted transition-colors",
-        isActive && "text-primary font-bold bg-primary/10"
+        "flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors",
+        isActive
+          ? "bg-white text-foreground shadow-sm"
+          : "text-foreground hover:bg-muted"
       )}
     >
       {children}
     </Link>
-  )
+  );
 }
 
 const SuperAdminNav = ({ rolePrefix }: { rolePrefix: string }) => {
@@ -432,18 +443,26 @@ export function SidebarWf() {
                     </div>
                   </button>
                   {openCategories[categoryName] && (
-                    <div className="pl-6 mt-1 space-y-1">
-                      {visibleTags.map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/researcher-wf/research/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="block px-2 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
+                    <div className="relative">
+                      {/* Ladder-style visual connection */}
+                      <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                      <div className="pl-6 mt-1 space-y-1">
+                        {visibleTags.map((tag, index) => (
+                          <div key={tag} className="relative">
+                            {/* Horizontal ladder line */}
+                            <div className="absolute left-2 top-3 w-4 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                            <Link
+                              href={`/researcher-wf/research/category/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                              className="block px-6 py-1 text-sm text-foreground hover:bg-muted rounded-md transition-colors ml-2"
+                            >
+                              {tag}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
+
                 </div>
               );
             })}
@@ -510,9 +529,9 @@ export function SidebarWf() {
 
   return (
     // The sidebar itself is a flex column that does NOT scroll
-    <div className="w-64 bg-background border-r border-border flex flex-col h-full">
+    <div className="w-64 flex flex-col h-full" style={{ backgroundColor: '#F1F1F1' }}>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-6">
         {isResearcherWf && isResearcherResearchSection && <ResearcherResearchNav />}
         {isResearcherWf && !isResearcherResearchSection && <GeneralNav rolePrefix="researcher-wf" />}
         {isCommunityMemberWf && <GeneralNav rolePrefix="community-member-wf" />}
@@ -520,7 +539,7 @@ export function SidebarWf() {
         {isSuperAdminWf && <SuperAdminNav rolePrefix="super-admin-wf" />}
       </div>
 
-      <div className="p-4 border-t border-border">
+      <div className="p-6">
         <TextLink href={getSettingsLink()}>
           <Cog className="h-4 w-4" />
           <span>Settings</span>

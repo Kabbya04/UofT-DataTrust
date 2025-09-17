@@ -101,16 +101,16 @@ export default function Profile01({
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center justify-between p-2 
-                                   hover:bg-zinc-500  rounded-lg transition-colors duration-200"
+                className="flex items-center justify-between p-2 rounded-lg transition-colors duration-200"
+                style={{ backgroundColor: '#F1F1F1', color: 'black' }}
               >
                 <div className="flex items-center gap-2">
                   {item.icon}
-                  <span className="text-sm font-medium  ">{item.label}</span>
+                  <span className="text-sm font-medium" style={{ color: 'black' }}>{item.label}</span>
                 </div>
                 <div className="flex items-center">
-                  {item.value && <span className="text-sm   mr-2">{item.value}</span>}
-                  {item.external && <MoveUpRight className="w-4 h-4" />}
+                  {item.value && <span className="text-sm mr-2" style={{ color: 'black' }}>{item.value}</span>}
+                  {item.external && <MoveUpRight className="w-4 h-4" style={{ color: 'black' }} />}
                 </div>
               </Link>
             ))}
@@ -118,12 +118,12 @@ export default function Profile01({
             <button
               type="button"
               onClick={logout}
-              className="w-full flex items-center justify-between p-2 hover:bg-zinc-500 
-                                  rounded-lg transition-colors duration-200"
+              className="w-full flex items-center justify-between p-2 rounded-lg transition-colors duration-200"
+              style={{ backgroundColor: '#F1F1F1', color: 'black' }}
             > 
               <div className="flex items-center gap-2">
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm font-medium">Logout</span>
+                <LogOut className="w-4 h-4" style={{ color: 'black' }} />
+                <span className="text-sm font-medium" style={{ color: 'black' }}>Logout</span>
               </div>
             </button>
           </div>

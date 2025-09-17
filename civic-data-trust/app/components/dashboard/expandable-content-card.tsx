@@ -65,7 +65,7 @@ export default function ExpandableContentCard({
   }, [id, likesCount, viewsCount, isLiked, loading])
 
   return (
-    <Card className="w-full bg-transparent border border-primary">
+    <Card className="w-full bg-transparent border border-[#E6E6E6]">
       {/* Video Thumbnail */}
       {videoThumbnail && (
         <div className="relative bg-gray-300 h-48 flex items-center rounded-t-md justify-center">

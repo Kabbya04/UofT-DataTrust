@@ -56,7 +56,7 @@ export function NavbarWf() {
   }
 
   return (
-    <header className="h-16 flex-shrink-0 border-b border-border bg-card flex items-center px-6 justify-between">
+    <header className="h-16 flex-shrink-0 flex items-center px-6 justify-between" style={{ backgroundColor: '#F1F1F1' }}>
       <div className="flex items-center gap-4">
         <Link href={getHomeLink()} className="font-bold text-lg text-mono-caps">Logo</Link>
       </div>
@@ -108,4 +108,6 @@ export function NavbarWf() {
       </div>
     </header>
   );
-}
+};
+
+export default NavbarWf;

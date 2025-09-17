@@ -65,7 +65,7 @@ export default function DataUsagePage() {
 
         <TabsContent value="activity" className="space-y-4">
           {recentActivity.map((activity) => (
-            <Card key={activity.id} className="p-4 hover:border-primary/50 transition-colors">
+            <Card key={activity.id} className="p-4 hover:border-[#E6E6E6] transition-colors">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {getActionIcon(activity.type)}
@@ -76,7 +76,9 @@ export default function DataUsagePage() {
                             </p>
                         </div>
                     </div>
-                    <Button variant="outline" size="sm">View Details</Button>
+                    <Button variant="outline" size="sm" className="border-[#E6E6E6] hover:border-primary">
+                  View Details
+                </Button>
                 </div>
             </Card>
           ))}
@@ -93,7 +95,11 @@ export default function DataUsagePage() {
                         <div>
                             <h3 className="font-semibold">{dataset.name}</h3>
                             <p className="text-sm text-muted-foreground mt-1">{dataset.description}</p>
-                            <p className="text-xs text-muted-foreground mt-2">Type: {dataset.type} &nbsp;&nbsp; Size: {dataset.size}</p>
+                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              <span>Type: {dataset.type}</span>
+                              <span>•</span>
+                              <span>Size: {dataset.size}</span>
+                            </div>
                         </div>
                         <Button 
                             onClick={() => router.push(`/community-member-wf/upload-files?datasetId=${dataset.id}`)}

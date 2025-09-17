@@ -106,34 +106,34 @@ export function NotificationButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 p-0">
-          <Bell className="h-6 w-6" />
+        <Button variant="ghost" className="relative h-12 w-12 p-3 bg-card border border-border hover:border-border rounded-3xl shadow-sm hover:shadow-figma transition-all duration-200">
+          <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs font-medium flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
               {unreadCount}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96 p-0">
-        <div className="p-4 border-b">
+      <DropdownMenuContent align="end" className="w-96 p-0 border border-border rounded-2xl shadow-figma-card" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
+        <div className="p-4 border-b border-border" style={{ backgroundColor: '#F1F1F1', color: 'black' }}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold ">Notifications</h3>
+            <h3 className="font-semibold" style={{ color: 'black' }}>Notifications</h3>
             <Button variant="ghost" size="icon" className="h-6 w-6">
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4" style={{ color: 'black' }} />
             </Button>
           </div>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2">
-            <TabsTrigger value="all" className="text-xs">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2" style={{ backgroundColor: '#F1F1F1' }}>
+            <TabsTrigger value="all" className="text-xs" style={{ color: 'black' }}>
               All
             </TabsTrigger>
-            <TabsTrigger value="unread" className="text-xs">
+            <TabsTrigger value="unread" className="text-xs" style={{ color: 'black' }}>
               Unread
             </TabsTrigger>
-            <TabsTrigger value="archived" className="text-xs">
+            <TabsTrigger value="archived" className="text-xs" style={{ color: 'black' }}>
               Archived
             </TabsTrigger>
           </TabsList>

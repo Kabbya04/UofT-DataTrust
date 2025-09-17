@@ -155,7 +155,7 @@ interface JoinRequest {
 
 export const api = {
   communities: {
-    getAll: (page = 1, limit = 10) =>
+    getAll: (pageNumber = 1, limit = 10) =>
       makeRequest<{
         items: Array<{
           id: string
@@ -172,7 +172,7 @@ export const api = {
         total: number
         pageNumber: number
         limit: number
-      }>(`/community?page=${page}&limit=${limit}`),
+      }>(`/community?pageNumber=${pageNumber}&limit=${limit}`),
     
     create: (name: string, community_category_id: string, description?: string) =>
       makeRequest<{

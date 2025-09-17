@@ -72,32 +72,142 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true)
       setError(null)
-      const response = await api.communities.getAll(1, 50)
-
+      
+      // Try to fetch communities
+      let response;
+      try {
+        response = await api.communities.getAll(1, 50) // Using pageNumber instead of page
+      } catch (error: any) {
+        // If it's a 401 error, try to refresh the token and retry
+        if (error.name === 'ApiError' && error.status === 401) {
+          const newToken = await refreshAuthToken();
+          if (newToken) {
+            // Retry the request with the new token
+            response = await api.communities.getAll(1, 50) // Using pageNumber instead of page
+          } else {
+            // If token refresh failed, redirect to login
+            if (typeof window !== 'undefined') {
+              window.location.href = '/sign-in';
+            }
+            return;
+          }
+        } else {
+          throw error;
+        }
+      }
+      
+      console.log('=== COMMUNITIES API RESPONSE DEBUG ===');
+      console.log('Full response:', response);
+      console.log('Response data:', response.data);
+      
       // Get current user ID from auth context
-      const currentUserId = user?.id || "USR-734-B" // Fallback to mock ID if no user
-
-      const transformedCommunities: Community[] = (response.data as any).items.map((community: any) => {
-        // Check if current user is in the community's users or admins array (arrays contain user IDs as strings)
-        const isUserMember = community.users?.includes(currentUserId) || false
-        const isUserAdmin = community.admins?.includes(currentUserId) || false
-        const isJoined = isUserMember || isUserAdmin
-
-        console.log(`Community ${community.name}: user ${currentUserId} is ${isJoined ? 'joined' : 'not joined'}`)
-        console.log(`  - Community users:`, community.users || [])
-        console.log(`  - Community admins:`, community.admins || [])
-        console.log(`  - Current user ID:`, currentUserId)
-        console.log(`  - Is member:`, isUserMember, `Is admin:`, isUserAdmin)
-
+      const currentUserId = user?.id
+      console.log('Current user ID:', currentUserId);
+      
+      // Extract communities from the response structure
+      // API returns data in format: { status, message, data: { items: [...], total, pageNumber, limit } }
+      let communitiesArray = [];
+      if (response.data && response.data.items && Array.isArray(response.data.items)) {
+        communitiesArray = response.data.items;
+      } else if (response.data && Array.isArray(response.data)) {
+        communitiesArray = response.data;
+      } else {
+        console.warn('Unexpected response format:', response);
+        communitiesArray = [];
+      }
+      
+      console.log('Communities array:', communitiesArray);
+      
+      const transformedCommunities: Community[] = communitiesArray.map((community: any) => {
+        console.log('Processing community:', community);
+        console.log('Community users type:', typeof community.users, 'value:', community.users);
+        console.log('Community admins type:', typeof community.admins, 'value:', community.admins);
+        
+        // Check if current user is in the community's users or admins array
+        // Handle both string IDs and object arrays
+        let isUserMember = false;
+        let isUserAdmin = false;
+        
+        // Check users array
+        if (community.users && Array.isArray(community.users)) {
+          isUserMember = community.users.some((user: any) => {
+            console.log('Checking user:', user, 'type:', typeof user);
+            if (typeof user === 'string') {
+              // User is represented by ID string
+              console.log('Comparing string user ID:', user, 'with current user ID:', currentUserId);
+              return user === currentUserId;
+            } else if (user && typeof user === 'object') {
+              // User is represented by object
+              console.log('Checking object user, ID property:', user.id);
+              return user.id === currentUserId;
+            }
+            return false;
+          });
+        }
+        
+        // Check admins array
+        if (community.admins && Array.isArray(community.admins)) {
+          isUserAdmin = community.admins.some((admin: any) => {
+            console.log('Checking admin:', admin, 'type:', typeof admin);
+            if (typeof admin === 'string') {
+              // Admin is represented by ID string
+              console.log('Comparing string admin ID:', admin, 'with current user ID:', currentUserId);
+              return admin === currentUserId;
+            } else if (admin && typeof admin === 'object') {
+              // Admin is represented by object
+              console.log('Checking object admin, ID property:', admin.id);
+              return admin.id === currentUserId;
+            }
+            return false;
+          });
+        }
+        
+        const isJoined = isUserMember || isUserAdmin;
+        
+        console.log(`Community ${community.name || 'Unknown'}: user ${currentUserId} is ${isJoined ? 'joined' : 'not joined'}`);
+        console.log(`  - Community users:`, community.users?.map((u: any) => u?.id || u).filter(Boolean) || []);
+        console.log(`  - Community admins:`, community.admins?.map((a: any) => a?.id || a).filter(Boolean) || []);
+        console.log(`  - Current user ID:`, currentUserId);
+        console.log(`  - Is member:`, isUserMember, `Is admin:`, isUserAdmin);
+        console.log(`  - Community users type:`, typeof community.users, `Community admins type:`, typeof community.admins);
+        
+        // Additional debugging
+        console.log('=== DETAILED COMMUNITY DEBUG ===');
+        console.log('Community full data:', community);
+        console.log('Community users detailed:', community.users);
+        console.log('Community admins detailed:', community.admins);
+        if (community.users && Array.isArray(community.users)) {
+          console.log('Users array elements:');
+          community.users.forEach((user, index) => {
+            console.log(`  User ${index}:`, user, typeof user);
+          });
+        }
+        if (community.admins && Array.isArray(community.admins)) {
+          console.log('Admins array elements:');
+          community.admins.forEach((admin, index) => {
+            console.log(`  Admin ${index}:`, admin, typeof admin);
+          });
+        }
+        
         return {
-          ...community,
-          isJoined,
-          memberCount: (community.users?.length || 0) + (community.admins?.length || 0),
-          tags: [community.community_category.name],
+          id: community.id || '',
+          name: community.name || 'Unnamed Community',
+          description: community.description || '',
+          logo: community.logo || null,
+          community_category: {
+            id: community.community_category?.id || '',
+            name: community.community_category?.name || 'Uncategorized'
+          },
+          admins: community.admins || [],
+          users: community.users || [],
+          isJoined, // Actually check if user is a member
+          memberCount: (community.users?.length || 0) + (community.admins?.length || 0), // Real member count
+          tags: [community.community_category?.name || 'Uncategorized'], // Use category as tag
           coverImage: community.logo || '/placeholder-np7tk.png'
         }
-      })
-
+      }).filter((community: Community) => community.id) // Filter out communities without valid IDs
+      
+      console.log('Transformed communities:', transformedCommunities);
       setCommunities(transformedCommunities)
     } catch (err) {
       console.error('Failed to fetch communities:', err)

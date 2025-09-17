@@ -7,6 +7,7 @@ import { PlayCircle, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useCommunity } from "@/app/components/contexts/community-context";
 import ExpandableContentCard from "../../../components/dashboard/expandable-content-card"
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 // Types for community posts - Updated to match new API structure
 interface User {
@@ -211,111 +212,137 @@ export default function ResearcherHomePage() {
     .slice(0, 3);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="">
       {/* Main Content */}
-      <div className="lg:col-span-2 space-y-8">
+      <div className=" space-y-8">
+        <h2 className="text-2xl font-bold mb-4">Trending Datasets</h2>
         {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {topGridItems.map((item, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
-                  {item.type === 'video' ? <PlayCircle className="h-12 w-12 text-muted-foreground/50" /> : <ImageIcon className="h-12 w-12 text-muted-foreground/50" />}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {realPosts.length > 0 ? (
+            realPosts.slice(0, 3).map((post) => (
+              <ExpandableContentCard 
+                key={post.id} 
+                id={post.id}
+                title={post.title}
+                author={post.author}
+                timestamp={post.timestamp}
+                content={post.description || post.content}
+                videoThumbnail={post.dataset?.thumbnail || post.file_url || "/placeholder.svg?height=200&width=400"}
+              />
+            ))
+          ) : (
+            // Show placeholder cards if no real posts
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="p-4">
+                  <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center mb-3">
+                    <PlayCircle className="h-12 w-12 text-muted-foreground/50" />
+                  </div>
+                  <h3 className="font-semibold">Loading trending datasets...</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Datasets will appear once available.</p>
                 </div>
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">Access research datasets and collaborate with other researchers.</p>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            ))
+          )}
         </div>
 
-        {/* Latest Section */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Latest Research Data (Based on your communities)</h2>
-          <div className="space-y-4">
-            {isLoadingPosts ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                <span>Loading latest research posts from your communities...</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Latest Section */}
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="text-2xl font-bold mb-4">Latest Research Data</h2>
+            <div className="space-y-4">
+              {isLoadingPosts ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  <span>Loading latest research posts from your communities...</span>
+                </div>
+              ) : postsError ? (
+                <div className="p-6 border border-red-200 rounded-lg bg-red-50">
+                  <p className="text-red-600 text-sm mb-2">{postsError}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.reload()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : realPosts.length > 0 ? (
+                realPosts.map((post) => (
+                  <ExpandableContentCard
+                    key={post.id}
+                    id={post.id}
+                    title={post.title}
+                    author={post.author!}
+                    timestamp={post.timestamp!}
+                    content={post.description}
+                    videoThumbnail={post.dataset?.thumbnail || post.file_url || "/placeholder.svg?height=200&width=400"}
+                  />
+                ))
+              ) : joinedCommunities.length === 0 ? (
+                <div className="p-6 text-center border rounded-lg">
+                  <p className="text-muted-foreground mb-4">Join research communities to see relevant datasets and collaboration opportunities!</p>
+                  <Button onClick={() => router.push('/researcher-wf/discover-community')}>
+                    Discover Research Communities
+                  </Button>
+                </div>
+              ) : (
+                <div className="p-6 text-center border rounded-lg">
+                  <p className="text-muted-foreground mb-4">No research data available yet in your joined communities.</p>
+                  <p className="text-sm text-muted-foreground">Check back later for new research datasets and collaboration opportunities!</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Popular Research Communities</h2>
+            {loading && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-muted-foreground text-sm">Loading communities...</div>
               </div>
-            ) : postsError ? (
-              <div className="p-6 border border-red-200 rounded-lg bg-red-50">
-                <p className="text-red-600 text-sm mb-2">{postsError}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.reload()}
-                >
-                  Retry
-                </Button>
+            )}
+            {error && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-red-500 text-sm">Error: {error}</div>
               </div>
-            ) : realPosts.length > 0 ? (
-              realPosts.map((post) => (
-                <ExpandableContentCard
-                  key={post.id}
-                  id={post.id}
-                  title={post.title}
-                  author={post.author!}
-                  timestamp={post.timestamp!}
-                  content={post.description}
-                  videoThumbnail={post.dataset?.thumbnail || post.file_url || "/placeholder.svg?height=200&width=400"}
-                />
-              ))
-            ) : joinedCommunities.length === 0 ? (
-              <div className="p-6 text-center border rounded-lg">
-                <p className="text-muted-foreground mb-4">Join research communities to see relevant datasets and collaboration opportunities!</p>
-                <Button onClick={() => router.push('/researcher-wf/discover-community')}>
-                  Discover Research Communities
-                </Button>
+            )}
+            {!loading && !error && popularCommunities.length === 0 && (
+              <div className="flex items-center justify-center py-4">
+                <div className="text-muted-foreground text-sm">No communities found.</div>
               </div>
-            ) : (
-              <div className="p-6 text-center border rounded-lg">
-                <p className="text-muted-foreground mb-4">No research data available yet in your joined communities.</p>
-                <p className="text-sm text-muted-foreground">Check back later for new research datasets and collaboration opportunities!</p>
+            )}
+            {!loading && !error && popularCommunities.length > 0 && (
+              <div className="space-y-4">
+                {popularCommunities.map((community) => (
+                  <div 
+                    key={community.id}
+                    onClick={() => router.push(`/researcher-wf/community-details/${community.id}`)}
+                    className="w-full h-32 flex flex-row gap-2 cursor-pointer bg-card border border-border rounded-lg p-4"
+                  >
+                    <div className="relative w-[40%] bg-gray-200 rounded-lg overflow-hidden">
+                      <Image
+                        src={community.coverImage || "/placeholder.svg?height=128&width=128"}
+                        alt={community.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="w-[60%] flex flex-col justify-center">
+                      <h3 className="font-semibold text-lg">{community.name}</h3>
+                      <ul className="text-xs text-muted-foreground list-disc ml-3 space-y-1">
+                        <li>{community.memberCount || 0} researchers</li>
+                        <li>{datasetCounts[community.id.toString()] || 0} datasets</li>
+                        <li>{community.community_category?.name || 'General'} research focus</li>
+                      </ul>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Popular Research Communities</h2>
-        {loading && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-muted-foreground text-sm">Loading communities...</div>
-          </div>
-        )}
-        {error && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-red-500 text-sm">Error: {error}</div>
-          </div>
-        )}
-        {!loading && !error && popularCommunities.length === 0 && (
-          <div className="flex items-center justify-center py-4">
-            <div className="text-muted-foreground text-sm">No communities found.</div>
-          </div>
-        )}
-        {!loading && !error && popularCommunities.length > 0 && (
-          <div className="space-y-4">
-            {popularCommunities.map((community, i) => (
-              <Card key={i}>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{community.name}</h3>
-                <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1 mb-4">
-                  <li>{community.memberCount || 0} researchers</li>
-                  <li>{datasetCounts[community.id.toString()] || 0} datasets</li>
-                  <li>{community.community_category?.name || 'General'} research focus</li>
-                </ul>
-                <div className="flex items-center gap-1 ">
-                  <Button variant="outline" className="w-fit text-xs" onClick={() => router.push(`/researcher-wf/community-details/${community.id}`)}>View Details</Button>
-                  <Button className="w-fit text-xs" onClick={() => router.push(`/researcher-wf/join-community?communityId=${community.id}`)}>Join Community</Button>
-                </div>
-              </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

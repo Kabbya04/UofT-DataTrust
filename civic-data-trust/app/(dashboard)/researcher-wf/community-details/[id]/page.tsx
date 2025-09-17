@@ -60,47 +60,40 @@ interface PostCardProps {
 
 function PostCard({ post }: PostCardProps) {
   return (
-    <Card className="mb-4 hover:shadow-lg transition-all duration-200 border border-primary bg-card">
+    <Card className="mb-4 hover:shadow-lg transition-all duration-200 border border-[#E6E6E6] bg-card">
       <CardContent className="p-4">
         <div className="flex gap-4">
           <div className="w-32 h-20 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
             {post.dataset?.thumbnail ? (
               <img
                 src={post.dataset.thumbnail}
-                alt={post.dataset.name}
-                className="w-full h-full object-cover rounded"
+                alt={post.title}
+                className="w-full h-full object-cover"
               />
             ) : post.file_url ? (
-              <div className="bg-background/90 rounded-full p-2">
-                <Play className="h-4 w-4 text-primary fill-current" />
-              </div>
+              <img
+                src={post.file_url}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <div className="bg-background/90 rounded-full p-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </div>
+              <FileText className="h-8 w-8 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm text-foreground mb-1 line-clamp-1">{post.title}</h3>
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+            <h3 className="font-semibold text-lg mb-1 truncate">{post.title}</h3>
+            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
               {post.description}
             </p>
-            {post.dataset && (
-              <div className="mt-2 pt-2 border-t border-muted/30">
-                <p className="text-xs font-medium text-foreground mb-1">Research Dataset: {post.dataset.name}</p>
-                <p className="text-xs text-muted-foreground line-clamp-1">{post.dataset.description}</p>
-                <div className="mt-2">
-                  <Button size="sm" variant="outline" className="text-xs h-6">
-                    Access for Research
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span>By {post.user?.name || 'Unknown'}</span>
+              <span>{new Date(post.created_at).toLocaleDateString()}</span>
+            </div>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function PopularPostItem({ post }: { post: PostWithDataset }) {

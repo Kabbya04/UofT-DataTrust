@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Image as ImageIcon, RefreshCw, Search, Grid, List } from "lucide-react"
-import { Card } from "@/app/components/ui/card"
+import { Card, CardHeader, CardContent } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
+import { Badge } from "@/app/components/ui/badge"
+import { Users, Database } from "lucide-react"
 import { useCommunity } from "@/app/components/contexts/community-context"
 import { api } from "@/app/lib/api"
 
@@ -28,30 +30,55 @@ interface CommunityCardProps {
 
 function CommunityCard({ community, onJoin, onViewDetails, isLoadingCounts }: CommunityCardProps) {
   return (
-    <Card className="p-2 hover:shadow-lg w-fit transition-all duration-200 border border-border bg-card">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-sm text-foreground mb-1 cursor-pointer hover:text-primary transition-colors" onClick={() => onViewDetails(community.id)}>
-            {community.name}
-          </h4>
-          <div className="space-y-1 text-xs text-muted-foreground mb-3">
-            <div>• {isLoadingCounts ? '...' : (community.memberCount?.toLocaleString() || '0')} members</div>
-            <div>• {isLoadingCounts ? '...' : community.datasets} datasets</div>
-            <div>• {community.description || 'No description available'}</div>
-          </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className=" text-xs h-7 cursor-pointer" onClick={() => onViewDetails(community.id)}>View Details</Button>
-            <Button size="sm" variant={community.isJoined ? "outline" : "default"} className=" text-xs h-7  cursor-pointer" onClick={() => onJoin(community.id)}>
-              {community.isJoined ? "Joined" : "Join Community"}
-            </Button>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 
+              className="font-semibold text-lg mb-1 cursor-pointer hover:text-primary transition-colors" 
+              onClick={() => onViewDetails(community.id)}
+            >
+              {community.name}
+            </h3>
+            <Badge variant="secondary" className="mb-2">{community.category}</Badge>
           </div>
         </div>
-      </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+          {community.description || 'No description available'}
+        </p>
+        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+          <div className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            <span>{isLoadingCounts ? '...' : (community.memberCount?.toLocaleString() || '0')}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Database className="h-4 w-4" />
+            <span>{isLoadingCounts ? '...' : community.datasets} datasets</span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1" 
+            onClick={() => onViewDetails(community.id)}
+          >
+            View Details
+          </Button>
+          <Button 
+            variant={community.isJoined ? "outline" : "default"} 
+            size="sm" 
+            className="flex-1" 
+            onClick={() => onJoin(community.id)}
+          >
+            {community.isJoined ? "Joined" : "Join Community"}
+          </Button>
+        </div>
+      </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function DiscoverCommunityPage() {
