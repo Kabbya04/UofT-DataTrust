@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { nodeValidationService, showValidationError } from '../utils/nodeValidation';
 
 export interface NodePort {
   id: string;
@@ -75,6 +76,19 @@ const workflowSlice = createSlice({
       );
     },
     addConnection: (state, action: PayloadAction<Connection>) => {
+      // Validate connection before adding
+      const validationResult = nodeValidationService.validateConnection(
+        action.payload, 
+        state.nodes, 
+        state.connections
+      );
+      
+      if (!validationResult.isValid) {
+        // Show error message and prevent connection
+        showValidationError(validationResult);
+        return;
+      }
+      
       state.connections.push(action.payload);
       
       // Update port connection status
@@ -172,6 +186,32 @@ const workflowSlice = createSlice({
         Object.assign(node.parameters, action.payload.parameters);
       }
     },
+    validateMergeNode: (state, action: PayloadAction<string>) => {
+      const validationResult = nodeValidationService.validateMergeNodeConnections(
+        action.payload,
+        state.nodes,
+        state.connections
+      );
+      
+      if (!validationResult.isValid) {
+        showValidationError(validationResult);
+      }
+    },
+    validateWorkflow: (state) => {
+      const summary = nodeValidationService.getWorkflowValidationSummary(
+        state.nodes,
+        state.connections
+      );
+      
+      if (!summary.isValid) {
+        summary.issues.forEach(issue => {
+          showValidationError({ isValid: false, errorMessage: issue });
+        });
+        summary.warnings.forEach(warning => {
+          showValidationError({ isValid: false, warningMessage: warning });
+        });
+      }
+    },
   },
 });
 
@@ -190,6 +230,8 @@ export const {
   updateNodeStatus,
   setNodeOutput,
   updateNodeParameters,
+  validateMergeNode,
+  validateWorkflow,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;
