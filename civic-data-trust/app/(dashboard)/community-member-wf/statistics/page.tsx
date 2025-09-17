@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { Eye, ChevronDown, Database, TrendingUp, TrendingDown, Maximize2, Minimize2, RotateCcw } from "lucide-react"
+import { Cube } from "@phosphor-icons/react"
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, Legend, Brush } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
@@ -67,23 +68,59 @@ export default function StatisticsPage() {
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">Your Audience</h2>
                 <div className="flex gap-4 mb-6">
-                    <Select value={dataFilter} onValueChange={setDataFilter}><SelectTrigger className="w-48"><SelectValue placeholder="All Data" /></SelectTrigger><SelectContent><SelectItem value="all">All Data</SelectItem><SelectItem value="Healthcare">Healthcare</SelectItem><SelectItem value="Finance">Finance</SelectItem><SelectItem value="Technology">Technology</SelectItem></SelectContent></Select>
-                    <Select value={timeFilter} onValueChange={setTimeFilter}><SelectTrigger className="w-48"><SelectValue placeholder="Last 30 Days" /></SelectTrigger><SelectContent><SelectItem value="7">Last 7 Days</SelectItem><SelectItem value="30">Last 30 Days</SelectItem><SelectItem value="90">Last 90 Days</SelectItem></SelectContent></Select>
-                    <Button variant="default">Export</Button>
+                    <Select value={dataFilter} onValueChange={setDataFilter}>
+                        <SelectTrigger className="w-48">
+                            <SelectValue placeholder="All Data" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Data</SelectItem>
+                            <SelectItem value="Healthcare">Healthcare</SelectItem>
+                            <SelectItem value="Finance">Finance</SelectItem>
+                            <SelectItem value="Technology">Technology</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={timeFilter} onValueChange={setTimeFilter}>
+                        <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Last 30 Days" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="7">Last 7 Days</SelectItem>
+                            <SelectItem value="30">Last 30 Days</SelectItem>
+                            <SelectItem value="90">Last 90 Days</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button 
+                      variant="default" 
+                      className="bg-civic-accent-green hover:bg-civic-accent-green/90 text-white"
+                      style={{ backgroundColor: "#43CD41", color: "white" }}
+                    >
+                      Export
+                    </Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">{filteredData.audienceStats.map((stat, index) => (<Card key={index} className="border border-border"><CardContent className="p-6"><div className="flex items-center justify-between mb-2"><span className="text-sm font-medium text-muted-foreground">{stat.title}</span><div className="p-1 bg-muted rounded">{stat.icon}</div></div><div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div><div className={`text-sm ${stat.trend === 'up' ? 'text-foreground' : 'text-red-600'}`}>{stat.change}</div></CardContent></Card>))}</div>
-            </div>
-            <div className="mb-6 w-60">
-                <Card className="flex flex-col">
-                    <CardHeader className=" flex flex-row items-center gap-1 space-y-0 pb-2 px-6 pt-4">
-                        <Database className="h-8 w-8 text-muted-foreground" />
-                        <CardTitle className="text-sm font-medium">Total Datasets</CardTitle>
-
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold ml-8">{usageStats.totalDatasets}</div>
-                    </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    {filteredData.audienceStats.map((stat, index) => (
+                        <Card key={index} className="border border-border relative">
+                            <Cube size={24} className="absolute top-4 right-4 text-muted-foreground" />
+                            <CardContent className="p-6 pt-12">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-muted-foreground">{stat.title}</span>
+                                </div>
+                                <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
+                                <div className={`text-sm ${stat.trend === 'up' ? 'text-foreground' : 'text-red-600'}`}>{stat.change}</div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    <Card className="flex flex-col relative">
+                        <Cube size={24} className="absolute top-4 right-4 text-muted-foreground" />
+                        <CardHeader className="flex flex-row items-center gap-1 space-y-0 pb-2 px-6 pt-12">
+                            <Database className="h-8 w-8 text-muted-foreground" />
+                            <CardTitle className="text-sm font-medium">Total Datasets</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{usageStats.totalDatasets}</div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
             <div className={`transition-all duration-300 mb-8 ${expandedChart ? 'fixed inset-0 z-50 bg-background p-6 overflow-auto' : 'grid grid-cols-1 lg:grid-cols-2 gap-6'}`}>
                 {(!expandedChart || expandedChart === 'pie') && (<Card className={`border border-border ${expandedChart === 'pie' ? 'w-full h-full' : ''}`}><CardContent className="p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">Data Usage Category</h3><Button variant="outline" size="sm" onClick={() => setExpandedChart(expandedChart ? null : 'pie')} className="flex items-center gap-1">{expandedChart ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{expandedChart ? 'Minimize' : 'Expand'}</Button></div><PieChart width={500} height={300}><Pie data={filteredData.categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" stroke="hsl(var(--background))" strokeWidth={2}>{filteredData.categoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.fill} />))}</Pie><Legend verticalAlign="bottom" height={36} iconType="circle" /></PieChart></CardContent></Card>)}

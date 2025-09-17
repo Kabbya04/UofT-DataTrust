@@ -30,7 +30,12 @@ export default function CommunityAuditLogsPage() {
                             <label className="text-sm">Data Type</label>
                             <Select defaultValue="all"><SelectTrigger className="w-32"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem></SelectContent></Select>
                         </div>
-                        <Button variant="outline">Export</Button>
+                        <Button 
+                            variant="outline" 
+                            style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
+                        >
+                            Export
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

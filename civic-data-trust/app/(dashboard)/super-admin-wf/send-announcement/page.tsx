@@ -122,12 +122,13 @@ export default function SendAnnouncementPage() {
           <div className="pt-4">
             <Button 
               onClick={handleSend}
-              className="bg-black hover:bg-black/90 text-white px-8"
+              style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
             >
               <Send className="h-4 w-4 mr-2" />
               Send
             </Button>
           </div>
+
         </CardContent>
       </Card>
     </div>

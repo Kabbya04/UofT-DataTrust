@@ -250,7 +250,7 @@ export default function ContentModerationPage() {
                 <Button 
                     variant="outline" 
                     onClick={handleModerationGuidelines}
-                    className="bg-black text-white hover:bg-black/90"
+                    style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
                 >
                     <FileText className="h-4 w-4 mr-2" />
                     Moderation Guidelines
@@ -383,7 +383,7 @@ export default function ContentModerationPage() {
                                                             <Button 
                                                                 size="sm"
                                                                 onClick={() => handleApprove(profile, 'profile')}
-                                                                className="bg-black hover:bg-black/90 text-white"
+                                                                style={{ backgroundColor: "#43CD41", color: "white", border: "none" }}
                                                             >
                                                                 Approve
                                                             </Button>
@@ -391,7 +391,7 @@ export default function ContentModerationPage() {
                                                                 size="sm"
                                                                 variant="outline" 
                                                                 onClick={() => handleReject(profile, 'profile')}
-                                                                className="border-gray-300 hover:bg-red-50 hover:text-red-700"
+                                                                style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}
                                                             >
                                                                 Reject
                                                             </Button>
@@ -430,7 +430,7 @@ export default function ContentModerationPage() {
                                                             <Button 
                                                                 size="sm"
                                                                 onClick={() => handleApprove(content, 'content')}
-                                                                className="bg-black hover:bg-black/90 text-white"
+                                                                style={{ backgroundColor: "#43CD41", color: "white", border: "none" }}
                                                             >
                                                                 Approve
                                                             </Button>
@@ -438,7 +438,7 @@ export default function ContentModerationPage() {
                                                                 size="sm"
                                                                 variant="outline" 
                                                                 onClick={() => handleReject(content, 'content')}
-                                                                className="border-gray-300 hover:bg-red-50 hover:text-red-700"
+                                                                style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}
                                                             >
                                                                 Reject
                                                             </Button>
@@ -477,7 +477,7 @@ export default function ContentModerationPage() {
                                                             <Button 
                                                                 size="sm"
                                                                 onClick={() => handleApprove(community, 'community')}
-                                                                className="bg-black hover:bg-black/90 text-white"
+                                                                style={{ backgroundColor: "#43CD41", color: "white", border: "none" }}
                                                             >
                                                                 Approve
                                                             </Button>
@@ -485,12 +485,13 @@ export default function ContentModerationPage() {
                                                                 size="sm"
                                                                 variant="outline" 
                                                                 onClick={() => handleReject(community, 'community')}
-                                                                className="border-gray-300 hover:bg-red-50 hover:text-red-700"
+                                                                style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}
                                                             >
                                                                 Reject
                                                             </Button>
                                                         </div>
                                                     </TableCell>
+
                                                 </TableRow>
                                             ))}
                                         </TableBody>

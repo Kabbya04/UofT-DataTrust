@@ -98,11 +98,12 @@ export default function AddNewAdminPage() {
           <div className="pt-4">
             <Button 
               onClick={handleInvite}
-              className="bg-black hover:bg-black/90 text-white px-8"
+              style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
             >
               Invite
             </Button>
           </div>
+
         </CardContent>
       </Card>
     </div>

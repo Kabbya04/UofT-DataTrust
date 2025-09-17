@@ -347,11 +347,15 @@ export default function AnalyticsReportsPage() {
                     <Button 
                         variant="outline" 
                         onClick={() => setIsExportModalOpen(true)}
+                        style={{ backgroundColor: "#EBEBEB", color: "black", border: "none" }}
                     >
                         <Download className="h-4 w-4 mr-2" />
                         Export Data
                     </Button>
-                    <Button onClick={() => setIsReportModalOpen(true)}>
+                    <Button 
+                        onClick={() => setIsReportModalOpen(true)}
+                        style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
+                    >
                         <BarChart2 className="h-4 w-4 mr-2" />
                         Generate Report
                     </Button>
@@ -399,7 +403,21 @@ export default function AnalyticsReportsPage() {
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Saved Reports</CardTitle></CardHeader>
-                    <CardContent className="space-y-2">{savedReports.map((report, i) => (<div key={i} className="flex items-center justify-between p-3 border rounded-md"><div className="flex items-center gap-3"><FileText className="h-5 w-5 text-muted-foreground" /><div><p className="text-sm font-medium">{report.title}</p><p className="text-xs text-muted-foreground">{report.date}</p></div></div></div>))}</CardContent>
+                    <CardContent className="space-y-2">{savedReports.map((report, i) => (
+                        <div 
+                            key={i} 
+                            className="flex items-center justify-between p-3 border rounded-md"
+                            style={{ backgroundColor: i % 2 === 0 ? "#03A9F4" : "#988BFE", color: "white" }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <FileText className="h-5 w-5 text-white" />
+                                <div>
+                                    <p className="text-sm font-medium text-white">{report.title}</p>
+                                    <p className="text-xs text-white/90">{report.date}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}</CardContent>
                 </Card>
             </div>
 

@@ -233,6 +233,7 @@ export default function CreateProjectPage() {
         <Button 
           onClick={handleCreateProject}
           disabled={!projectTitle.trim() || selectedDatasets.length === 0}
+          style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
         >
           Create Project
         </Button>

@@ -47,7 +47,7 @@ const barChartData = [
 ];
 
 const pieChartData = [{ name: 'Group A', value: 400 }, { name: 'Group B', value: 300 }];
-const COLORS = ['#FFBB28', '#00C49F'];
+const COLORS = ['#2196F3', '#4FC3F7'];
 
 export default function AdminDashboardPage() {
     const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
@@ -340,10 +340,17 @@ export default function AdminDashboardPage() {
                 <h1 className="text-3xl font-bold">Community Management</h1>
                 <div className="flex gap-4">
                     <Link href="/project-admin-wf/create-community">
-                        <Button variant="outline">Create Community</Button>
+                        <Button 
+                            variant="outline" 
+                            style={{ backgroundColor: "#EBEBEB", border: "none" }}
+                        >
+                            Create Community
+                        </Button>
                     </Link>
                     <Link href="/project-admin-wf/invite-members">
-                        <Button>Invite Members</Button>
+                        <Button style={{ backgroundColor: "#2196F3" }}>
+                            Invite Members
+                        </Button>
                     </Link>
                 </div>
             </div>
@@ -428,7 +435,37 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card><CardHeader><CardTitle>Growth of Content</CardTitle></CardHeader><CardContent className="h-[300px]"><ResponsiveContainer width="100%" height="100%"><BarChart data={barChartData}><XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} /><YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} /><Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></CardContent></Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Growth of Content</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={barChartData}>
+                                <XAxis 
+                                    dataKey="name" 
+                                    stroke="#888888" 
+                                    fontSize={12} 
+                                    tickLine={false} 
+                                    axisLine={false} 
+                                />
+                                <YAxis 
+                                    stroke="#888888" 
+                                    fontSize={12} 
+                                    tickLine={false} 
+                                    axisLine={false} 
+                                    tickFormatter={(value) => `${value}`} 
+                                />
+                                <Bar 
+                                    dataKey="value" 
+                                    fill="#88BEF0" 
+                                    radius={[4, 4, 0, 0]} 
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
                 <Card><CardHeader><CardTitle>Distribution of Content</CardTitle></CardHeader><CardContent className="h-[300px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pieChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="value" labelLine={false}>{pieChartData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}</Pie></PieChart></ResponsiveContainer></CardContent></Card>
             </div>
 
@@ -517,11 +554,18 @@ export default function AdminDashboardPage() {
                                                 {getCommunityDisplayName(log)}
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="link" className="p-0 h-auto text-destructive text-xs">
+                                                <Button 
+                                                    variant="default" 
+                                                    className="p-2 h-auto text-xs mr-1"
+                                                    style={{ backgroundColor: "#43CD41", color: "white" }}
+                                                >
                                                     Delete
                                                 </Button>
-                                                {' | '}
-                                                <Button variant="link" className="p-0 h-auto text-xs">
+                                                <Button 
+                                                    variant="default" 
+                                                    className="p-2 h-auto text-xs"
+                                                    style={{ backgroundColor: "#CC0000E5", color: "white" }}
+                                                >
                                                     Warning
                                                 </Button>
                                             </TableCell>

@@ -295,12 +295,16 @@ export default function MembershipRequestsPage() {
                                                     <TableCell className="text-right">
                                                         {req.status === 'pending' && (
                                                             <div className="flex gap-2 justify-end">
-                                                                <Button onClick={() => handleApprove(req)}>
+                                                                <Button 
+                                                                    onClick={() => handleApprove(req)}
+                                                                    style={{ backgroundColor: "#43CD41", color: "white" }}
+                                                                >
                                                                     Approve
                                                                 </Button>
                                                                 <Button 
                                                                     variant="outline" 
                                                                     onClick={() => handleReject(req)}
+                                                                    style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}
                                                                 >
                                                                     Reject
                                                                 </Button>

@@ -22,7 +22,11 @@ export default function UserManagementPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">User Management</h1>
                 <Link href={'/super-admin-wf/invite-member'}>
-                    <Button variant="outline" className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Button 
+                        variant="outline" 
+                        className="cursor-pointer"
+                        style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
+                    >
                         <UserPlus className="h-4 w-4 mr-2" />Invite Member
                     </Button>
                 </Link>
@@ -53,7 +57,7 @@ export default function UserManagementPage() {
                 <CardContent>
                     <Table>
                         <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead>Join Date</TableHead><TableHead>Last Activity</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
-                        <TableBody>{users.map((user, i) => (<TableRow key={i}><TableCell>{user.name}</TableCell><TableCell>{user.email}</TableCell><TableCell>{user.role}</TableCell><TableCell>{user.joinDate}</TableCell><TableCell>{user.lastActivity}</TableCell><TableCell>{user.status}</TableCell><TableCell className="text-right"><div className="flex gap-2 justify-end"><Button variant="outline">Edit</Button><Button variant="destructive">Delete</Button></div></TableCell></TableRow>))}</TableBody>
+                        <TableBody>{users.map((user, i) => (<TableRow key={i}><TableCell>{user.name}</TableCell><TableCell>{user.email}</TableCell><TableCell>{user.role}</TableCell><TableCell>{user.joinDate}</TableCell><TableCell>{user.lastActivity}</TableCell><TableCell>{user.status}</TableCell><TableCell className="text-right"><div className="flex gap-2 justify-end"><Button variant="outline" style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}>Edit</Button><Button variant="destructive" style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}>Delete</Button></div></TableCell></TableRow>))}</TableBody>
                     </Table>
                 </CardContent>
             </Card>

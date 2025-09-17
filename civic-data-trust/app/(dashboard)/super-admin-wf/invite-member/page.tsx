@@ -101,12 +101,13 @@ export default function InviteMembersPage() {
           <div className="pt-4">
             <Button 
               onClick={handleInvite}
-              className="bg-black hover:bg-black/90 text-white px-8"
+              style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
               disabled={!email.trim()}
             >
               Invite
             </Button>
           </div>
+
         </CardContent>
       </Card>
     </div>

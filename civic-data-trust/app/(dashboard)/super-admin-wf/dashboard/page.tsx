@@ -21,10 +21,10 @@ const stats = [
     { title: "Data Download this month", value: "380", change: "7%", color: "bg-blue-400" },
     { title: "Total Community Members", value: "551", change: "6.32%", color: "bg-indigo-400" },
     { title: "Total Researchers", value: "532", change: "9%", color: "bg-green-400" },
-    { title: "Research Executed", value: "445", change: "2.44%", color: "bg-lime-400" },
+    { title: "Research Executed", value: "445", change: "-2.44%", color: "bg-lime-400" },
     { title: "Approved Research", value: "353", change: "25%", color: "bg-emerald-400" },
     { title: "Total Posts", value: "412", change: "5.22%", color: "bg-orange-400" },
-    { title: "Super Admin", value: "331", change: "5.21%", color: "bg-red-400" },
+    { title: "Super Admin", value: "331", change: "-5.21%", color: "bg-red-400" },
 ];
 
 const initialTopCategories = [
@@ -149,18 +149,27 @@ export default function SuperAdminDashboardPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
                 <div className="flex gap-2">
-                    <Button asChild>
+                    <Button 
+                        asChild
+                        style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
+                    >
                         <Link href="/super-admin-wf/create-new-community">
                             <Plus className="h-4 w-4 mr-2" />
                             Create Community
                         </Link>
                     </Button>
-                    <Button variant="outline">
+                    <Button 
+                        variant="outline"
+                        style={{ backgroundColor: "#EBEBEB", border: "none" }}
+                    >
                         <Link href="/super-admin-wf/add-new-admin">
                             Add New Admin
                         </Link>
                     </Button>
-                    <Button variant="outline">
+                    <Button 
+                        variant="outline"
+                        style={{ backgroundColor: "#EBEBEB", border: "none" }}
+                    >
                         <Link href="/super-admin-wf/send-announcement">Send Announcement</Link>
                     </Button>
                     <Button variant="destructive">
@@ -173,34 +182,44 @@ export default function SuperAdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-5 gap-4">
-                {stats.map(stat => (
-                    <Card key={stat.title} className={`${stat.color} text-black`}>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-4xl font-bold">{stat.value}</div>
-                            <p className="text-xs flex items-center gap-1">
-                                <TrendingUp className="h-4 w-4" />{stat.change}
-                            </p>
-                        </CardContent>
-                    </Card>
-                ))}
+                {stats.map(stat => {
+                    // Check if the change is positive or negative
+                    const isPositive = !stat.change.startsWith('-');
+                    const changeColor = isPositive ? "#43CD41" : "#CC0000E5";
+                    
+                    return (
+                        <Card key={stat.title} className="bg-white text-black">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-4xl font-bold">{stat.value}</div>
+                                <p className="text-xs flex items-center gap-1">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span style={{ color: changeColor }}>{stat.change}</span>
+                                </p>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
             </div>
 
             <div>
                 <h2 className="text-2xl font-bold mb-4">All Communities</h2>
-                <Tabs defaultValue="all">
-                    <TabsList>
-                        <TabsTrigger value="all">All (520)</TabsTrigger>
-                        <TabsTrigger value="internet">Internet (20)</TabsTrigger>
-                        <TabsTrigger value="games">Games (20)</TabsTrigger>
-                        <TabsTrigger value="technology">Technology (20)</TabsTrigger>
-                        <TabsTrigger value="movies">Movies (20)</TabsTrigger>
-                        <TabsTrigger value="television">Television (20)</TabsTrigger>
-                        <TabsTrigger value="medicine">Medicine (20)</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                    {['All', 'Internet', 'Games', 'Technology', 'Movies', 'Television', 'Medicine'].map((tab) => (
+                        <Button 
+                            key={tab} 
+                            variant="outline" 
+                            size="sm" 
+                            className="whitespace-nowrap"
+                            style={{ backgroundColor: tab === 'All' ? "#2196F3" : undefined, color: tab === 'All' ? "white" : undefined, border: tab === 'All' ? "none" : undefined }}
+                            onClick={() => console.log(`Tab ${tab} clicked`)}
+                        >
+                            {tab} {tab === 'All' ? '(520)' : '(20)'}
+                        </Button>
+                    ))}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -251,21 +270,24 @@ export default function SuperAdminDashboardPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button 
-                                            variant="link" 
-                                            className="p-0 h-auto"
+                                            variant="default" 
+                                            className="p-2 h-auto text-xs mr-1"
+                                            style={{ backgroundColor: "#43CD41", color: "white", border: "none" }}
                                             onClick={() => handleEditClick(cat.id, cat.category)}
                                         >
                                             Edit
                                         </Button>
-                                        {" | "}
+                                        {" "}
                                         <Button 
-                                            variant="link" 
-                                            className="p-0 h-auto text-destructive"
+                                            variant="default" 
+                                            className="p-2 h-auto text-xs"
+                                            style={{ backgroundColor: "#CC0000E5", color: "white", border: "none" }}
                                             onClick={() => handleDeleteCategory(cat.id)}
                                         >
                                             Delete
                                         </Button>
                                     </TableCell>
+
                                 </TableRow>
                             ))}
                         </TableBody>

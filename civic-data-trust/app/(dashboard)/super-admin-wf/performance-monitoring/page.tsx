@@ -55,10 +55,10 @@ export default function PerformanceMonitoringPage() {
                 <Card>
                     <CardHeader><CardTitle>System Resources</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">CPU Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Memory Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Disk Usage</label><span>50%</span></div><Progress value={50} /></div>
-                        <div><div className="flex justify-between mb-1"><label className="text-sm">Network</label><span>50%</span></div><Progress value={50} /></div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">CPU Usage</label><span>50%</span></div><Progress value={50} className="bg-[#EBEBEB] [&>div]:bg-[#2196F3]" /></div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Memory Usage</label><span>50%</span></div><Progress value={50} className="bg-[#EBEBEB] [&>div]:bg-[#2196F3]" /></div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Disk Usage</label><span>50%</span></div><Progress value={50} className="bg-[#EBEBEB] [&>div]:bg-[#2196F3]" /></div>
+                        <div><div className="flex justify-between mb-1"><label className="text-sm">Network</label><span>50%</span></div><Progress value={50} className="bg-[#EBEBEB] [&>div]:bg-[#2196F3]" /></div>
                     </CardContent>
                 </Card>
             </div>

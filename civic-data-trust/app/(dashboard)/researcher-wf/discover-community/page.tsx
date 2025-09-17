@@ -37,7 +37,9 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
             >
               {community.name}
             </h3>
-            <Badge variant="secondary" className="mb-2">{community.category}</Badge>
+            <Badge className="mb-2 bg-brand-blue text-white hover:bg-brand-blue/90 border-0" style={{ backgroundColor: "#2196F3", color: "white" }}>
+              {community.category}
+            </Badge>
           </div>
         </div>
       </CardHeader>
@@ -67,7 +69,8 @@ function CommunityCard({ community, onJoin, onViewDetails }: CommunityCardProps)
           <Button 
             variant={community.isJoined ? "outline" : "default"} 
             size="sm" 
-            className="flex-1" 
+            className={`flex-1 ${!community.isJoined ? 'bg-brand-blue hover:bg-brand-blue/90 text-white' : ''}`}
+            style={!community.isJoined ? { backgroundColor: "#2196F3", color: "white" } : {}}
             onClick={() => onJoin(community.id)}
           >
             {community.isJoined ? "Joined" : "Join Community"}
@@ -199,7 +202,14 @@ export default function ResearcherDiscoverCommunityPage() {
 
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categoryTabs.map((tab) => (
-            <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" className="whitespace-nowrap" onClick={() => setActiveTab(tab)}>
+            <Button 
+              key={tab} 
+              variant={activeTab === tab ? "default" : "outline"} 
+              size="sm" 
+              className={`whitespace-nowrap ${activeTab === tab ? 'bg-brand-blue hover:bg-brand-blue/90 text-white' : ''}`}
+              style={activeTab === tab ? { backgroundColor: "#2196F3", color: "white" } : {}}
+              onClick={() => setActiveTab(tab)}
+            >
               {tab}
             </Button>
           ))}

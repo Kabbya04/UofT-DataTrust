@@ -180,7 +180,7 @@ const GeneralNav = ({ rolePrefix }: { rolePrefix: string }) => {
         {rolePrefix !== "researcher-wf" && (
           <TextLink href={`/${rolePrefix}/upload-dataset`}>
             <Button size="sm"
-             className="bg-primary hover:bg-primary/90">
+             className="bg-[#2196F3] hover:bg-[#2196F3]/90">
               <Upload className="h-4 w-4 mr-2" />
               Upload Dataset
             </Button>
@@ -389,9 +389,9 @@ export function SidebarWf() {
           </TextLink>
 
           <TextLink href="/researcher-wf/research/create-project">
-            <div className="flex items-center border border-primary rounded-md p-2 w-full space-x-2">
-              <FolderPlus className="h-4 w-4" />
-              <span>Create Project</span>
+            <div className="flex items-center border border-primary rounded-md p-2 w-full space-x-2" style={{ borderColor: "#2196F3" }}>
+              <FolderPlus className="h-4 w-4" style={{ color: "#2196F3" }} />
+              <span style={{ color: "#2196F3" }}>Create Project</span>
             </div>
           </TextLink>
 

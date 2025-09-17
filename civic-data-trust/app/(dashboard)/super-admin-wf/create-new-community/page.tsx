@@ -184,6 +184,7 @@ export default function CreateNewCommunityPage() {
                             onClick={handleCreateCommunity}
                             disabled={isLoading || !communityName.trim() || !selectedCategoryId}
                             className="w-full sm:w-auto"
+                            style={{ backgroundColor: "#2196F3", color: "white", border: "none" }}
                         >
                             {isLoading ? (
                                 <>
@@ -195,6 +196,7 @@ export default function CreateNewCommunityPage() {
                             )}
                         </Button>
                     </div>
+
                 </CardContent>
             </Card>
             

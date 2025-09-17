@@ -40,7 +40,9 @@ function CommunityCard({ community, onJoin, onViewDetails, isLoadingCounts }: Co
             >
               {community.name}
             </h3>
-            <Badge variant="secondary" className="mb-2">{community.category}</Badge>
+            <Badge variant="secondary" className="mb-2 bg-[#2196F3] hover:bg-[#2196F3]/90 text-white">
+              {community.category}
+            </Badge>
           </div>
         </div>
       </CardHeader>
@@ -70,7 +72,7 @@ function CommunityCard({ community, onJoin, onViewDetails, isLoadingCounts }: Co
           <Button 
             variant={community.isJoined ? "outline" : "default"} 
             size="sm" 
-            className="flex-1" 
+            className={`flex-1 ${!community.isJoined ? 'bg-[#2196F3] hover:bg-[#2196F3]/90' : ''}`}
             onClick={() => onJoin(community.id)}
           >
             {community.isJoined ? "Joined" : "Join Community"}
@@ -265,7 +267,13 @@ export default function DiscoverCommunityPage() {
         
         <div className="flex gap-2 overflow-x-auto pb-2">
           {categoryTabs.map((tab) => (
-            <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" className="whitespace-nowrap" onClick={() => setActiveTab(tab)}>
+            <Button 
+              key={tab} 
+              variant={activeTab === tab ? "default" : "outline"} 
+              size="sm" 
+              className={`whitespace-nowrap ${activeTab === tab ? 'bg-[#2196F3] hover:bg-[#2196F3]/90' : ''}`} 
+              onClick={() => setActiveTab(tab)}
+            >
               {tab}
             </Button>
           ))}

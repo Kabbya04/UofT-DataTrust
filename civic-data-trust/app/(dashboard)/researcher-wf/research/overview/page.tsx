@@ -115,7 +115,17 @@ export default function OverviewPage() {
                 <p className="text-xs text-muted-foreground mb-1">Data provided by</p>
                 <div className="flex items-center gap-2">
                     {project.credentials.map((cred, i) => (
-                        <Badge key={i} variant="secondary" className="font-normal">{cred.name}</Badge>
+                        <Badge 
+                          key={i} 
+                          variant="secondary" 
+                          className="font-normal"
+                          style={{ 
+                            backgroundColor: i % 2 === 0 ? "#2196F3" : "#4FC3F7",
+                            color: "white"
+                          }}
+                        >
+                          {cred.name}
+                        </Badge>
                     ))}
                 </div>
               </div>

@@ -258,9 +258,9 @@ export default function ResearcherMyCommunitiesPage() {
 
       <Tabs defaultValue="joined" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="joined">Joined Communities</TabsTrigger>
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-          <TabsTrigger value="recommendations">Recommended</TabsTrigger>
+          <TabsTrigger value="joined" className="[&[data-state=active]]:bg-[#2196F3] [&[data-state=active]]:text-white">Joined Communities</TabsTrigger>
+          <TabsTrigger value="activity" className="[&[data-state=active]]:bg-[#2196F3] [&[data-state=active]]:text-white">Recent Activity</TabsTrigger>
+          <TabsTrigger value="recommendations" className="[&[data-state=active]]:bg-[#2196F3] [&[data-state=active]]:text-white">Recommended</TabsTrigger>
         </TabsList>
 
         <TabsContent value="joined" className="space-y-6">
@@ -284,7 +284,9 @@ export default function ResearcherMyCommunitiesPage() {
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                          <Badge variant="secondary" className="mb-2">{community.community_category?.name || 'General'}</Badge>
+                          <Badge className="mb-2 bg-brand-blue text-white hover:bg-brand-blue/90 border-0" style={{ backgroundColor: "#2196F3", color: "white" }}>
+                            {community.community_category?.name || 'General'}
+                          </Badge>
                         </div>
                         <Button variant="ghost" size="sm">
                           <Settings className="h-4 w-4" />
@@ -299,7 +301,14 @@ export default function ResearcherMyCommunitiesPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewCommunity(community.id)}>View Community</Button>
-                        <Button variant="default" size="sm" className="flex-1">Research</Button>
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="flex-1 bg-brand-blue hover:bg-brand-blue/90 text-white"
+                          style={{ backgroundColor: "#2196F3", color: "white" }}
+                        >
+                          Research
+                        </Button>
                       </div>
                     </CardContent>
                     </Card>
@@ -371,7 +380,7 @@ export default function ResearcherMyCommunitiesPage() {
                   <CardHeader className="pb-3">
                     <div>
                       <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <Badge variant="outline" className="mb-2">
+                      <Badge className="mb-2 bg-brand-blue text-white hover:bg-brand-blue/90 border-0" style={{ backgroundColor: "#2196F3", color: "white" }}>
                         {community.community_category?.name || 'General'}
                       </Badge>
                     </div>
@@ -402,7 +411,8 @@ export default function ResearcherMyCommunitiesPage() {
                       <Button
                         variant="default"
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 bg-brand-blue hover:bg-brand-blue/90 text-white"
+                        style={{ backgroundColor: "#2196F3", color: "white" }}
                         onClick={() => handleJoinCommunity(community.id.toString())}
                       >
                         Join
@@ -411,6 +421,7 @@ export default function ResearcherMyCommunitiesPage() {
                   </CardContent>
                 </Card>
               ))}
+
             </div>
           )}
         </TabsContent>

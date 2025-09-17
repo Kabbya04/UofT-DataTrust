@@ -34,7 +34,7 @@ export default function SettingsPage() {
           </button>
         ))}
       </div>
-      <div className="bg-background rounded-lg border border-primary p-6">
+      <div className="bg-background rounded-lg border border-custom-border p-6">
         {activeTab === 0 && <AccountSettings />}
         {activeTab === 1 && <PrivacyNotifications />}
         {activeTab === 2 && <DisplayPreferences />}
@@ -146,7 +146,10 @@ function AccountSettings() {
         <div>
           <div className="font-semibold text-lg">
             {user.name} 
-            <span className="bg-muted px-2 py-0.5 rounded text-xs ml-2">
+            <span 
+              className="bg-civic-accent-green text-white px-2 py-0.5 rounded text-xs ml-2"
+              style={{ backgroundColor: "#43CD41" }}
+            >
               {getRoleName(user.role)}
             </span>
           </div>
@@ -166,7 +169,7 @@ function AccountSettings() {
             <label className="block text-md mb-1">First Name:</label>
             <input 
               name="firstName"
-              className="w-full border rounded px-2 py-1" 
+              className="w-full border border-custom-border rounded px-2 py-1" 
               value={formData.firstName}
               onChange={handleInputChange}
               placeholder={user.name.split(' ')[0] || 'First Name'}
@@ -176,7 +179,7 @@ function AccountSettings() {
             <label className="block text-md mb-1">Last Name:</label>
             <input 
               name="lastName"
-              className="w-full border rounded px-2 py-1" 
+              className="w-full border border-custom-border rounded px-2 py-1" 
               value={formData.lastName}
               onChange={handleInputChange}
               placeholder={user.name.split(' ').slice(1).join(' ') || 'Last Name'}
@@ -187,21 +190,21 @@ function AccountSettings() {
         <div>
           <label className="block text-md mb-1">Email:</label>
           <input 
-            className="w-full border rounded px-2 py-1 bg-muted" 
+            className="w-full border border-custom-border rounded px-2 py-1 bg-muted" 
             value={user.email} 
             disabled 
           />
           <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
         </div>
         
-        <div className="space-y-4 pt-4 border-t">
+        <div className="space-y-4 pt-4 border-t border-custom-border">
           <h3 className="font-semibold">Change Password</h3>
           <div>
             <label className="block text-md mb-1">Current Password:</label>
             <input 
               name="currentPassword"
               type="password"
-              className="w-full border rounded px-2 py-1" 
+              className="w-full border border-custom-border rounded px-2 py-1" 
               value={formData.currentPassword}
               onChange={handleInputChange}
               placeholder="Enter current password"
@@ -212,7 +215,7 @@ function AccountSettings() {
             <input 
               name="newPassword"
               type="password"
-              className="w-full border rounded px-2 py-1" 
+              className="w-full border border-custom-border rounded px-2 py-1" 
               value={formData.newPassword}
               onChange={handleInputChange}
               placeholder="Enter new password"
@@ -223,7 +226,7 @@ function AccountSettings() {
             <input 
               name="confirmPassword"
               type="password"
-              className="w-full border rounded px-2 py-1" 
+              className="w-full border border-custom-border rounded px-2 py-1" 
               value={formData.confirmPassword}
               onChange={handleInputChange}
               placeholder="Confirm new password"
@@ -237,7 +240,9 @@ function AccountSettings() {
         <Button 
           type="submit" 
           variant="default"
+          className="bg-brand-blue hover:bg-brand-blue/90 text-white"
           disabled={isLoading || !!(formData.newPassword && formData.newPassword !== formData.confirmPassword)}
+          style={{ backgroundColor: "#2196F3" }}
         >
           {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
@@ -250,7 +255,7 @@ function PrivacyNotifications() {
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* Privacy Settings */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Privacy Settings</h2>
         <div className="space-y-4">
           <ToggleRow label="Profile Visibility" />
@@ -267,14 +272,14 @@ function PrivacyNotifications() {
         </div>
       </div>
       {/* Notification Preferences */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Notification Preferences</h2>
         <div className="space-y-4">
           <ToggleRow label="Email Notification" />
           <ToggleRow label="Push Notification" />
           <div className="flex flex-row items-center gap-8 justify-between">
             <div className="text-sm font-medium mb-1">Notification Frequency:</div>
-            <select className="flex-1 border border-primary rounded px-2 py-1 text-md">
+            <select className="flex-1 border border-custom-border rounded px-2 py-1 text-md">
               <option>Immediate</option>
               <option>Daily</option>
               <option>Weekly</option>
@@ -285,7 +290,13 @@ function PrivacyNotifications() {
         </div>
       </div>
       <div className="col-span-2 mt-6">
-        <Button variant="default">Save Changes</Button>
+        <Button 
+          variant="default"
+          className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+          style={{ backgroundColor: "#2196F3" }}
+        >
+          Save Changes
+        </Button>
       </div>
     </div>
   )
@@ -295,12 +306,12 @@ function DisplayPreferences() {
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* Display Settings */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Display Settings</h2>
         <div className="space-y-4 px-8">
           <div className="flex items-center gap-8 justify-between">
             <div className="text-md font-medium mb-1">Language:</div>
-            <select className="border flex-1 rounded px-2 py-1 text-md">
+            <select className="border border-custom-border flex-1 rounded px-2 py-1 text-md">
               <option>English</option>
               <option>French</option>
             </select>
@@ -315,7 +326,7 @@ function DisplayPreferences() {
           </div>
           <div className="flex items-center gap-12 justify-between">
             <div className="text-md font-medium mb-1">Font Size:</div>
-            <select className="border flex-1 rounded px-2 py-1 text-md">
+            <select className="border border-custom-border flex-1 rounded px-2 py-1 text-md">
               <option>Small</option>
               <option>Medium</option>
               <option>Large</option>
@@ -324,7 +335,7 @@ function DisplayPreferences() {
         </div>
       </div>
       {/* Community Preferences */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Community Preferences</h2>
         <div className="space-y-4">
           <ToggleRow label="Content Filter" />
@@ -332,13 +343,13 @@ function DisplayPreferences() {
         </div>
       </div>
       {/* Researcher Access Control */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Researcher Access Control</h2>
         <div className="space-y-4">
           <ToggleRow label="Allow Researcher Requests" />
           <div className="flex items-center gap-8 justify-between">
             <div className="text-md font-medium mb-1">Default Access Level:</div>
-            <select className="border flex-1 rounded px-2 py-1 text-md">
+            <select className="border border-custom-border flex-1 rounded px-2 py-1 text-md">
               <option>View Only</option>
               <option>Edit</option>
             </select>
@@ -346,7 +357,7 @@ function DisplayPreferences() {
         </div>
       </div>
       {/* Data Management */}
-      <div className="border border-primary rounded-lg p-4">
+      <div className="border border-custom-border rounded-lg p-4">
         <h2 className="font-semibold mb-4">Data Management</h2>
         <div className="space-y-4 px-10">
           <ActionRow label="Download my data" action="Download" />
@@ -356,7 +367,13 @@ function DisplayPreferences() {
         </div>
       </div>
       <div className="col-span-2 mt-6">
-        <Button variant="default">Save Changes</Button>
+        <Button 
+          variant="default"
+          className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+          style={{ backgroundColor: "#2196F3" }}
+        >
+          Save Changes
+        </Button>
       </div>
     </div>
   )
@@ -380,13 +397,18 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       type="button"
       aria-pressed={checked}
       onClick={() => onChange(!checked)}
-      className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200
-        ${checked ? "bg-black" : "bg-gray-400"}`}
-      style={{ boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined }}
+      className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200 ${
+        checked ? "bg-brand-blue hover:bg-brand-blue/90" : "bg-gray-400"
+      }`}
+      style={{ 
+        backgroundColor: checked ? '#2196F3' : undefined,
+        boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined 
+      }}
     >
       <span
-        className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200
-          ${checked ? "translate-x-1" : ""}`}
+        className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+          checked ? "translate-x-1" : ""
+        }`}
         style={{ transform: checked ? "translateX(18px)" : "translateX(0)" }}
       />
     </button>
@@ -396,17 +418,53 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 function Radio({ label, checked }: { label: string; checked?: boolean }) {
   return (
     <label className="flex items-center gap-1 text-md">
-      <input type="radio" checked={checked} className="radio" />
+      <input 
+        type="radio" 
+        checked={checked} 
+        className="radio" 
+        style={{ 
+          accentColor: checked ? 'white' : 'black',
+          borderColor: '#2196F3',
+          borderWidth: '2px',
+          backgroundColor: checked ? 'white' : 'transparent'
+        }} 
+      />
       {label}
     </label>
   )
 }
 
 function ActionRow({ label, action, danger }: { label: string; action: string; danger?: boolean }) {
+  // Determine button variant and class based on action
+  let buttonVariant: "default" | "destructive" | "outline" | "success" = "outline";
+  let buttonClass = "w-32"; // Ensure all buttons have the same width
+
+  if (action === "Download") {
+    buttonClass += " bg-brand-blue hover:bg-brand-blue/90 text-white";
+  } else if (action === "Export") {
+    // Instead of using the variant, directly apply the classes to ensure the color is applied
+    buttonClass += " bg-civic-accent-green hover:bg-civic-accent-green/90 text-white";
+  } else if (action === "Clear") {
+    buttonClass += " bg-custom-orange hover:bg-custom-orange/90 text-white";
+  } else if (danger) {
+    buttonVariant = "destructive";
+  }
+
   return (
     <div className="flex items-center justify-between">
       <span className="text-md">{label}</span>
-      <Button variant={danger ? "destructive" : "outline"} size="sm" className=" w-32">{action}</Button>
+      <Button 
+        variant={buttonVariant} 
+        size="sm" 
+        className={buttonClass}
+        style={{
+          backgroundColor: action === "Download" ? "#2196F3" : 
+                          action === "Export" ? "#43CD41" :
+                          action === "Clear" ? "#DE9300" : undefined
+        }}
+      >
+        {action}
+      </Button>
     </div>
   )
 }

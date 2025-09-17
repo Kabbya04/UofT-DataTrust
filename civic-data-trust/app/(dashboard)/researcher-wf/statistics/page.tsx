@@ -5,7 +5,7 @@ import { Button } from "@/app/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { Badge } from "@/app/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Tooltip } from 'recharts';
-import { Database, FileClock, CheckCircle, FileUp, ImageIcon } from 'lucide-react';
+import { Cube, ImageIcon } from '@phosphor-icons/react';
 
 const projects = [
   { name: "Climate Change", date: "7 Aug 2025", size: "2.5 MB", tag: "Sports" },
@@ -18,7 +18,8 @@ const lineChartData = [
     { name: 'Jan', usage: 4000 }, { name: 'Feb', usage: 3000 }, { name: 'Mar', usage: 2000 },
     { name: 'Apr', usage: 2780 }, { name: 'May', usage: 1890 }, { name: 'Jun', usage: 2390 },
 ];
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--primary) / 0.7)', 'hsl(var(--primary) / 0.4)'];
+const PIE_COLORS = ['#2196F3', '#42A5F5', '#64B5F6'];
+const LINE_COLORS = '#2196F3';
 
 export default function StatisticsPage() {
     return (
@@ -32,15 +33,15 @@ export default function StatisticsPage() {
                 <CardContent className="flex items-center gap-4">
                     <Select defaultValue="all"><SelectTrigger className="w-48"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All Data</SelectItem></SelectContent></Select>
                     <Select defaultValue="30d"><SelectTrigger className="w-48"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="30d">Last 30 Days</SelectItem></SelectContent></Select>
-                    <Button>Export</Button>
+                    <Button className="bg-civic-accent-green hover:bg-civic-accent-green/90 text-white" style={{ backgroundColor: "#43CD41", color: "white" }}>Export</Button>
                 </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Projects</CardTitle><Database className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">900</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Access Requested</CardTitle><FileClock className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Approved Access</CardTitle><CheckCircle className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
-                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Data Usage</CardTitle><FileUp className="h-5 w-5 text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">500 MB</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Projects</CardTitle><Cube size={20} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">900</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Access Requested</CardTitle><Cube size={20} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">50,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Approved Access</CardTitle><Cube size={20} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">30,000</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
+                <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Data Usage</CardTitle><Cube size={20} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-3xl font-bold">500 MB</div><p className="text-xs text-muted-foreground">+100% vs last month</p></CardContent></Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -48,7 +49,7 @@ export default function StatisticsPage() {
                     <CardHeader><CardTitle>Data Usage Category</CardTitle></CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <PieChart><Pie data={donutChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5}>{donutChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}</Pie><Tooltip /></PieChart>
+                            <PieChart><Pie data={donutChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>{donutChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}</Pie><Tooltip /></PieChart>
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
@@ -56,7 +57,7 @@ export default function StatisticsPage() {
                     <CardHeader><CardTitle>Data Usage Trends</CardTitle></CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={lineChartData}><XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} /><Line type="monotone" dataKey="usage" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} /><Tooltip /></LineChart>
+                            <LineChart data={lineChartData}><XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} /><Line type="monotone" dataKey="usage" stroke={LINE_COLORS} strokeWidth={2} dot={false} /><Tooltip /></LineChart>
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>

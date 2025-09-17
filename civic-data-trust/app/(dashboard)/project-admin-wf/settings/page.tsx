@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -12,10 +12,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar'
 import { Badge } from '@/app/components/ui/badge';
 import { ArrowLeft, User, Shield, Settings as SettingsIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from "@/app/components/contexts/auth-context";
+
+const TABS = [
+  "Account Settings",
+  "Content & Community Management", 
+  "User Management & Platform Settings"
+];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('account');
+  const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
   
   // Account Settings State
   const [accountData, setAccountData] = useState({
@@ -51,6 +59,28 @@ export default function SettingsPage() {
     thirdPartyIntegrations: true
   });
 
+  // Initialize form data when user data loads
+  useEffect(() => {
+    if (user?.name) {
+      const nameParts = user.name.split(' ');
+      setAccountData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+      }));
+    }
+  }, [user?.name]);
+
+  // Get user initials for avatar fallback
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const handleSaveChanges = async () => {
     setIsLoading(true);
     
@@ -68,369 +98,392 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center space-x-4">
-          <Link href="/project-admin-wf/dashboard">
-            <Button variant="ghost" size="sm" className="p-2">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-            <p className="text-muted-foreground">
-              Manage your account and administrative preferences.
-            </p>
-          </div>
+    <div className="w-full mx-auto">
+      <div className="flex items-center space-x-4 mb-6">
+        <Link href="/project-admin-wf/dashboard">
+          <Button variant="ghost" size="sm" className="p-2">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Settings</h1>
+          <p className="text-sm text-muted-foreground">Manage your account and administrative preferences.</p>
         </div>
+      </div>
 
-        {/* Settings Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="account" className="flex items-center space-x-2">
-              <User className="h-4 w-4" />
-              <span>Account Settings</span>
-            </TabsTrigger>
-            
-            <TabsTrigger value="content" className="flex items-center space-x-2">
-              <SettingsIcon className="h-4 w-4" />
-              <span>Content & Community Management</span>
-            </TabsTrigger>
-            <TabsTrigger value="platform" className="flex items-center space-x-2">
-              <Shield className="h-4 w-4" />
-              <span>User Management & Platform Settings</span>
-            </TabsTrigger>
-          </TabsList>
+      <div className="flex gap-6 mb-6">
+        {TABS.map((tab, idx) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(idx)}
+            className={`text-lg font-medium pb-1 border-b-2 cursor-pointer transition-all ${
+              activeTab === idx
+                ? "border-foreground text-foreground"
+                : "border-transparent text-muted-foreground"
+            }`}
+            style={{ minWidth: 180 }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
 
-          {/* Account Settings Tab */}
-          <TabsContent value="account">
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  {/* Profile Section */}
-                  <div className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src="/placeholder-avatar.jpg" />
-                      <AvatarFallback className="text-lg">JD</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className="text-lg font-semibold">Jhon Doe</h3>
-                        <Badge variant="secondary">Project Admin</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Member since 11 January, 2025</p>
-                    </div>
+      <div className="bg-background rounded-lg border border-custom-border p-6">
+        {/* Account Settings Tab */}
+        {activeTab === 0 && (
+          <div className="space-y-6">
+            <div className="ml-10 px-8">
+              {/* Profile Section */}
+              <div className="flex items-center gap-4 mb-6">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={user?.avatar || "/placeholder-avatar.jpg"} alt={user?.name || "Project Admin"} />
+                  <AvatarFallback className="text-xl">
+                    {getUserInitials(user?.name || "Project Admin")}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-semibold text-lg">
+                    {user?.name || "Project Admin"}
+                    <span 
+                      className="bg-civic-accent-green text-white px-2 py-0.5 rounded text-xs ml-2"
+                      style={{ backgroundColor: "#43CD41" }}
+                    >
+                      Project Admin
+                    </span>
                   </div>
-
-                  {/* Form Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">FIRST NAME</Label>
-                      <Input
-                        id="firstName"
-                        value={accountData.firstName}
-                        onChange={(e) => setAccountData(prev => ({ ...prev, firstName: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">LAST NAME</Label>
-                      <Input
-                        id="lastName"
-                        value={accountData.lastName}
-                        onChange={(e) => setAccountData(prev => ({ ...prev, lastName: e.target.value }))}
-                      />
-                    </div>
+                  <div className="text-xs text-muted-foreground">
+                    Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    }) : 'Unknown'}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">EMAIL</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={accountData.email}
-                      onChange={(e) => setAccountData(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password">PASSWORD</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={accountData.password}
-                      onChange={(e) => setAccountData(prev => ({ ...prev, password: e.target.value }))}
-                    />
-                  </div>
-
-                  <Button onClick={handleSaveChanges} disabled={isLoading} className="w-auto">
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
 
-          {/* Content & Community Management Tab */}
-          <TabsContent value="content">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Content Management Card */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Content Management</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label>Approval Workflow</Label>
-                      <p className="text-sm text-muted-foreground">Configure post approval process</p>
-                      <Select 
-                        value={contentSettings.approvalWorkflow} 
-                        onValueChange={(value) => setContentSettings(prev => ({ ...prev, approvalWorkflow: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="approval-required">Approval required</SelectItem>
-                          <SelectItem value="auto-approve">Auto approve</SelectItem>
-                          <SelectItem value="community-vote">Community vote</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Content Flagging</Label>
-                        <p className="text-sm text-muted-foreground">Enable user content flagging system</p>
-                      </div>
-                      <Switch 
-                        checked={contentSettings.contentFlagging}
-                        onCheckedChange={(checked) => setContentSettings(prev => ({ ...prev, contentFlagging: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Bulk content actions</Label>
-                        <p className="text-sm text-muted-foreground">Allow bulk actions on multiple content items</p>
-                      </div>
-                      <Switch 
-                        checked={contentSettings.bulkContentActions}
-                        onCheckedChange={(checked) => setContentSettings(prev => ({ ...prev, bulkContentActions: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Automated Moderation</Label>
-                        <p className="text-sm text-muted-foreground">Lorem ipsum dolor sit amet</p>
-                      </div>
-                      <Switch 
-                        checked={contentSettings.automatedModeration}
-                        onCheckedChange={(checked) => setContentSettings(prev => ({ ...prev, automatedModeration: checked }))}
-                      />
-                    </div>
+              {/* Form Fields */}
+              <div className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-md mb-1">First Name:</label>
+                    <input 
+                      name="firstName"
+                      className="w-full border border-custom-border rounded px-2 py-1" 
+                      value={accountData.firstName}
+                      onChange={(e) => setAccountData(prev => ({ ...prev, firstName: e.target.value }))}
+                      placeholder={user?.name?.split(' ')[0] || 'First Name'}
+                    />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Community Management Card */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Community Management</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label>Community Creation</Label>
-                      <p className="text-sm text-muted-foreground">Lorem ipsum dolor sit amet</p>
-                      <Select 
-                        value={communitySettings.communityCreation} 
-                        onValueChange={(value) => setCommunitySettings(prev => ({ ...prev, communityCreation: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="admins-only">Admins only</SelectItem>
-                          <SelectItem value="all-users">All users</SelectItem>
-                          <SelectItem value="verified-users">Verified users</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Community Guidelines</Label>
-                        <p className="text-sm text-muted-foreground">Enforce platform wide community guidelines</p>
-                      </div>
-                      <Switch 
-                        checked={communitySettings.communityGuidelines}
-                        onCheckedChange={(checked) => setCommunitySettings(prev => ({ ...prev, communityGuidelines: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>User Management</Label>
-                        <p className="text-sm text-muted-foreground">Lorem ipsum dolor sit amet</p>
-                      </div>
-                      <Switch 
-                        checked={communitySettings.userManagement}
-                        onCheckedChange={(checked) => setCommunitySettings(prev => ({ ...prev, userManagement: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Analytics Dashboard</Label>
-                        <p className="text-sm text-muted-foreground">Enforce platform wide community guidelines</p>
-                      </div>
-                      <Switch 
-                        checked={communitySettings.analyticsDashboard}
-                        onCheckedChange={(checked) => setCommunitySettings(prev => ({ ...prev, analyticsDashboard: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Audit Log</Label>
-                        <p className="text-sm text-muted-foreground">Lorem ipsum dolor sit amet</p>
-                      </div>
-                      <Switch 
-                        checked={communitySettings.auditLog}
-                        onCheckedChange={(checked) => setCommunitySettings(prev => ({ ...prev, auditLog: checked }))}
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-md mb-1">Last Name:</label>
+                    <input 
+                      name="lastName"
+                      className="w-full border border-custom-border rounded px-2 py-1" 
+                      value={accountData.lastName}
+                      onChange={(e) => setAccountData(prev => ({ ...prev, lastName: e.target.value }))}
+                      placeholder={user?.name?.split(' ').slice(1).join(' ') || 'Last Name'}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                <div>
+                  <label className="block text-md mb-1">Email:</label>
+                  <input 
+                    className="w-full border border-custom-border rounded px-2 py-1 bg-muted" 
+                    value={accountData.email} 
+                    disabled 
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-custom-border">
+                  <h3 className="font-semibold">Change Password</h3>
+                  <div>
+                    <label className="block text-md mb-1">Current Password:</label>
+                    <input 
+                      type="password"
+                      className="w-full border border-custom-border rounded px-2 py-1" 
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-md mb-1">New Password:</label>
+                    <input 
+                      type="password"
+                      className="w-full border border-custom-border rounded px-2 py-1" 
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-md mb-1">Confirm New Password:</label>
+                    <input 
+                      type="password"
+                      className="w-full border border-custom-border rounded px-2 py-1" 
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button 
+                variant="default"
+                className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+                style={{ backgroundColor: "#2196F3" }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Content & Community Management Tab */}
+        {activeTab === 1 && (
+          <div className="grid grid-cols-2 gap-6">
+            {/* Content Management Settings */}
+            <div className="border border-custom-border rounded-lg p-4">
+              <h2 className="font-semibold mb-4">Content Management</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-md">Content Approval Workflow</span>
+                  </div>
+                  <Select value={contentSettings.approvalWorkflow} onValueChange={(value) => setContentSettings(prev => ({ ...prev, approvalWorkflow: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="approval-required">Approval Required</SelectItem>
+                      <SelectItem value="auto-publish">Auto Publish</SelectItem>
+                      <SelectItem value="community-moderated">Community Moderated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Content Flagging</span>
+                  <ToggleSwitch 
+                    checked={contentSettings.contentFlagging} 
+                    onChange={(value) => setContentSettings(prev => ({ ...prev, contentFlagging: value }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Bulk Content Actions</span>
+                  <ToggleSwitch 
+                    checked={contentSettings.bulkContentActions} 
+                    onChange={(value) => setContentSettings(prev => ({ ...prev, bulkContentActions: value }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Automated Moderation</span>
+                  <ToggleSwitch 
+                    checked={contentSettings.automatedModeration} 
+                    onChange={(value) => setContentSettings(prev => ({ ...prev, automatedModeration: value }))}
+                  />
+                </div>
+              </div>
             </div>
 
-            <Button onClick={handleSaveChanges} disabled={isLoading} className="w-auto mt-4">
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </TabsContent>
-
-          {/* User Management & Platform Settings Tab */}
-          <TabsContent value="platform">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* User Management Card */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">User Management</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label>Default User Permissions</Label>
-                      <p className="text-sm text-muted-foreground">Configure post approval process</p>
-                      <Select 
-                        value={userPlatformSettings.defaultUserPermissions} 
-                        onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, defaultUserPermissions: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="basic-access">Basic Access</SelectItem>
-                          <SelectItem value="read-only">Read Only</SelectItem>
-                          <SelectItem value="full-access">Full Access</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Report Generation</Label>
-                      <p className="text-sm text-muted-foreground">Configure post approval process</p>
-                      <Select 
-                        value={userPlatformSettings.reportGeneration} 
-                        onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, reportGeneration: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Data Retention</Label>
-                      <p className="text-sm text-muted-foreground">Configure post approval process</p>
-                      <Select 
-                        value={userPlatformSettings.dataRetention} 
-                        onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, dataRetention: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="30-days">30 Days</SelectItem>
-                          <SelectItem value="90-days">90 Days</SelectItem>
-                          <SelectItem value="1-year">1 Year</SelectItem>
-                          <SelectItem value="indefinite">Indefinite</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+            {/* Community Management Settings */}
+            <div className="border border-custom-border rounded-lg p-4">
+              <h2 className="font-semibold mb-4">Community Management</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-md">Community Creation</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <Select value={communitySettings.communityCreation} onValueChange={(value) => setCommunitySettings(prev => ({ ...prev, communityCreation: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admins-only">Admins Only</SelectItem>
+                      <SelectItem value="members-allowed">Members Allowed</SelectItem>
+                      <SelectItem value="open-to-all">Open to All</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Platform Settings Card */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Platform Settings</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label>Two Factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">Lorem ipsum dolor sit amet</p>
-                      <Select 
-                        value={userPlatformSettings.twoFactorAuth} 
-                        onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, twoFactorAuth: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="admins-only">Admins only</SelectItem>
-                          <SelectItem value="all-users">All users</SelectItem>
-                          <SelectItem value="optional">Optional</SelectItem>
-                          <SelectItem value="disabled">Disabled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Community Guidelines</span>
+                  <ToggleSwitch 
+                    checked={communitySettings.communityGuidelines} 
+                    onChange={(value) => setCommunitySettings(prev => ({ ...prev, communityGuidelines: value }))}
+                  />
+                </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Audit Logging</Label>
-                        <p className="text-sm text-muted-foreground">Track all administrative actions</p>
-                      </div>
-                      <Switch 
-                        checked={userPlatformSettings.auditLogging}
-                        onCheckedChange={(checked) => setUserPlatformSettings(prev => ({ ...prev, auditLogging: checked }))}
-                      />
-                    </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-md">User Management</span>
+                  <ToggleSwitch 
+                    checked={communitySettings.userManagement} 
+                    onChange={(value) => setCommunitySettings(prev => ({ ...prev, userManagement: value }))}
+                  />
+                </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label>Third Party Integrations</Label>
-                        <p className="text-sm text-muted-foreground">Allow third party service integrations</p>
-                      </div>
-                      <Switch 
-                        checked={userPlatformSettings.thirdPartyIntegrations}
-                        onCheckedChange={(checked) => setUserPlatformSettings(prev => ({ ...prev, thirdPartyIntegrations: checked }))}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Analytics Dashboard</span>
+                  <ToggleSwitch 
+                    checked={communitySettings.analyticsDashboard} 
+                    onChange={(value) => setCommunitySettings(prev => ({ ...prev, analyticsDashboard: value }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Audit Log</span>
+                  <ToggleSwitch 
+                    checked={communitySettings.auditLog} 
+                    onChange={(value) => setCommunitySettings(prev => ({ ...prev, auditLog: value }))}
+                  />
+                </div>
+              </div>
             </div>
 
-            <Button onClick={handleSaveChanges} disabled={isLoading} className="w-auto">
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </TabsContent>
-        </Tabs>
+            <div className="col-span-2 mt-6">
+              <Button 
+                variant="default"
+                className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+                style={{ backgroundColor: "#2196F3" }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* User Management & Platform Settings Tab */}
+        {activeTab === 2 && (
+          <div className="grid grid-cols-2 gap-6">
+            {/* User Management Settings */}
+            <div className="border border-custom-border rounded-lg p-4">
+              <h2 className="font-semibold mb-4">User Management</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-md">Default User Permissions</span>
+                  </div>
+                  <Select value={userPlatformSettings.defaultUserPermissions} onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, defaultUserPermissions: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="basic-access">Basic Access</SelectItem>
+                      <SelectItem value="contributor">Contributor</SelectItem>
+                      <SelectItem value="moderator">Moderator</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Two-Factor Authentication</span>
+                  <Select value={userPlatformSettings.twoFactorAuth} onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, twoFactorAuth: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                      <SelectItem value="optional">Optional</SelectItem>
+                      <SelectItem value="admins-only">Admins Only</SelectItem>
+                      <SelectItem value="required">Required for All</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Audit Logging</span>
+                  <ToggleSwitch 
+                    checked={userPlatformSettings.auditLogging} 
+                    onChange={(value) => setUserPlatformSettings(prev => ({ ...prev, auditLogging: value }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Platform Settings */}
+            <div className="border border-custom-border rounded-lg p-4">
+              <h2 className="font-semibold mb-4">Platform Settings</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-md">Report Generation</span>
+                  </div>
+                  <Select value={userPlatformSettings.reportGeneration} onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, reportGeneration: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-md">Data Retention</span>
+                  </div>
+                  <Select value={userPlatformSettings.dataRetention} onValueChange={(value) => setUserPlatformSettings(prev => ({ ...prev, dataRetention: value }))}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7-days">7 Days</SelectItem>
+                      <SelectItem value="30-days">30 Days</SelectItem>
+                      <SelectItem value="90-days">90 Days</SelectItem>
+                      <SelectItem value="1-year">1 Year</SelectItem>
+                      <SelectItem value="indefinite">Indefinite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-md">Third-Party Integrations</span>
+                  <ToggleSwitch 
+                    checked={userPlatformSettings.thirdPartyIntegrations} 
+                    onChange={(value) => setUserPlatformSettings(prev => ({ ...prev, thirdPartyIntegrations: value }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-span-2 mt-6">
+              <Button 
+                variant="default"
+                className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+                style={{ backgroundColor: "#2196F3" }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+// Toggle Switch Component
+const ToggleSwitch = ({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) => (
+  <button
+    type="button"
+    aria-pressed={checked}
+    onClick={() => onChange(!checked)}
+    className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-200 ${
+      checked ? "bg-brand-blue hover:bg-brand-blue/90" : "bg-gray-400"
+    }`}
+    style={{ 
+      backgroundColor: checked ? '#2196F3' : undefined,
+      boxShadow: checked ? "0 1px 4px rgba(0,0,0,0.08)" : undefined 
+    }}
+  >
+    <span
+      className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+        checked ? "translate-x-1" : ""
+      }`}
+      style={{ transform: checked ? "translateX(18px)" : "translateX(0)" }}
+    />
+  </button>
+);

@@ -96,6 +96,18 @@ const config: Config = {
           'danger-dark': '#CC4125',
           warning: '#F59E0B',
           'warning-dark': '#FF8533',
+        },
+        // Custom blue color for selected states and buttons
+        'brand': {
+          blue: '#2196F3',
+        },
+        // Custom orange color for warning buttons
+        'custom': {
+          orange: '#DE9300',
+        },
+        // Custom border color
+        'custom-border': {
+          DEFAULT: '#A89B9B',
         }
       },
       spacing: {
