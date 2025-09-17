@@ -61,6 +61,9 @@ export function getRandomImage(): string {
  * This ensures the same content always shows the same image
  */
 export function getImageForId(id: string, type: 'community' | 'dataset' | 'avatar' | 'thumbnail' = 'thumbnail'): string {
+  // If no ID provided, return empty string
+  if (!id) return '';
+  
   const cacheKey = `${type}_${id}`;
   
   if (imageAssignmentCache.has(cacheKey)) {

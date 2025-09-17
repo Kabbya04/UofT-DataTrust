@@ -426,7 +426,9 @@ export function CommunityDetailsViewer({ communityId }: CommunityDetailsViewerPr
             </div>
           </div>
 
-          <p className="text-lg text-muted-foreground max-w-4xl leading-relaxed">{community.description}</p>
+          <div className="mb-8">
+            <p className="text-lg text-muted-foreground max-w-4xl leading-relaxed">{community.description}</p>
+          </div>
         </div>
 
         {/* Tabs Navigation */}

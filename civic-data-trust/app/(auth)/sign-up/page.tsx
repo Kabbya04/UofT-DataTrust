@@ -26,6 +26,7 @@ export default function SignUpPage() {
     confirmPassword: '',
     role: '',
   });
+  const [formError, setFormError] = useState<string | null>(null);
   
   const { signup, isLoading, error, clearError } = useAuth();
 
@@ -74,18 +75,27 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear previous errors
+    setFormError(null);
+    if (error) clearError();
+    
+    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords don't match");
       return;
     }
 
+    // Check if all required fields are filled
     if (!formData.name || !formData.email || !formData.password || !formData.role) {
+      setFormError("Please fill in all required fields");
       return;
     }
 
     // Validate password requirements
     const passwordErrors = validatePassword(formData.password);
     if (passwordErrors.length > 0) {
-      // Let the backend validation handle this for consistency
+      setFormError(`Password must contain: ${passwordErrors.join(', ')}`);
+      return;
     }
 
     await signup({
@@ -108,9 +118,9 @@ export default function SignUpPage() {
               Enter your details to begin your journey with us.
             </p>
 
-            {error && (
+            {(formError || error) && (
               <div className="animate-element animate-delay-250 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-600 text-sm">
-                {error}
+                {formError || error}
               </div>
             )}
 

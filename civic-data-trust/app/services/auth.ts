@@ -177,30 +177,55 @@ class AuthService {
 
       if (!response.ok) {
         let errorMessage = 'Signup failed';
+        let errorDetails: any = null;
+        
+        // Try to parse error response
         try {
-          const error = await response.json();
+          errorDetails = await response.json();
           
           // Handle validation errors from FastAPI/Pydantic
-          if (response.status === 422 && error.detail && Array.isArray(error.detail)) {
-            const validationErrors = error.detail.map((err: any) => {
+          if (response.status === 422 && errorDetails.detail && Array.isArray(errorDetails.detail)) {
+            const validationErrors = errorDetails.detail.map((err: any) => {
               const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
               return `${field}: ${err.msg}`;
             }).join(', ');
             errorMessage = `Validation error: ${validationErrors}`;
           } else {
-            errorMessage = error.error || error.detail || error.message || errorMessage;
+            // Try to get error message from common response formats
+            errorMessage = errorDetails.error || 
+                          errorDetails.detail || 
+                          errorDetails.message || 
+                          errorMessage;
           }
         } catch (e) {
+          // If JSON parsing fails, use basic HTTP status text
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
-        
-        // Add more specific error handling for common issues
+
+        // Add detailed server error handling
         if (response.status === 500) {
-          errorMessage = 'Server error: The backend service may be experiencing issues. Please try again later or contact support.';
+          // Add error ID for better support tracking
+          const errorId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          errorMessage = `Server error [ID: ${errorId}]: The backend service may be experiencing issues. ` +
+                        `Please try again later or contact support with this error ID: ${errorId}.`;
+          
+          // Log detailed error info for debugging
+          console.error(`Server error details [${errorId}]:`, {
+            url: signupUrl,
+            status: response.status,
+            headers: Object.fromEntries(response.headers),
+            errorBody: errorDetails,
+            timestamp: new Date().toISOString()
+          });
         } else if (response.status === 400) {
-          errorMessage = errorMessage.includes('already') ? errorMessage : 'Invalid signup data provided.';
+          errorMessage = errorMessage.includes('already') ? errorMessage : 
+                         'Invalid signup data provided. Please check your information and try again.';
         } else if (response.status === 422 && !errorMessage.includes('Validation error:')) {
-          errorMessage = 'Validation error: Please check your input data.';
+          errorMessage = 'Validation error: Please check your input data. Password must be at least ' +
+                        '8 characters and contain at least one digit, one uppercase letter, and one lowercase letter.';
+        } else if (response.status >= 500) {
+          // Handle other server errors
+          errorMessage = `Server error: Something went wrong on our end. Please try again later (${response.status})`;
         }
         
         throw new Error(errorMessage);
@@ -253,12 +278,45 @@ class AuthService {
 
       if (!response.ok) {
         let errorMessage = 'Login failed';
+        let errorDetails: any = null;
+        
+        // Try to parse error response
         try {
-          const error = await response.json();
-          errorMessage = error.error || error.detail || error.message || errorMessage;
+          errorDetails = await response.json();
+          // Try to get error message from common response formats
+          errorMessage = errorDetails.error || 
+                        errorDetails.detail || 
+                        errorDetails.message || 
+                        errorMessage;
         } catch (e) {
+          // If JSON parsing fails, use basic HTTP status text
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
+
+        // Add detailed server error handling
+        if (response.status === 500) {
+          // Add error ID for better support tracking
+          const errorId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          errorMessage = `Server error [ID: ${errorId}]: Authentication service is currently unavailable. ` +
+                        `Please try again later or contact support with this error ID: ${errorId}.`;
+          
+          // Log detailed error info for debugging
+          console.error(`Server error details [${errorId}]:`, {
+            url: loginUrl,
+            status: response.status,
+            headers: Object.fromEntries(response.headers),
+            errorBody: errorDetails,
+            timestamp: new Date().toISOString()
+          });
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication failed: Please check your email and password.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied: Your account does not have permission to log in.';
+        } else if (response.status >= 500) {
+          // Handle other server errors
+          errorMessage = `Server error: Something went wrong on our end. Please try again later (${response.status})`;
+        }
+        
         throw new Error(errorMessage);
       }
 
@@ -282,8 +340,35 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Token refresh failed');
+      let errorMessage = 'Token refresh failed';
+      let errorDetails: any = null;
+            
+      // Try to parse error response
+      try {
+        errorDetails = await response.json();
+        errorMessage = errorDetails.detail || errorDetails.error || errorDetails.message || errorMessage;
+      } catch (e) {
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+    
+      // Handle specific error cases
+      if (response.status === 500) {
+        const errorId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        errorMessage = `Server error [ID: ${errorId}]: Failed to refresh authentication token. ` +
+                      'Please try signing in again or contact support with this error ID.';
+              
+        console.error(`Token refresh error [${errorId}]:`, {
+          status: response.status,
+          errorBody: errorDetails,
+          timestamp: new Date().toISOString()
+        });
+      } else if (response.status === 401) {
+        errorMessage = 'Session expired: Please sign in again to continue.';
+        // Clear stored auth data
+        this.logout();
+      }
+            
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -370,32 +455,57 @@ class AuthService {
 
       if (!response.ok) {
         let errorMessage = 'Update failed';
+        let errorDetails: any = null;
+        
+        // Try to parse error response
         try {
-          const error = await response.json();
+          errorDetails = await response.json();
           
           // Handle validation errors from FastAPI/Pydantic
-          if (response.status === 422 && error.detail && Array.isArray(error.detail)) {
-            const validationErrors = error.detail.map((err: any) => {
+          if (response.status === 422 && errorDetails.detail && Array.isArray(errorDetails.detail)) {
+            const validationErrors = errorDetails.detail.map((err: any) => {
               const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
               return `${field}: ${err.msg}`;
             }).join(', ');
             errorMessage = `Validation error: ${validationErrors}`;
           } else {
-            errorMessage = error.error || error.detail || error.message || errorMessage;
+            // Try to get error message from common response formats
+            errorMessage = errorDetails.error || 
+                          errorDetails.detail || 
+                          errorDetails.message || 
+                          errorMessage;
           }
         } catch (e) {
+          // If JSON parsing fails, use basic HTTP status text
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
-        
-        // Add more specific error handling
+
+        // Add detailed server error handling
         if (response.status === 500) {
-          errorMessage = 'Server error: Unable to update user information. Please try again later.';
+          // Add error ID for better support tracking
+          const errorId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          errorMessage = `Server error [ID: ${errorId}]: Unable to update user information. ` +
+                        `Please try again later or contact support with this error ID: ${errorId}.`;
+          
+          // Log detailed error info for debugging
+          console.error(`User update error [${errorId}]:`, {
+            url: updateUrl,
+            status: response.status,
+            headers: Object.fromEntries(response.headers),
+            errorBody: errorDetails,
+            timestamp: new Date().toISOString()
+          });
+        } else if (response.status === 400) {
+          errorMessage = 'Invalid request: Please check your input data and try again.';
         } else if (response.status === 401) {
-          errorMessage = 'Authentication error: Please sign in again.';
+          errorMessage = 'Authentication error: Please sign in again to update your information.';
         } else if (response.status === 403) {
           errorMessage = 'Permission denied: You do not have permission to update this information.';
-        } else if (response.status === 422 && !errorMessage.includes('Validation error:')) {
-          errorMessage = 'Validation error: Please check your input data.';
+        } else if (response.status === 404) {
+          errorMessage = 'Not found: The requested user could not be found.';
+        } else if (response.status >= 500) {
+          // Handle other server errors
+          errorMessage = `Server error: Something went wrong on our end. Please try again later (${response.status})`;
         }
         
         throw new Error(errorMessage);

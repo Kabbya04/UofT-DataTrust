@@ -7,12 +7,12 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     const { searchParams } = new URL(request.url);
 
-    const pageNumber = searchParams.get('pageNumber') || '1';
+    const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '20';
 
     console.log('=== Get All Community Posts Proxy ===');
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
-    console.log('Query params:', { pageNumber, limit });
+    console.log('Query params:', { page, limit });
 
     const headers: Record<string, string> = {
       'Accept': 'application/json',
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Build URL with query parameters
     const queryString = new URLSearchParams({
-      pageNumber,
+      page,
       limit,
     }).toString();
 
@@ -97,17 +97,6 @@ export async function POST(request: NextRequest) {
     console.log('=== Create Community Post Proxy ===');
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
     console.log('Request body:', body);
-
-    // Validate required fields based on new API schema
-    const requiredFields = ['community_id', 'user_id', 'file_url', 'title', 'description', 'dataset_id'];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` },
-          { status: 400 }
-        );
-      }
-    }
 
     // Add timestamps if not provided (backend expects them)
     if (!body.created_at) {

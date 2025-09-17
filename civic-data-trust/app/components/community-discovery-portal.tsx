@@ -112,19 +112,22 @@ export function CommunityDiscoveryPortal() {
               className="group hover:shadow-xl  hover:-translate-y-1 transition-all duration-300 border border-primary shadow-2xl shadow-neutral-600 hover:shadow-neutral-300 bg-white cursor-pointer flex flex-col h-full"
             >
               <CardHeader className="pb-4">
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-12 w-12 ring-2 ring-background group-hover:ring-primary/20 transition-all duration-300">
-                    <AvatarImage src={community.coverImage || getCommunityImage(community.id)} alt={community.name} />
-                    <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
-                      {community.name
-                        .split(" ")
-                        .map((word) => word[0])
-                        .join("")
-                        .slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
+                <div className="flex items-center gap-4">
+                  <div className="h-16 w-16 overflow-hidden rounded-full border border-border shadow-sm group-hover:border-primary transition-colors duration-300">
+                    {community.coverImage ? (
+                      <img
+                        src={community.coverImage}
+                        alt={community.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                        {community.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg font-semibold line-clamp-1 group-hover:text-primary transition-colors duration-200">
+                    <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors duration-200">
                       {community.name}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">

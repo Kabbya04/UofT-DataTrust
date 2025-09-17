@@ -5,13 +5,13 @@ const API_BASE_URL = 'https://civic-data-trust-backend.onrender.com/api/v1';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const pageNumber = searchParams.get('pageNumber') || '1';
+    const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '10';
     const categoryId = searchParams.get('categoryId');
     const authHeader = request.headers.get('authorization');
 
     console.log('=== Community List Proxy Request ===');
-    let backendUrl = `${API_BASE_URL}/community/?pageNumber=${pageNumber}&limit=${limit}`;
+    let backendUrl = `${API_BASE_URL}/community/?page=${page}&limit=${limit}`;
     if (categoryId) {
       backendUrl += `&categoryId=${categoryId}`;
     }
