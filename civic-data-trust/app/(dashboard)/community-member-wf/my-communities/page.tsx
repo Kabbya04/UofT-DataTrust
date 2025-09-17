@@ -8,13 +8,11 @@ import { Badge } from "@/app/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { useCommunity } from "@/app/components/contexts/community-context"
 import { useState, useEffect } from "react"
-import { api } from "@/app/lib/api"
 
 export default function MyCommunitiesPage() {
   const { communities, loading, error } = useCommunity()
   const router = useRouter()
   const [datasetCounts, setDatasetCounts] = useState<{[key: string]: number}>({})
-  const [memberCounts, setMemberCounts] = useState<{[key: string]: number}>({})
   const [isLoadingCounts, setIsLoadingCounts] = useState<boolean>(false)
   const [recommendedCommunities, setRecommendedCommunities] = useState<any[]>([])
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(false)
@@ -38,8 +36,8 @@ export default function MyCommunitiesPage() {
         const token = localStorage.getItem('access_token');
         if (!token) return;
 
-        // Fetch all posts, post requests, and join requests
-        const [postsResponse, requestsResponse, joinRequestsResponse] = await Promise.all([
+        // Fetch all posts and post requests for dataset counts
+        const [postsResponse, requestsResponse] = await Promise.all([
           fetch('/api/community-post/?pageNumber=1&limit=200', {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -51,8 +49,7 @@ export default function MyCommunitiesPage() {
               'Authorization': `Bearer ${token}`,
               'Accept': 'application/json',
             },
-          }),
-          api.joinRequests.getAll()
+          })
         ]);
 
         if (postsResponse.ok && requestsResponse.ok) {
@@ -89,20 +86,6 @@ export default function MyCommunitiesPage() {
           });
 
           setDatasetCounts(counts);
-
-          // Calculate member counts for each joined community
-          const allJoinRequests = joinRequestsResponse.data || [];
-          const memberCountsMap: {[key: string]: number} = {};
-
-          joinedCommunities.forEach(community => {
-            const approvedMembers = allJoinRequests.filter(
-              (request: any) => request.community_id === community.id && request.status === 'approved'
-            );
-            memberCountsMap[community.id.toString()] = approvedMembers.length;
-          });
-
-          setMemberCounts(memberCountsMap);
-          console.log('Member counts for joined communities:', memberCountsMap);
         }
       } catch (error) {
         console.error('Error fetching counts:', error);
@@ -179,7 +162,7 @@ export default function MyCommunitiesPage() {
           // Shuffle and take top 6 recommendations
           const shuffledRecommendations = recommendations.sort(() => Math.random() - 0.5).slice(0, 6);
 
-          // Fetch dataset counts for recommended communities (same logic as joined communities)
+          // Fetch dataset counts for recommended communities
           const recommendationsWithCounts = await Promise.all([
             // Fetch posts and requests for calculating dataset counts
             fetch('/api/community-post/?pageNumber=1&limit=200', {
@@ -187,7 +170,7 @@ export default function MyCommunitiesPage() {
             }),
             fetch('/api/community-post-request/', {
               headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
-            }),
+            })
           ]).then(async ([postsRes, requestsRes]) => {
             if (postsRes.ok && requestsRes.ok) {
               const postsData = await postsRes.json();
@@ -217,11 +200,13 @@ export default function MyCommunitiesPage() {
 
                 return {
                   ...community,
-                  datasetCount: uniqueDatasetIds.length
+                  datasetCount: uniqueDatasetIds.length,
+                  // Use the built-in memberCount from community API instead of calculating from join requests
+                  memberCount: (community.users?.length || 0) + (community.admins?.length || 0)
                 };
               });
             }
-            return shuffledRecommendations.map((community: any) => ({ ...community, datasetCount: 0 }));
+            return shuffledRecommendations.map((community: any) => ({ ...community, datasetCount: 0, memberCount: 0 }));
           });
 
           console.log('Smart recommendations:', recommendationsWithCounts);
@@ -316,7 +301,7 @@ export default function MyCommunitiesPage() {
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{community.description || 'No description available'}</p>
                       <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{isLoadingCounts ? '...' : (memberCounts[community.id.toString()]?.toLocaleString() || '0')}</span></div>
+                        <div className="flex items-center gap-1"><Users className="h-4 w-4" /><span>{community.memberCount?.toLocaleString() || '0'}</span></div>
                         <div className="flex items-center gap-1"><Database className="h-4 w-4" /><span>{isLoadingCounts ? '...' : (datasetCounts[community.id.toString()] || 0)} datasets</span></div>
                       </div>
                       <div className="flex gap-2">
