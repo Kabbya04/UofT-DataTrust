@@ -136,7 +136,7 @@ export default function SettingsPage() {
               {/* Profile Section */}
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="w-16 h-16">
-                  <AvatarImage src={user?.avatar || "/placeholder-avatar.jpg"} alt={user?.name || "Project Admin"} />
+                  <AvatarImage src="/placeholder-avatar.jpg" alt={user?.name || "Project Admin"} />
                   <AvatarFallback className="text-xl">
                     {getUserInitials(user?.name || "Project Admin")}
                   </AvatarFallback>

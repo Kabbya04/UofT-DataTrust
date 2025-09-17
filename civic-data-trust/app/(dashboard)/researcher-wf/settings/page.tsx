@@ -177,17 +177,17 @@ function AccountSettings() {
     <div className="ml-10 px-8">
       <div className="flex items-center gap-4 mb-6">
         <Avatar className="w-16 h-16">
-          <AvatarImage src={user?.avatar || "/profile.jpg"} alt={user.name} />
-          <AvatarFallback className="text-xl">{getUserInitials(user.name)}</AvatarFallback>
+          <AvatarImage src="/profile.jpg" alt={user?.name || "Researcher"} />
+          <AvatarFallback className="text-xl">{getUserInitials(user?.name || "Researcher")}</AvatarFallback>
         </Avatar>
         <div>
           <div className="font-semibold text-lg">
-            {user.name} 
+            {user?.name || "Researcher"} 
             <span 
               className="bg-civic-accent-green text-white px-2 py-0.5 rounded text-xs ml-2"
               style={{ backgroundColor: "#43CD41" }}
             >
-              {getRoleName(user.role)}
+              {getRoleName(user?.role || "researcher")}
             </span>
           </div>
           <div className="text-xs text-muted-foreground">

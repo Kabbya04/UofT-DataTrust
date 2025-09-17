@@ -224,9 +224,9 @@ export default function ResearcherHomePage() {
                 key={post.id} 
                 id={post.id}
                 title={post.title}
-                author={post.author}
-                timestamp={post.timestamp}
-                content={post.description || post.content}
+                author={post.author || { name: "Unknown", avatar: "/placeholder.svg?height=40&width=40", username: "unknown" }}
+                timestamp={post.timestamp || "Recently"}
+                content={post.description || "No description available"}
                 videoThumbnail={post.dataset?.thumbnail || post.file_url || "/placeholder.svg?height=200&width=400"}
               />
             ))

@@ -78,19 +78,13 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       try {
         response = await api.communities.getAll(1, 50) // Using pageNumber instead of page
       } catch (error: any) {
-        // If it's a 401 error, try to refresh the token and retry
+        // If it's a 401 error, redirect to login
         if (error.name === 'ApiError' && error.status === 401) {
-          const newToken = await refreshAuthToken();
-          if (newToken) {
-            // Retry the request with the new token
-            response = await api.communities.getAll(1, 50) // Using pageNumber instead of page
-          } else {
-            // If token refresh failed, redirect to login
-            if (typeof window !== 'undefined') {
-              window.location.href = '/sign-in';
-            }
-            return;
+          // If token refresh failed, redirect to login
+          if (typeof window !== 'undefined') {
+            window.location.href = '/sign-in';
           }
+          return;
         } else {
           throw error;
         }
@@ -106,7 +100,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       
       // Extract communities from the response structure
       // API returns data in format: { status, message, data: { items: [...], total, pageNumber, limit } }
-      let communitiesArray = [];
+      let communitiesArray: any[] = [];
       if (response.data && response.data.items && Array.isArray(response.data.items)) {
         communitiesArray = response.data.items;
       } else if (response.data && Array.isArray(response.data)) {
@@ -178,13 +172,13 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
         console.log('Community admins detailed:', community.admins);
         if (community.users && Array.isArray(community.users)) {
           console.log('Users array elements:');
-          community.users.forEach((user, index) => {
+          community.users.forEach((user: any, index: number) => {
             console.log(`  User ${index}:`, user, typeof user);
           });
         }
         if (community.admins && Array.isArray(community.admins)) {
           console.log('Admins array elements:');
-          community.admins.forEach((admin, index) => {
+          community.admins.forEach((admin: any, index: number) => {
             console.log(`  Admin ${index}:`, admin, typeof admin);
           });
         }
